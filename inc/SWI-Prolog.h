@@ -294,8 +294,10 @@ typedef union
 		*    DETERMINISTIC CALL/RETURN  *
 		*********************************/
 
+#if 0   // changed: paule32 on: 14.02.2023
 #define	PL_succeed	return TRUE	/* succeed deterministically */
 #define PL_fail		return FALSE	/* fail */
+#endif
 
 
 		/********************************
@@ -351,7 +353,7 @@ typedef struct PL_extension
 extern			PL_extension PL_extensions[]; /* not Win32! */
 PL_EXPORT(void)		PL_register_extensions(const PL_extension *e);
 PL_EXPORT(void)		PL_register_extensions_in_module(const char *module, const PL_extension *e);
-PL_EXPORT(int)		PL_register_foreign(const char *name, int arity,
+PL_EXPORT(int)		PL_register_foreign(const char *name, size_t arity,
 					    pl_function_t func,
 					    int flags, ...);
 PL_EXPORT(int)		PL_register_foreign_in_module(const char *module,

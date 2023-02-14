@@ -32,13 +32,15 @@ GXX       = @${GCC_TOOLCHAIN}-g++
 FPC       = ${FPC_TOOLCHAIN}/fpc
 
 LD        = ld -m i386pe
-CFLAGS    = -O2 -I./inc -Wno-terminate
+CFLAGS    = -O2 -fPIC -I./inc -Wno-terminate -L./lib -lswipl.dll
 
-SOURCES   = $(wildcard src/*.cc)
+SOURCES   = $(wildcard src/cc/*.cc)
 HEADERS   = $(wildcard inc/*.h)
 
 OBJECTS   = ${SOURCES:.cc=.o}
 
+STRIP     = @strip
+COPY      = @cp
 ECHO      = @echo
 MD        = @mkdir
 RM        = @rm -rf
@@ -54,15 +56,11 @@ VPATH     = tmp
 all: distclean dist
 	$(ECHO) "done."
 
-libkgui: lib/libswipl.dll.a
-	$(ECHO) "ssss"
-
 dist: $(FILES) 
-	$(ECHO) "  - create library..."
-
-%.o: %.cc
-	$(ECHO) "    compile C++ - $<"
-	$(GXX) $(CFLAGS) $< -c -o $@
+	$(ECHO) "    create lib/zwap.dll"
+	$(GXX) $(CFLAGS) -shared -o lib/zwap.dll $(OBJECTS) -lswipl.dll
+	$(STRIP) lib/zwap.dll
+	$(COPY) lib/zwap.dll src/pl/zwap.dll
 
 distclean: Welcome
 	$(ECHO) "  - remove old files..."
@@ -72,6 +70,10 @@ distclean: Welcome
 README: readme.template
 	$(ECHO) "  - initial tasks..."
 	$(SED) "s/-VERSION-/$(VERSION)/g; s/-DATE-/$(DATE)/g;" < $< > $@
+
+%.o: %.cc
+	$(ECHO) "    compile C++ - $<"
+	$(GXX) $(CFLAGS) $< -c -o $@
 
 create_message: ; $(ECHO) "  - compile files:"
 
