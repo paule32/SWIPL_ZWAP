@@ -1,6 +1,11 @@
 # ignore binary files
+lib/*.a
+lib/*.dll
+lib/*.def
 lib/libswipl.dll.a
 lib/zwap.dll
 src/cc/*.o
 src/pl/*.dll
 src/pl/*.exe
+src/pp/out/**
+src/pp/*.~*
