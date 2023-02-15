@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2023.02.15 18:57:38.467,E:\Projekte\SWIPL\SWIPEL_ZWAP\src\pp\zwapwin64vcl.dproj=C:\Users\Jens Kallup\Documents\Embarcadero\Studio\Projekte\Project1.dproj</Transaction>
+    <Transaction>2023.02.15 20:28:12.534,=E:\Projekte\SWIPL\SWIPEL_ZWAP\src\pp\Unit1.pas</Transaction>
+    <Transaction>2023.02.15 20:35:16.025,E:\Projekte\SWIPL\SWIPEL_ZWAP\src\pp\form_dialog.dfm=E:\Projekte\SWIPL\SWIPEL_ZWAP\src\pp\Unit1.dfm</Transaction>
+    <Transaction>2023.02.15 20:35:16.025,E:\Projekte\SWIPL\SWIPEL_ZWAP\src\pp\form_dialog.pas=E:\Projekte\SWIPL\SWIPEL_ZWAP\src\pp\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>

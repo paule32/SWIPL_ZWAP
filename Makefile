@@ -17,7 +17,8 @@
 ##
 ## Toolchain should be:
 ## G++ 32-Bit: x86_64-pc-msys  | 64-Bit: x86_64-w64-mingw32
-## FPC 32-Bit: win32           | 64-Bit:
+## g++ 32-Bit: mingw32         | 64-Bit:
+## FPC 32-Bit: win32           |
 ## ------------------------------------------------------------------------
 GCC_TOOLCHAIN = $(shell gcc -v 2>&1|grep "Target:"|awk '{print $$2}')
 FPC_TOOLCHAIN = $(shell fpc -v -iTO)
@@ -52,24 +53,31 @@ SED       = @sed
 ## -----------------------------------------------------------------------
 ## some test's ...
 ## -----------------------------------------------------------------------
-FPC_TARGET =
-GCC_TARGET =
-
-DLL32_NAME = zwapwin32
-DLL64_NAME = zwapwin64
-
 ifeq ($(FPC_TOOLCHAIN),win32)
   FPC_TARGET := win32
 else
   FPC_TARGET := win64
 endif
 ifeq ($(GCC_TOOLCHAIN),x86_64-pc-msys)
+  DEFINES    += -D__WINDOWS_BIT32__
   GCC_TARGET := win32
   EFLAGS     += -m32
-else
+  DLL_NAME   := zwapwin32
+  VCL_NAME   := zwapwin32vcl
+endif
+ifeq ($(GCC_TOOLCHAIN),mingw32)
+  DEFINES    += -D__WINDOWS_BIT32__
+  GCC_TARGET := win32
+  EFLAGS     += -m32
+  DLL_NAME   := zwapwin32
+  VCL_NAME   := zwapwin32vcl
+endif
+ifeq ($(GCC_TOOLCHAIN),x86_64-w64-mingw32)
+  DEFINES    += -D__WINDOWS_BIT64__
   GCC_TARGET := win64
   EFLAGS     += -m64
-  LIBS       += 
+  DLL_NAME   := zwapwin64
+  VCL_NAME   := zwapwin64vcl
 endif
 
 ## -----------------------------------------------------------------------
@@ -83,21 +91,17 @@ all: distclean dist
 	$(ECHO) "done."
 
 dist: $(FILES)
-ifeq ($(GCC_TARGET),win32)
-	$(ECHO) "    create lib/$(DLL32_NAME).dll"
-	$(GXX) $(CFLAGS) -shared -o lib/$(DLL32_NAME).dll $(OBJECTS)
-	$(STRIP) lib/$(DLL32_NAME).dll
-	$(COPY)  lib/$(DLL32_NAME).dll src/pl/$(DLL32_NAME).dll
-else
-	$(ECHO) "    create lib/$(DLL64_NAME).dll"
-	$(GXX) $(CFLAGS) -shared -o lib/$(DLL64_NAME).dll $(OBJECTS) $(LIBS)
-	$(STRIP) lib/$(DLL64_NAME).dll
-	$(COPY)  lib/$(DLL64_NAME).dll src/pl/$(DLL64_NAME).dll
-endif
+	$(ECHO) -e "    create lib/$(DLL_NAME).dll\n"
+	$(GXX) $(CFLAGS) -shared -o lib/$(DLL_NAME).dll $(OBJECTS) $(LIBS)
+	$(STRIP) lib/$(DLL_NAME).dll
+	$(COPY)  lib/$(DLL_NAME).dll src/pl/$(DLL_NAME).dll
+	@gendef  -a - lib/$(VCL_NAME).dll  > lib/$(VCL_NAME).def
+	@dlltool -d   lib/$(VCL_NAME).def -D lib/$(VCL_NAME).dll -l lib/$(VCL_NAME).dll.a
 
 distclean: Welcome
 	$(ECHO) "  - remove old files..."
-	$(RM) src/*.o
+	$(RM) src/cc/*.o
+	$(RM) lib/zwapwin64.dll
 	$(RM) README
 
 README: readme.template
@@ -106,7 +110,7 @@ README: readme.template
 
 %.o: %.cc
 	$(ECHO) "    compile C++ - $<"
-	$(GXX) $(CFLAGS) $< -c -o $@
+	$(GXX) $(CFLAGS)  $< -c -o $@
 
 create_message: ; $(ECHO) "  - compile files:"
 

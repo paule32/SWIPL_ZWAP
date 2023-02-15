@@ -12,9 +12,9 @@
 using namespace std;
 
 #ifdef __WINDOWS__
-HINSTANCE   zwap_mod_handle;      // external Delphi 7 32-Bit DLL
+HMODULE     zwap_mod_handle;      // external Delphi 7 32-Bit DLL
 
-LPCSTR      inline get_zwap_name  () { return TEXT("zwapwin32vcl.dll");  }
+LPCSTR      inline get_zwap_name  () { return LPCSTR("E:\\Projekte\\SWIPL_ZWAP\\lib\\zwapwin64vcl.dll");  }
 HINSTANCE   inline get_zwap_handle() { return zwap_mod_handle; }
 #else
 void*       zwap_mod_handle;      // external Lazarus 32-Bit DLL
@@ -23,13 +23,23 @@ const char* inline get_zwap_name  () { return "zwap_laz.so";   }
 void*       inline get_zwap_handle() { return zwap_mod_handle; }
 #endif
 
-typedef void (*__stdcall ref_show_message)(char*, char*);
+typedef void (__stdcall *ref_show_message)(LPCSTR, LPCSTR);
 
 typedef struct zwap_funcs {
 	ref_show_message show_message;
 }
 zwap_funcs;
 zwap_funcs zwap_func;
+
+#ifdef __WINDOWS_BIT32__
+extern "C" int PL_get_string(term_t t, char **s, size_t *len) { __asm__ __volatile__("jmp PL_get_string"); }
+extern "C" int PL_initialise(int argc, char **argv)           { __asm__ __volatile__("jmp PL_initialise"); }
+extern "C" int PL_register_foreign(
+			   const char *name,
+			   size_t arity,
+			   pl_function_t func,
+			   int flags, ...)   { __asm__ __volatile__("jmp PL_register_foreign"); }
+#endif
 
 // -------------------------------------------------------------------
 // @brief initialize the external vcl procedure's, and function's ...
@@ -41,11 +51,13 @@ init_stuff(void)
 	zwap_func.show_message = (ref_show_message)GetProcAddress(get_zwap_handle(),"vcl_show_message");
 	
 	char* buffer = new char[100];
-	sprintf(buffer,"addr: 0x%x",zwap_func.show_message);
+	sprintf(buffer,"addr: 0x%x",&zwap_func.show_message);
 	
 	MessageBox(NULL,
 	buffer, "Warning",
 	MB_OK | MB_TASKMODAL);
+	
+	zwap_func.show_message("zapo","mapo");
 	
 	# else
 	# define gui_func(name) dlsym(get_zwap_handle(),name)
@@ -99,13 +111,23 @@ DllMain(
 
 	switch (fwReason) {
 		case DLL_PROCESS_ATTACH:	// initialize once for each new process
-			zwap_mod_handle = LoadLibrary(get_zwap_name());
+		{
+			const char* FName =
+			"E:\\Projekte\\SWIPL\\SWIPEL_ZWAP\\lib\\zwapwin64vcl.dll";
+			
+			MessageBox(NULL,
+				FName, "Warning",
+				MB_OK | MB_TASKMODAL);
+				
+			zwap_mod_handle = LoadLibraryA(FName);
+			//get_zwap_name());
 			if (zwap_mod_handle == NULL) {
 				char* buffer = new char[2048];
 				sprintf(buffer,
 				"could not open library:\n%s\nLoading aborted\n"
 				"Windows Error: %d",
-				get_zwap_name(), GetLastError());
+				FName,
+				GetLastError());
 
 				MessageBox(NULL,
 				buffer, "Warning",
@@ -114,7 +136,12 @@ DllMain(
 				delete buffer;
 				return FALSE;
 			}
+			MessageBox(NULL,
+			"init", "Warning",
+			MB_OK | MB_TASKMODAL);
+			
 			init_stuff();
+		}
 		break;
 		case DLL_THREAD_ATTACH:		// do thread-specific initialization
 		break;
@@ -140,7 +167,7 @@ DllMain(
 		break;
 	}
 	
-	return TRUE;
+	return 1;
 }
 #else
 // -----------------------------------------------------------------------

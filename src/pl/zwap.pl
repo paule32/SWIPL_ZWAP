@@ -19,8 +19,8 @@
 :- initialization(main, main).
 
 zwap_init :-
-	load_foreign_library(foreign(zwapwin64)),
-	show_message("Title of Box", "This is the text information.").
+	load_foreign_library(foreign(zwapwin64)).
+	%%show_message("Title of Box", "This is the text information.").
 
 %% ---------------------------------------------------------------------------
 %% main stream entry point ...

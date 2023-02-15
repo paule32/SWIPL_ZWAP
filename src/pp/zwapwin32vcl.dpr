@@ -7,6 +7,7 @@
 library zwapwin32vcl;
 
 uses
+  ShareMem,
   Windows,
   SysUtils,
   Classes,

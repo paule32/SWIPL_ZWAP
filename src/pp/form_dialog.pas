@@ -1,54 +1,32 @@
-// -----------------------------------------------------------------------
-// File:   SWIPL-ZWAPL form_dialog.pas
-//
-// Author: Jens Kallup - paule32 <paule32.jk@gmail.com>
-// Rights: (c) 2023 kallup non-profit.
-// -----------------------------------------------------------------------
 unit form_dialog;
 
 interface
 
-uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
-  Buttons, ExtCtrls;
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
 
 type
-  TOKRightDlg = class(TForm)
-    OKBtn: TButton;
-    CancelBtn: TButton;
-    Bevel1: TBevel;
-    TextBox: TMemo;
-    procedure CancelBtnClick(Sender: TObject);
-    procedure OKBtnClick(Sender: TObject);
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Memo1: TMemo;
+    procedure Button1Click(Sender: TObject);
   private
-    { Private declarations }
+    { Private-Deklarationen }
   public
-    { Public declarations }
+    { Public-Deklarationen }
   end;
 
 var
-  OKRightDlg: TOKRightDlg;
+  Form1: TForm1;
 
 implementation
 
 {$R *.dfm}
-(*
-procedure vcl_show_message(t_title: PChar; t_text: PChar);
-begin
-  OkRightDlg := TOkRightDlg.CreateParented(0);
-  OkRightDlg.TextBox.Lines.Clear;
-  OkRightDlg.TextBox.Lines.Add(t_text);
-  OkRightDlg.ShowModal;
-end;
-*)
-procedure TOKRightDlg.CancelBtnClick(Sender: TObject);
-begin
-  Close
-end;
 
-procedure TOKRightDlg.OKBtnClick(Sender: TObject);
+procedure TForm1.Button1Click(Sender: TObject);
 begin
   Close;
 end;
 
 end.
-

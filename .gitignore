@@ -1,11 +1,10 @@
 # ignore binary files
-lib/*.a
-lib/*.dll
-lib/*.def
-lib/libswipl.dll.a
-lib/zwap.dll
+lib/**
+src/pp/__histpry/**
+src/pp/__recovery/**
+src/pp/Win64/**
+src/pp/out/**
+src/pp/*.~*
 src/cc/*.o
 src/pl/*.dll
 src/pl/*.exe
-src/pp/out/**
-src/pp/*.~*

@@ -34,8 +34,9 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _SWI_PROLOG_H
-#define _SWI_PROLOG_H
+#pragma once
+//#ifndef _SWI_PROLOG_H
+//#define _SWI_PROLOG_H
 
 #ifndef __SWI_PROLOG__	/* use this to switch on Prolog dialect */
 #define __SWI_PROLOG__	/* normally defined by the swipl-ld compiler driver */
@@ -1441,4 +1442,4 @@ PL_EXPORT(int)	PL_describe_context(struct pl_context_t *c,
 #undef PL_STRUCT
 #endif
 
-#endif /*_SWI_PROLOG_H*/
+//#endif /*_SWI_PROLOG_H*/
