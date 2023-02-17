@@ -14,7 +14,7 @@ using namespace std;
 #ifdef __WINDOWS__
 HMODULE     zwap_mod_handle;      // external Delphi 7 32-Bit DLL
 
-LPCSTR      inline get_zwap_name  () { return LPCSTR("E:\\Projekte\\SWIPL_ZWAP\\lib\\zwapwin64vcl.dll");  }
+LPCSTR      inline get_zwap_name  () { return LPCSTR("zwapwin64vcl.dll");  }
 HINSTANCE   inline get_zwap_handle() { return zwap_mod_handle; }
 #else
 void*       zwap_mod_handle;      // external Lazarus 32-Bit DLL
@@ -112,21 +112,13 @@ DllMain(
 	switch (fwReason) {
 		case DLL_PROCESS_ATTACH:	// initialize once for each new process
 		{
-			const char* FName =
-			"E:\\Projekte\\SWIPL\\SWIPEL_ZWAP\\lib\\zwapwin64vcl.dll";
-			
-			MessageBox(NULL,
-				FName, "Warning",
-				MB_OK | MB_TASKMODAL);
-				
-			zwap_mod_handle = LoadLibraryA(FName);
-			//get_zwap_name());
+			zwap_mod_handle = LoadLibraryA(get_zwap_name());
 			if (zwap_mod_handle == NULL) {
 				char* buffer = new char[2048];
 				sprintf(buffer,
 				"could not open library:\n%s\nLoading aborted\n"
 				"Windows Error: %d",
-				FName,
+				get_zwap_name(),
 				GetLastError());
 
 				MessageBox(NULL,
