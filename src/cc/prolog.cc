@@ -51,20 +51,35 @@ const int CVT_PASCAL = 2;   // default ?
 
 int   convert_mode   = 0;
 
+#ifdef CHARSET_UTF8
 std::wstring iput_file_str;
 std::wstring oput_file_str;
 
 std::wifstream iput_file;
 std::wofstream oput_file;
+#else
+std::string iput_file_str;
+std::string oput_file_str;
+
+std::ifstream iput_file;
+std::ofstream oput_file;
+#endif
 
 //-- FUNCTION DEFINITIONS ---------------------------------
 
 int inline PL_success() { return 0; }
 int inline PL_fail   () { return 1; }
 
+#ifdef CHARSET_UTF8
+# define     STDCOUT std::wcout
+wchar_t      PL_lookaheadWChar;
 std::wstring PL_ident;
+#else
+# define     STDCOUT std::cout
+uint8_t      PL_lookaheadWChar;
+std::string  PL_ident;
+#endif
 
-wchar_t    PL_lookaheadWChar;
 uint64_t   PL_lookaheadPosition;
 uint64_t   PL_lineno;
 uint64_t   PL_nestedComment;
@@ -85,9 +100,14 @@ on_setMode(std::string mode) {
     if (mode == std::string("asm"   )) convert_mode = CVT_ASM;
 }
 
+#ifdef CHARSET_UTF8
 std::wstring
+#else
+std::string
+#endif
 readFile(const std::string filename)
 {
+	#ifdef CHARSET_UTF8
     iput_file.imbue(std::locale(std::locale(),
 	new std::codecvt_utf8<wchar_t>));
 	
@@ -95,6 +115,12 @@ readFile(const std::string filename)
     wss << iput_file.rdbuf();
 
     return wss.str();
+	#else
+	std::stringstream ss;
+	ss << iput_file.rdbuf();
+	
+	return ss.str();
+	#endif
 }
 
 int
@@ -110,10 +136,15 @@ main(int argc, char** argv)
 		if (std::string(argv[2]).size() < 1)
 		throw PL_Exception( std::string("error: can not open output file.") );
 
+		#ifdef CHARSET_UTF8
 		iput_file = std::wifstream( std::string( argv[1] ) );
-		iput_file_str  = readFile ( std::string( argv[1] ) );
-		
 		oput_file = std::wofstream( argv[2] );
+		#else
+		iput_file = std::ifstream ( std::string( argv[1] ) );
+		oput_file = std::ofstream ( argv[2] );
+		#endif
+		
+		iput_file_str  = readFile ( std::string( argv[1] ) );
 		
 		PL_lookaheadPosition = -1;
 		PL_lineno            =  1;
@@ -123,9 +154,9 @@ main(int argc, char** argv)
 		while (1) {
 			label_start:
 			PL_lookaheadPosition  = PL_lookaheadPosition + 1; if (
-			PL_lookaheadPosition >= iput_file_str.size()) break;
+			PL_lookaheadPosition >= iput_file_str.size()) 	break;
 			PL_lookaheadWChar     = iput_file_str.at(PL_lookaheadPosition);
-		
+
 			if (PL_lookaheadWChar == 0x00)
 			break;
 		
@@ -242,30 +273,12 @@ main(int argc, char** argv)
 					PL_lookaheadWChar    = iput_file_str.at(
 					PL_lookaheadPosition);
 
-					if (PL_lookaheadWChar == '%') {
-						if (PL_nestedComment < 1) {
-							std::wcout << PL_ident << std::endl;
-							PL_ident.clear();
-							goto label_start;
-						}
-					}
-
-					if ((PL_lookaheadWChar == ' ' ) ||
-						(PL_lookaheadWChar == '\t')) {
-						if (PL_nestedComment < 1) {
-							std::wcout << PL_ident << std::endl;
-							PL_ident.clear();
-							goto label_start;
-						}
-					}
-					
 					if (PL_lookaheadWChar == '\n') {
+						STDCOUT << PL_ident << std::endl;
+						PL_ident.clear();
 						PL_lineno =
 						PL_lineno + 1;
-						if (PL_nestedComment < 1) {
-							std::wcout << PL_ident << std::endl;
-							PL_ident.clear();
-						}	break;
+						break;
 					}
 					
 					if (
@@ -277,19 +290,24 @@ main(int argc, char** argv)
 							goto label_ident;
 						}
 					}
+					else {
+						STDCOUT << PL_ident << std::endl;
+						PL_ident.clear();
+						break;
+					}
 				}
 			}
 		}
-		std::wcout << std::endl;
-		std::wcout << "Compiled: OK" << std::endl;
-		std::wcout << "Lines   : " << PL_lineno << std::endl;
+		STDCOUT << std::endl;
+		STDCOUT << "Compiled: OK" << std::endl;
+		STDCOUT << "Lines   : "   << PL_lineno << std::endl;
 	}
 	catch (PL_Exception& e)
 	{
-		std::cout << "error : " << PL_lineno
-				  << std::endl
-				  << "reason: " << e.message
-				  << std::endl;
+		STDCOUT << "error : " << PL_lineno
+				<< std::endl
+				<< "reason: " << e.message
+				<< std::endl;
 
 		return PL_fail();
 	}	return PL_success();

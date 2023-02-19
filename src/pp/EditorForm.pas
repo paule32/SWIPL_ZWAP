@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, JvMenus, Menus, SynEdit, SynMemo, ExtCtrls, ToolWin,
   JvGradientCaption, JvDialogs, SynEditHighlighter, SynHighlighterGeneral,
-  JvExControls, JvSpeedButton, JvxCheckListBox;
+  JvExControls, JvSpeedButton, JvxCheckListBox, Buttons, StdCtrls;
 
 type
   TForm1 = class(TForm)
@@ -51,6 +51,9 @@ type
     JvSpeedButton3: TJvSpeedButton;
     JvSaveDialog1: TJvSaveDialog;
     JvStatusBox: TJvxCheckListBox;
+    Edit2: TEdit;
+    SpeedButton1: TSpeedButton;
+    JvOpenDialog2: TJvOpenDialog;
     procedure kkkkk1Click(Sender: TObject);
     procedure Help1Click(Sender: TObject);
     procedure Exit2Click(Sender: TObject);
@@ -65,9 +68,10 @@ type
       Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     FFileName: String;
-    FSaveFlag: Boolean;
+    FCompileFlag: Boolean;
 
     procedure SaveFile;
     procedure LoadFile;
@@ -186,22 +190,29 @@ end;
 
 procedure TForm1.SavetoFile1Click(Sender: TObject);
 begin
-  if not JvSaveDialog1.Execute then
-  begin
-    ShowMessage('Error during save a file.');
-    FSaveFlag := false;
-    exit;
-  end;
-
   SaveFile;
-  TabSheet1.Caption := ExtractFileName(FFileName);
 end;
 
 procedure TForm1.SaveFile;
+  var s1,s0: String;
 begin
-  if TabSheet1.Caption = 'unnamed.pl' then
+  FFileName := TabSheet1.Caption;
+  if Length(Trim(Edit2.Text)) < 3 then
   begin
-    FFileName := TabSheet1.Caption;
+    ShowMessage('output file editfield must not be empty.');
+    exit;
+  end;
+
+  if SynMemo1.Modified then
+  begin
+    if not JvSaveDialog1.Execute then
+    begin
+      ShowMessage('Error during save a file.');
+      exit;
+    end;
+
+    FFileName := JvSaveDialog1.FileName;
+
     if FileExists(FFileName) then
     begin
       if Application.MessageBox(PChar(
@@ -217,28 +228,47 @@ begin
         exit;
       end;
     end;
-  end else
-  begin
+
     FFileName := JvSaveDialog1.FileName;
-  end;
+    TabSheet1.Caption := ExtractFileName(FFileName);
 
-  JvStatusBox.Items.Insert(0,DateTimeToStr(Now) + ' ' +
-  'save: ' + FFileName);
+    JvStatusBox.Items.Insert(0,DateTimeToStr(Now) +
+    ': save ' + FFileName);
 
-  if SynMemo1.Modified then
-  begin
+    SynMemo1.Modified := false;
     SynMemo1.Lines.SaveToFile(FFileName);
     SynMemo1.SetFocus;
+  end;
+
+  if FCompileFlag then
+  begin
+    JvStatusBox.Items.Insert(0, DateTimeToStr(Now) + ': ' +
+    'compile file: ' +
+    FFileName);
+
+    s0 :=
+    ExtractFilePath(Application.ExeName) +
+    'prolog32.exe ' +
+    FFileName       + ' ' +
+    Edit2.Text      ;
+    ShowMessage(s0);
+
+    s1 := GetDosOutput(s0,'E:');
+    ShowMessage(s1);
+
+    FCompileFlag := false;
   end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   SynMemo1.Lines.Clear;
-  JvStatusBox.Items.Clear;
-  JvStatusBox.Items.Add(DateTimeToStr(Now) + ' started...');
+  FCompileFlag := true;
 
-  FSaveFlag := false;
+  SynMemo1.Modified := false;
+
+  JvStatusBox.Items.Clear;
+  JvStatusBox.Items.Add(DateTimeToStr(Now) + ': started...');
 end;
 
 procedure TForm1.JvSpeedButton3Click(Sender: TObject);
@@ -260,14 +290,13 @@ end;
 
 procedure TForm1.JvSpeedButton1Click(Sender: TObject);
 begin
-  JvStatusBox.Items.Capacity := 5;
-  JvStatusBox.Items.Insert(0, DateTimeToStr(Now) + ' compile file: ');
+  JvStatusBox.Items.Insert(0, DateTimeToStr(Now) + ' compile file: ' +
+  FFileName);
 end;
 
 procedure TForm1.SynMemo1KeyDown(
   Sender: TObject; var Key: Word;
   Shift : TShiftState);
-  var s1: String;
 begin
   if Key = VK_F1 then
   begin
@@ -277,24 +306,30 @@ begin
 
   if Key = VK_F2 then
   begin
-    SaveToFile1Click(Sender);
-    if not FSaveFlag then
-    exit;
-
-    JvSpeedButton1Click(Sender);
-    s1 := GetDosOutput('prolog.exe ytest.pl 3','E:');
-    ShowMessage(s1);
+    FCompileFlag := true;
+    SaveFile;
   end;
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+  JvSaveDialog1.FileName := TabSheet1.Caption;
   SynMemo1.SetFocus;
 end;
 
 procedure TForm1.FormActivate(Sender: TObject);
 begin
   SynMemo1.SetFocus;
+end;
+
+procedure TForm1.SpeedButton1Click(Sender: TObject);
+begin
+  if not JvOpenDialog2.Execute then
+  begin
+    ShowMessage('error during set output file.');
+    exit;
+  end;
+  Edit2.Text := JvOpenDialog2.FileName;
 end;
 
 end.

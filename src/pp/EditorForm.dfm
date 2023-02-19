@@ -182,6 +182,22 @@ object Form1: TForm1
         ParentFont = False
         OnClick = JvSpeedButton3Click
       end
+      object SpeedButton1: TSpeedButton
+        Left = 392
+        Top = 8
+        Width = 23
+        Height = 22
+        Caption = 'Q'
+        OnClick = SpeedButton1Click
+      end
+      object Edit2: TEdit
+        Left = 128
+        Top = 6
+        Width = 257
+        Height = 24
+        TabOrder = 0
+        Text = 'E:\temp\output.pas'
+      end
     end
   end
   object Panel2: TPanel
@@ -374,5 +390,11 @@ object Form1: TForm1
     Width = 758
     Left = 644
     Top = 158
+  end
+  object JvOpenDialog2: TJvOpenDialog
+    Height = 560
+    Width = 758
+    Left = 672
+    Top = 190
   end
 end
