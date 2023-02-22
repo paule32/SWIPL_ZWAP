@@ -26,7 +26,7 @@ int inline PL_succeed() { return 0; }
 int inline PL_fail   () { return 1; }
 
 # include <windows.h>
-# include <SWI-Prolog.h>
+# include <SWI/SWI-Prolog.h>
 
 struct Engine
 {

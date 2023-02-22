@@ -1,0 +1,209 @@
+\hypertarget{main_8cc}{}\doxysection{main.\+cc File Reference}
+\label{main_8cc}\index{main.cc@{main.cc}}
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include \char`\"{}prolog.\+h\char`\"{}}\newline
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structzwap__funcs}{zwap\+\_\+funcs}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{main_8cc_a49f3b3e2a1aa4786403177c7ecacb5ed}{gui\+\_\+func}}(name)~dlsym(\mbox{\hyperlink{main_8cc_a07c1d3cb775fb7b4d60b09ca4daa0c7b}{get\+\_\+zwap\+\_\+handle}}(),name)
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef void(\+\_\+\+\_\+stdcall $\ast$ \mbox{\hyperlink{main_8cc_adfd3ff0054b093ed36c03613310149b6}{ref\+\_\+show\+\_\+message}}) (LPCSTR, LPCSTR)
+\item 
+typedef struct \mbox{\hyperlink{structzwap__funcs}{zwap\+\_\+funcs}} \mbox{\hyperlink{main_8cc_a1709a46ca08a69b6c728f61a09cea3a3}{zwap\+\_\+funcs}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{main_8cc_ae6209675f8f861bb260cf64049c07bef}{\+\_\+\+\_\+attribute\+\_\+\+\_\+}} ((constructor)) my\+\_\+init(void)
+\item 
+void \mbox{\hyperlink{main_8cc_a1718274b8cc428f536965cb3bc4c1c88}{\+\_\+\+\_\+attribute\+\_\+\+\_\+}} ((destructor)) my\+\_\+fini(void)
+\item 
+void $\ast$ \mbox{\hyperlink{main_8cc_a07c1d3cb775fb7b4d60b09ca4daa0c7b}{get\+\_\+zwap\+\_\+handle}} ()
+\item 
+const char $\ast$ \mbox{\hyperlink{main_8cc_af37e9b303da3d816017591f147518ea3}{get\+\_\+zwap\+\_\+name}} ()
+\item 
+static void \mbox{\hyperlink{main_8cc_afff9d6435eec6cfe5c2517571e331217}{init\+\_\+stuff}} (void)
+\item 
+install\+\_\+t \mbox{\hyperlink{main_8cc_a2e6e3f7fb82befdc4266e6a62dc6de6a}{install\+\_\+zwapwin64}} ()
+\item 
+static foreign\+\_\+t \mbox{\hyperlink{main_8cc_ada4d8774f149b52d3e5605409a748866}{pl\+\_\+show\+\_\+message}} (term\+\_\+t a0, int arity, void $\ast$context)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structzwap__funcs}{zwap\+\_\+funcs}} \mbox{\hyperlink{main_8cc_ad028e4b230d39a1a4efc1cdfafa8b1c0}{zwap\+\_\+func}}
+\item 
+void $\ast$ \mbox{\hyperlink{main_8cc_ade1a2b228edbd919af04703517fe1600}{zwap\+\_\+mod\+\_\+handle}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{main_8cc_a49f3b3e2a1aa4786403177c7ecacb5ed}\label{main_8cc_a49f3b3e2a1aa4786403177c7ecacb5ed}} 
+\index{main.cc@{main.cc}!gui\_func@{gui\_func}}
+\index{gui\_func@{gui\_func}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{gui\_func}{gui\_func}}
+{\footnotesize\ttfamily \#define gui\+\_\+func(\begin{DoxyParamCaption}\item[{}]{name }\end{DoxyParamCaption})~dlsym(\mbox{\hyperlink{main_8cc_a07c1d3cb775fb7b4d60b09ca4daa0c7b}{get\+\_\+zwap\+\_\+handle}}(),name)}
+
+
+
+\doxysubsection{Typedef Documentation}
+\mbox{\Hypertarget{main_8cc_adfd3ff0054b093ed36c03613310149b6}\label{main_8cc_adfd3ff0054b093ed36c03613310149b6}} 
+\index{main.cc@{main.cc}!ref\_show\_message@{ref\_show\_message}}
+\index{ref\_show\_message@{ref\_show\_message}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{ref\_show\_message}{ref\_show\_message}}
+{\footnotesize\ttfamily typedef void(\+\_\+\+\_\+stdcall $\ast$ ref\+\_\+show\+\_\+message) (LPCSTR, LPCSTR)}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00026}{26}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+\mbox{\Hypertarget{main_8cc_a1709a46ca08a69b6c728f61a09cea3a3}\label{main_8cc_a1709a46ca08a69b6c728f61a09cea3a3}} 
+\index{main.cc@{main.cc}!zwap\_funcs@{zwap\_funcs}}
+\index{zwap\_funcs@{zwap\_funcs}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{zwap\_funcs}{zwap\_funcs}}
+{\footnotesize\ttfamily typedef struct \mbox{\hyperlink{structzwap__funcs}{zwap\+\_\+funcs}} \mbox{\hyperlink{structzwap__funcs}{zwap\+\_\+funcs}}}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{main_8cc_ae6209675f8f861bb260cf64049c07bef}\label{main_8cc_ae6209675f8f861bb260cf64049c07bef}} 
+\index{main.cc@{main.cc}!\_\_attribute\_\_@{\_\_attribute\_\_}}
+\index{\_\_attribute\_\_@{\_\_attribute\_\_}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{\_\_attribute\_\_()}{\_\_attribute\_\_()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void \+\_\+\+\_\+attribute\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{(constructor)}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00168}{168}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+References \mbox{\hyperlink{main_8cc_source_l00020}{zwap\+\_\+mod\+\_\+handle}}.
+
+\mbox{\Hypertarget{main_8cc_a1718274b8cc428f536965cb3bc4c1c88}\label{main_8cc_a1718274b8cc428f536965cb3bc4c1c88}} 
+\index{main.cc@{main.cc}!\_\_attribute\_\_@{\_\_attribute\_\_}}
+\index{\_\_attribute\_\_@{\_\_attribute\_\_}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{\_\_attribute\_\_()}{\_\_attribute\_\_()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void \+\_\+\+\_\+attribute\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{(destructor)}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00179}{179}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+References \mbox{\hyperlink{main_8cc_source_l00023}{get\+\_\+zwap\+\_\+handle()}}.
+
+\mbox{\Hypertarget{main_8cc_a07c1d3cb775fb7b4d60b09ca4daa0c7b}\label{main_8cc_a07c1d3cb775fb7b4d60b09ca4daa0c7b}} 
+\index{main.cc@{main.cc}!get\_zwap\_handle@{get\_zwap\_handle}}
+\index{get\_zwap\_handle@{get\_zwap\_handle}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{get\_zwap\_handle()}{get\_zwap\_handle()}}
+{\footnotesize\ttfamily void $\ast$ get\+\_\+zwap\+\_\+handle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00023}{23}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+References \mbox{\hyperlink{main_8cc_source_l00020}{zwap\+\_\+mod\+\_\+handle}}.
+
+
+
+Referenced by \mbox{\hyperlink{main_8cc_source_l00179}{\+\_\+\+\_\+attribute\+\_\+\+\_\+()}}, and \mbox{\hyperlink{main_8cc_source_l00048}{init\+\_\+stuff()}}.
+
+\mbox{\Hypertarget{main_8cc_af37e9b303da3d816017591f147518ea3}\label{main_8cc_af37e9b303da3d816017591f147518ea3}} 
+\index{main.cc@{main.cc}!get\_zwap\_name@{get\_zwap\_name}}
+\index{get\_zwap\_name@{get\_zwap\_name}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{get\_zwap\_name()}{get\_zwap\_name()}}
+{\footnotesize\ttfamily const char $\ast$ get\+\_\+zwap\+\_\+name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00022}{22}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+\mbox{\Hypertarget{main_8cc_afff9d6435eec6cfe5c2517571e331217}\label{main_8cc_afff9d6435eec6cfe5c2517571e331217}} 
+\index{main.cc@{main.cc}!init\_stuff@{init\_stuff}}
+\index{init\_stuff@{init\_stuff}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{init\_stuff()}{init\_stuff()}}
+{\footnotesize\ttfamily static void init\+\_\+stuff (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00048}{48}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+References \mbox{\hyperlink{main_8cc_source_l00023}{get\+\_\+zwap\+\_\+handle()}}, \mbox{\hyperlink{main_8cc_source_l00029}{zwap\+\_\+funcs\+::show\+\_\+message}}, and \mbox{\hyperlink{main_8cc_source_l00032}{zwap\+\_\+func}}.
+
+\mbox{\Hypertarget{main_8cc_a2e6e3f7fb82befdc4266e6a62dc6de6a}\label{main_8cc_a2e6e3f7fb82befdc4266e6a62dc6de6a}} 
+\index{main.cc@{main.cc}!install\_zwapwin64@{install\_zwapwin64}}
+\index{install\_zwapwin64@{install\_zwapwin64}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{install\_zwapwin64()}{install\_zwapwin64()}}
+{\footnotesize\ttfamily install\+\_\+t install\+\_\+zwapwin64 (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00093}{93}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+References \mbox{\hyperlink{main_8cc_source_l00071}{pl\+\_\+show\+\_\+message()}}.
+
+\mbox{\Hypertarget{main_8cc_ada4d8774f149b52d3e5605409a748866}\label{main_8cc_ada4d8774f149b52d3e5605409a748866}} 
+\index{main.cc@{main.cc}!pl\_show\_message@{pl\_show\_message}}
+\index{pl\_show\_message@{pl\_show\_message}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{pl\_show\_message()}{pl\_show\_message()}}
+{\footnotesize\ttfamily static foreign\+\_\+t pl\+\_\+show\+\_\+message (\begin{DoxyParamCaption}\item[{term\+\_\+t}]{a0,  }\item[{int}]{arity,  }\item[{void $\ast$}]{context }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00071}{71}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+References \mbox{\hyperlink{prolog_8cc_source_l00103}{PL\+\_\+fail()}}, \mbox{\hyperlink{main_8cc_source_l00029}{zwap\+\_\+funcs\+::show\+\_\+message}}, and \mbox{\hyperlink{main_8cc_source_l00032}{zwap\+\_\+func}}.
+
+
+
+Referenced by \mbox{\hyperlink{main_8cc_source_l00093}{install\+\_\+zwapwin64()}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{main_8cc_ad028e4b230d39a1a4efc1cdfafa8b1c0}\label{main_8cc_ad028e4b230d39a1a4efc1cdfafa8b1c0}} 
+\index{main.cc@{main.cc}!zwap\_func@{zwap\_func}}
+\index{zwap\_func@{zwap\_func}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{zwap\_func}{zwap\_func}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structzwap__funcs}{zwap\+\_\+funcs}} zwap\+\_\+func}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00032}{32}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+Referenced by \mbox{\hyperlink{main_8cc_source_l00048}{init\+\_\+stuff()}}, and \mbox{\hyperlink{main_8cc_source_l00071}{pl\+\_\+show\+\_\+message()}}.
+
+\mbox{\Hypertarget{main_8cc_ade1a2b228edbd919af04703517fe1600}\label{main_8cc_ade1a2b228edbd919af04703517fe1600}} 
+\index{main.cc@{main.cc}!zwap\_mod\_handle@{zwap\_mod\_handle}}
+\index{zwap\_mod\_handle@{zwap\_mod\_handle}!main.cc@{main.cc}}
+\doxysubsubsection{\texorpdfstring{zwap\_mod\_handle}{zwap\_mod\_handle}}
+{\footnotesize\ttfamily void$\ast$ zwap\+\_\+mod\+\_\+handle}
+
+
+
+Definition at line \mbox{\hyperlink{main_8cc_source_l00020}{20}} of file \mbox{\hyperlink{main_8cc_source}{main.\+cc}}.
+
+
+
+Referenced by \mbox{\hyperlink{main_8cc_source_l00168}{\+\_\+\+\_\+attribute\+\_\+\+\_\+()}}, and \mbox{\hyperlink{main_8cc_source_l00023}{get\+\_\+zwap\+\_\+handle()}}.
+

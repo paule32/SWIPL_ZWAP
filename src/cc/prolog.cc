@@ -20,7 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+//
+/*! \mainpage Zwapel Project
+ *
+ * This is the Programer's Documentation for the Zwapel Project.<br>
+ * Zwapel is a SWIPL Clone, which you can download <a href="">here</a>.
+ *
+ * - pageTOC Content
+ *
+ */
 // --------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------
+// remote assembly headers ...
+// ---------------------------------------------------------------------
+# include <asmjit/core.h>
+# include <asmjit/x86.h>
+
+// ---------------------------------------------------------------------
+// standard c header
+// ---------------------------------------------------------------------
 # include <stdio.h>
 # include <stdlib.h>
 # include <strings.h>
@@ -33,6 +52,9 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 
+// ---------------------------------------------------------------------
+// c++ header
+// ---------------------------------------------------------------------
 # include <iostream>
 # include <string>
 # include <sstream>
@@ -44,6 +66,22 @@
 # include <algorithm>
 # include <iterator>
 # include <csignal>
+# include <type_traits>
+# include <typeinfo>
+
+// ---------------------------------------------------------------------
+// namespace placeholder.
+// ---------------------------------------------------------------------
+using namespace asmjit;
+using namespace x86;
+using namespace std;
+
+// ---------------------------------------------------------------------
+// const, variables.
+// ---------------------------------------------------------------------
+namespace prolog {
+
+#define STDCOUT  std::cout
 
 const int CVT_NONE   = 0;
 const int CVT_ASM    = 1;
@@ -51,46 +89,265 @@ const int CVT_PASCAL = 2;   // default ?
 
 int   convert_mode   = 0;
 
-#ifdef CHARSET_UTF8
-std::wstring iput_file_str;
-std::wstring oput_file_str;
+// ---------------------------------------------------------------------
+// misc helper functions:
+// ---------------------------------------------------------------------
+class PL_helper {
+public:
+	//-- FUNCTION DEFINITIONS ---------------------------------
+	int PL_success() { return 0; }
+	int PL_fail   () { return 1; }
+};
 
-std::wifstream iput_file;
-std::wofstream oput_file;
-#else
-std::string iput_file_str;
-std::string oput_file_str;
+// ---------------------------------------------------------------------
+// This application provides support for multiple locales. As such, you
+// have to specified, which charset do you would like to use.
+// charset UTF-8 use multibyte character settings, where the rest is
+// reserved for ANSI style characters.
+// ---------------------------------------------------------------------
+template <typename T1>
+class PL_Exception : public std::exception
+{
+	T1 message;
 
-std::ifstream iput_file;
-std::ofstream oput_file;
-#endif
-
-//-- FUNCTION DEFINITIONS ---------------------------------
-
-int inline PL_success() { return 0; }
-int inline PL_fail   () { return 1; }
-
-#ifdef CHARSET_UTF8
-# define     STDCOUT std::wcout
-wchar_t      PL_lookaheadWChar;
-std::wstring PL_ident;
-#else
-# define     STDCOUT std::cout
-uint8_t      PL_lookaheadWChar;
-std::string  PL_ident;
-#endif
-
-uint64_t   PL_lookaheadPosition;
-uint64_t   PL_lineno;
-uint64_t   PL_nestedComment;
-
-struct PL_Exception : public std::exception {
-	std::string message;
-	PL_Exception(std::string msg): message(msg){}
-	PL_Exception()               : message(std::string("Prolog Exception.")){}
+public:
+	PL_Exception(T1 msg): message(msg){}
+	PL_Exception()      : message("Prolog Exception."){}
     const char* what()
 	const throw() {
 		return message.c_str();
+	}
+};
+
+template <typename T1>
+struct PL_stream {
+	static_assert(sizeof(T1) && false,
+	"T1 must be either std::string or std::wstring");
+	T1 readFile(const T1) { }
+};
+
+// -----------------------------------------------------------------------
+// our encoder class for multiple locales (character set's) ...
+// -----------------------------------------------------------------------
+template <typename T1>
+class PL_Encoder
+{
+	std::basic_ifstream< T1 > ifile;
+	std::basic_ofstream< T1 > ofile;
+
+	uint8_t   c_size;
+
+public:
+	T1 PL_lookaheadChar;      // parsed char
+	::std::basic_string       < T1 > PL_ident;
+	::std::basic_stringstream < T1 > PL_source;
+
+	using PosType = typename std::conditional< std::is_same< T1, char>::value,
+		  uint32_t, uint64_t   >::type;
+
+	PosType  PL_lookaheadPosition;
+	PosType  PL_nestedComment;
+	PosType  PL_lineno;
+	PosType  PL_size;
+	
+	uint16_t PL_buffer;
+
+public:
+	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	PL_Encoder(std::basic_string< T1 >&) {
+	}
+	PL_Encoder(std::basic_string< T1 >) {
+	}
+	PL_Encoder(char&) {
+	}
+	PL_Encoder(char) {
+	}
+	PL_Encoder() {
+	}
+
+	//-- FUNCTION DEFINITIONS ---------------------------------
+	uint16_t getch()
+	{
+		char buffer[4];
+			PL_lookaheadPosition  = PL_lookaheadPosition + 1;
+		if (PL_lookaheadPosition >= PL_size) return 0x0;
+		if (c_size < 1) {
+			PL_Exception<std::string> ex("data get underflow.");
+			throw ex;
+		}	else
+		if (c_size < 2) {
+			PL_source.get(buffer,1);
+			PL_buffer = ((uint16_t) buffer[0] << 8) | 0x00;
+		}	else
+		if (c_size < 3) {
+			PL_source.get(buffer,2);
+			PL_buffer = ((uint16_t) buffer[0] << 8) | buffer[1];
+		}
+		return PL_buffer;
+	}
+
+	std::basic_string< T1 >
+	PL_parseFile(const std::basic_string< T1 > &filename, PL_Encoder &in)
+	{
+		if (std::is_same< T1, char       >::value) { ifile.open(filename); c_size = sizeof(char); } else
+		if (std::is_same< T1, std::string>::value) { ifile.open(filename); c_size = sizeof(char); }
+		else {
+			ifile.imbue(std::locale(std::locale(),
+			new std::codecvt_utf8< wchar_t >));
+			c_size = sizeof(wchar_t);
+		}
+		
+		if (ifile.is_open()) {
+			PL_source << ifile.rdbuf();
+			
+			// get size
+			PL_source.seekg(0, std::ios::end);
+			PL_size = PL_source.tellg();
+			PL_source.seekg(0, std::ios::beg);
+			
+			return PL_source.str();
+		}	else {
+			PL_Exception< std::string > ex("input file read error");
+			throw ex;
+		}
+		
+		in.PL_ident.clear();
+
+		while (1) {
+			label_start:
+			if (!(in.PL_lookaheadChar = in.getch()))
+			break;
+
+			if (
+			(in.PL_lookaheadChar == ' ' ) ||
+			(in.PL_lookaheadChar == '\t')) {
+				continue;
+			}
+					
+			if (in.PL_lookaheadChar == '\n') {
+				in.PL_lineno =
+				in.PL_lineno + 1;
+				continue;
+			}
+			
+			if (in.PL_lookaheadChar == '/')
+			{
+				if (!(in.PL_lookaheadChar = in.getch())) {
+					PL_Exception<std::string> ex("not yet implemented.");
+					throw ex;
+				}
+				
+				if (in.PL_lookaheadChar == '*')
+				{
+					in.PL_nestedComment  =
+					in.PL_nestedComment  + 1;
+					
+					while (1) {
+						label_comment2:
+						if (!(in.PL_lookaheadChar = in.getch())) {
+							PL_Exception<std::string> ex("unterminated comment");
+							throw ex;
+						}
+					
+						if (in.PL_lookaheadChar == '\n') {
+							in.PL_lineno =
+							in.PL_lineno + 1;
+							continue;
+						}
+
+						if (in.PL_lookaheadChar == '/') {
+							if (!(in.PL_lookaheadChar = in.getch())) {
+								PL_Exception<std::string> ex("unterminated comment");
+								throw ex;
+							}
+							
+							if (in.PL_lookaheadChar == '*') {
+								in.PL_nestedComment =
+								in.PL_nestedComment + 1;
+								continue;
+							}
+						}
+						
+						if (in.PL_lookaheadChar == '*') {
+							if (!(in.PL_lookaheadChar = in.getch())) {
+								PL_Exception<std::string> ex("unterminated comment");
+								throw ex;
+							}
+						
+							if (in.PL_lookaheadChar == '/') {
+								in.PL_nestedComment  =
+								in.PL_nestedComment - 1; if (
+								in.PL_nestedComment < 1)
+								break;
+							}
+						}
+					}
+				}	else {
+					// todo
+					PL_Exception<std::string> ex("not yets implemented.");
+					throw ex;
+				}
+			}
+			
+			// one line comment
+			if (in.PL_lookaheadChar == '%') {
+				label_comment:
+				while (1) {
+					if (!(in.PL_lookaheadChar = in.getch()))
+					break;
+				
+					if (in.PL_lookaheadChar == '\n') {
+						in.PL_lineno =
+						in.PL_lineno + 1;
+						break;
+					}
+				}
+				
+				if (in.PL_lookaheadPosition >= in.PL_size)
+				break;
+				continue;
+			}
+
+			if (
+			(in.PL_lookaheadChar >= 'a' && in.PL_lookaheadChar <= 'z') ||
+			(in.PL_lookaheadChar >= 'A' && in.PL_lookaheadChar <= 'A') ||
+			(in.PL_lookaheadChar == '_'))
+			{
+				label_ident:
+				in.PL_ident += in.PL_lookaheadChar;
+
+				while (
+				in.PL_lookaheadPosition !=
+				in.PL_size)
+				{
+						in.PL_lookaheadChar = in.getch();
+					if (in.PL_lookaheadChar == '\n') {
+						STDCOUT        <<
+						in.PL_ident << std::endl;
+						in.PL_ident.clear();
+						in.PL_lineno =
+						in.PL_lineno + 1;
+						break;
+					}
+					
+					if (
+					(in.PL_lookaheadChar >= 'a' && in.PL_lookaheadChar <= 'z') ||
+					(in.PL_lookaheadChar >= 'A' && in.PL_lookaheadChar <= 'A') ||
+					(in.PL_lookaheadChar >= '0' && in.PL_lookaheadChar <= '9') ||
+					(in.PL_lookaheadChar == '_')) {
+						if (in.PL_nestedComment < 1) {
+							goto label_ident;
+						}
+					}
+					else {
+						STDCOUT <<
+						in.PL_ident << std::endl;
+						in.PL_ident.clear();
+						break;
+					}
+				}
+			}
+		}
 	}
 };
 
@@ -100,215 +357,57 @@ on_setMode(std::string mode) {
     if (mode == std::string("asm"   )) convert_mode = CVT_ASM;
 }
 
-#ifdef CHARSET_UTF8
-std::wstring
-#else
-std::string
-#endif
-readFile(const std::string filename)
-{
-	#ifdef CHARSET_UTF8
-    iput_file.imbue(std::locale(std::locale(),
-	new std::codecvt_utf8<wchar_t>));
-	
-    std::wstringstream wss;
-    wss << iput_file.rdbuf();
+}	// namespace: prolog
 
-    return wss.str();
-	#else
-	std::stringstream ss;
-	ss << iput_file.rdbuf();
-	
-	return ss.str();
-	#endif
-}
-
+// ---------------------------------------------------------------------
+// test case entry point ...
+// ---------------------------------------------------------------------
+using namespace prolog;
 int
 main(int argc, char** argv)
 {
+	#if __CHARSET_UTF8__
+	PL_Encoder<wchar_t> input ;
+	PL_Encoder<wchar_t> output;
+	#else
+	PL_Encoder<char   > input ;
+	PL_Encoder<char   > output;
+	#endif
+
+	//-- INITIAL STUFF ----------------------------------------
+	input.PL_lookaheadPosition = -1;
+	input.PL_lineno            =  1;
+	input.PL_nestedComment     =  0;
+	
 	try {
-		if (argc < 3)
-		throw PL_Exception( std::string("too few arguments.") );
-
-		if (std::string(argv[1]).size() < 1)
-		throw PL_Exception( std::string("error: can not open input file.") );
-		
-		if (std::string(argv[2]).size() < 1)
-		throw PL_Exception( std::string("error: can not open output file.") );
-
-		#ifdef CHARSET_UTF8
-		iput_file = std::wifstream( std::string( argv[1] ) );
-		oput_file = std::wofstream( argv[2] );
-		#else
-		iput_file = std::ifstream ( std::string( argv[1] ) );
-		oput_file = std::ofstream ( argv[2] );
-		#endif
-		
-		iput_file_str  = readFile ( std::string( argv[1] ) );
-		
-		PL_lookaheadPosition = -1;
-		PL_lineno            =  1;
-		PL_nestedComment     =  0;
-		
-		PL_ident.clear();
-		while (1) {
-			label_start:
-			PL_lookaheadPosition  = PL_lookaheadPosition + 1; if (
-			PL_lookaheadPosition >= iput_file_str.size()) 	break;
-			PL_lookaheadWChar     = iput_file_str.at(PL_lookaheadPosition);
-
-			if (PL_lookaheadWChar == 0x00)
-			break;
-		
-			if (
-			(PL_lookaheadWChar == ' ' ) ||
-			(PL_lookaheadWChar == '\t')) {
-				continue;
-			}
-					
-			if (PL_lookaheadWChar == '\n') {
-				PL_lineno =
-				PL_lineno + 1;
-				continue;
-			}
-			
-			if (PL_lookaheadWChar == '/')
-			{
-				PL_lookaheadPosition = PL_lookaheadPosition + 1;
-				PL_lookaheadWChar    = iput_file_str.at(
-				PL_lookaheadPosition);
-					
-				if (PL_lookaheadPosition >= iput_file_str.size())
-				throw PL_Exception("not yet implemented.");
-				
-				if (PL_lookaheadWChar == '*')
-				{
-					PL_nestedComment  =
-					PL_nestedComment  + 1;
-					
-					while (1) {
-						label_comment2:
-						PL_lookaheadPosition = PL_lookaheadPosition + 1; if (
-						PL_lookaheadPosition >= iput_file_str.size())
-						throw PL_Exception("unterminated comment");
-						
-						PL_lookaheadWChar    = iput_file_str.at(
-						PL_lookaheadPosition);
-					
-						if (PL_lookaheadWChar == '\n') {
-							PL_lineno =
-							PL_lineno + 1;
-							continue;
-						}
-
-						if (PL_lookaheadWChar == '/') {
-							PL_lookaheadPosition = PL_lookaheadPosition + 1; if (
-							PL_lookaheadPosition >= iput_file_str.size())
-							throw PL_Exception("unterminated comment");
-						
-							PL_lookaheadWChar  = iput_file_str.at(
-							PL_lookaheadPosition);
-							
-							if (PL_lookaheadWChar == '*') {
-								PL_nestedComment  =
-								PL_nestedComment+1;
-								continue;
-							}
-						}
-						
-						if (PL_lookaheadWChar == '*') {
-							PL_lookaheadPosition = PL_lookaheadPosition + 1;
-							PL_lookaheadWChar    = iput_file_str.at(
-							PL_lookaheadPosition);
-							
-							if (PL_lookaheadPosition >= iput_file_str.size())
-							throw PL_Exception("unterminated comment");
-						
-							if (PL_lookaheadWChar == '/') {
-								PL_nestedComment  =
-								PL_nestedComment-1; if (
-								PL_nestedComment<1)
-								break;
-							}
-						}
-					}
-				}	else {
-					// todo
-					throw PL_Exception("not yets implemented.");
-				}
-			}
-			
-			// one line comment
-			if (PL_lookaheadWChar == '%') {
-				label_comment:
-				while (1) {
-					PL_lookaheadPosition  = PL_lookaheadPosition + 1; if (
-					PL_lookaheadPosition >= iput_file_str.size())  break;
-					PL_lookaheadWChar     = iput_file_str.at(
-					PL_lookaheadPosition);
-				
-					if (PL_lookaheadWChar == '\n') {
-						PL_lineno =
-						PL_lineno + 1;
-						break;
-					}
-				}
-				
-				if (PL_lookaheadPosition >= iput_file_str.size())
-				break;
-				continue;
-			}
-
-			if (
-			(PL_lookaheadWChar >= 'a' && PL_lookaheadWChar <= 'z') ||
-			(PL_lookaheadWChar >= 'A' && PL_lookaheadWChar <= 'A') ||
-			(PL_lookaheadWChar == '_'))
-			{
-				label_ident:
-				PL_ident += PL_lookaheadWChar;
-				while (PL_lookaheadPosition !=
-				iput_file_str.size())
-				{
-					PL_lookaheadPosition = PL_lookaheadPosition + 1;
-					PL_lookaheadWChar    = iput_file_str.at(
-					PL_lookaheadPosition);
-
-					if (PL_lookaheadWChar == '\n') {
-						STDCOUT << PL_ident << std::endl;
-						PL_ident.clear();
-						PL_lineno =
-						PL_lineno + 1;
-						break;
-					}
-					
-					if (
-					(PL_lookaheadWChar >= 'a' && PL_lookaheadWChar <= 'z') ||
-					(PL_lookaheadWChar >= 'A' && PL_lookaheadWChar <= 'A') ||
-					(PL_lookaheadWChar >= '0' && PL_lookaheadWChar <= '9') ||
-					(PL_lookaheadWChar == '_')) {
-						if (PL_nestedComment < 1) {
-							goto label_ident;
-						}
-					}
-					else {
-						STDCOUT << PL_ident << std::endl;
-						PL_ident.clear();
-						break;
-					}
-				}
-			}
+		if (argc < 3) {
+			PL_Exception<std::string> ex("too few arguments.");
+			throw ex;
 		}
-		STDCOUT << std::endl;
-		STDCOUT << "Compiled: OK" << std::endl;
-		STDCOUT << "Lines   : "   << PL_lineno << std::endl;
-	}
-	catch (PL_Exception& e)
-	{
-		STDCOUT << "error : " << PL_lineno
-				<< std::endl
-				<< "reason: " << e.message
-				<< std::endl;
+		if (std::string(argv[1]).size() < 1) {
+			PL_Exception<std::string> ex("error: can not open input file.");
+			throw ex;
+		}
+		if (std::string(argv[2]).size() < 1) {
+			PL_Exception<std::string> ex("error: can not open output file.");
+			throw ex;
+		}
 
-		return PL_fail();
-	}	return PL_success();
+		input.PL_parseFile( std::string( argv[1] ), input );
+
+		STDCOUT
+		<< std::endl
+		<< "Compiled: OK" << std::endl
+		<< "Lines   : "   << input.PL_lineno << std::endl;
+	}
+	catch (PL_Exception<std::string>& e)
+	{
+		STDCOUT
+		<< "error : " << input.PL_lineno
+		<< std::endl
+		<< "reason: " << e.what()
+		<< std::endl;
+
+		return 1;
+	}	return 0;
 }

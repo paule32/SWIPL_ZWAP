@@ -26,19 +26,20 @@ FPC_TOOLCHAIN = $(shell fpc -v -iTO)
 VERSION   = 0.0.1
 DATE      = $(shell date +%F)
 
-GCC       = @${GCC_TOOLCHAIN}-gcc
-GXX       = @${GCC_TOOLCHAIN}-g++
+GCC       = ${GCC_TOOLCHAIN}-gcc
+GXX       = ${GCC_TOOLCHAIN}-g++
 
 FPC       = ${FPC_TOOLCHAIN}/fpc
 
 LD        = $(LINKER) -m i386pe
 CFLAGS    = -O2 -fPIC $(EFLAGS) $(DEFINES) -I./inc -Wno-terminate
 DEFINES   = -D__WINDOWS__
+INCLUDEs  = -I./inc/SWI -I./inc/asmjit
 EFLAGS    =
 LIBS      = -L./lib -lswipl.dll
 
-SOURCES   = $(wildcard src/cc/*.cc)
-HEADERS   = $(wildcard inc/*.h)
+SOURCES   = $(wildcard src/cc/*.cc src/cc/asmjit/*.cc)
+HEADERS   = $(wildcard inc/SWI/*.h inc/asmjit/*.h)
 
 OBJECTS   = ${SOURCES:.cc=.o}
 
@@ -62,6 +63,7 @@ ifeq ($(GCC_TOOLCHAIN),x86_64-pc-msys)
   DEFINES    += -D__WINDOWS_BIT32__
   GCC_TARGET := win32
   EFLAGS     += -m32
+  LIBS       += -lasmjit32.dll
   DLL_NAME   := zwapwin32
   VCL_NAME   := zwapwin32vcl
 endif
@@ -69,6 +71,7 @@ ifeq ($(GCC_TOOLCHAIN),mingw32)
   DEFINES    += -D__WINDOWS_BIT32__
   GCC_TARGET := win32
   EFLAGS     += -m32
+  LIBS       += -lasmjit32.dll
   DLL_NAME   := zwapwin32
   VCL_NAME   := zwapwin32vcl
 endif
@@ -76,6 +79,7 @@ ifeq ($(GCC_TOOLCHAIN),x86_64-w64-mingw32)
   DEFINES    += -D__WINDOWS_BIT64__
   GCC_TARGET := win64
   EFLAGS     += -m64
+  LIBS       += -lasmjit64.dll
   DLL_NAME   := zwapwin64
   VCL_NAME   := zwapwin64vcl
 endif
