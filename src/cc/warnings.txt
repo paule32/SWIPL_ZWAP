@@ -1,3 +1,5 @@
 E:/Projekte/SWIPL/SWIPEL_ZWAP/src/cc/engine.cc:11: warning: documented symbol 'Engine::Engine' was not declared or defined.
 E:/Projekte/SWIPL/SWIPEL_ZWAP/src/cc/engine.cc:27: warning: documented symbol 'Engine::~Engine' was not declared or defined.
 error: Problems running epstopdf. Check your TeX installation!
+E:/Projekte/SWIPL/SWIPEL_ZWAP/src/cc/prolog.cc:31: warning: unable to resolve reference to 'zwapel' for \ref command
+E:/Projekte/SWIPL/SWIPEL_ZWAP/src/cc/prolog.cc:31: warning: unable to resolve reference to 'zwapel' for \ref command

@@ -21,14 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-/*! \mainpage Zwapel Project
- *
- * This is the Programer's Documentation for the Zwapel Project.<br>
- * Zwapel is a SWIPL Clone, which you can download <a href="">here</a>.
- *
- * - pageTOC Content
- *
- */
+//! \mainpage Zwapel Project
+//!
+//! This is the Programer's Documentation for the Zwapel Project.<br>
+//! Zwapel is a SWIPL Clone, which you can download <a href="">here</a>.
+//!
+//! ### Namespace
+//!
+//!   - \ref zwapel - zwapel namespace provides support for X86/X64 remote
+//!     assembly, to speed up the free Prolog System SWIPL.<br>
+//!     SWIPL can download from this <a href="https://www.swi-prolog.org/">link</a>.
+//!
+//! SWI-Prolog offers a comprehensive free Prolog environment.
+//! Since its start in 1987, SWI-Prolog development has been driven by the needs<br>
+//! of real world applications. SWI-Prolog is widely used in research and education
+//! as well as commercial applications. Join over a million users <br>
+//! who have downloaded SWI-Prolog.
+//!
+//! ### Legal
+//!
+//!   - zwapel is distributed under the MIT license. Some of the used libraries
+//!     and extension packages have different license conditions. <br>
+//!     The licenses applicable to a running configuration can be examined by
+//!     running license/0. See license for details.
 // --------------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------
@@ -90,11 +105,24 @@ const int CVT_PASCAL = 2;   // default ?
 int   convert_mode   = 0;
 
 // ---------------------------------------------------------------------
-// misc helper functions:
+//! This is a helper class for the zwapel Prolog classes.
+//!
+//! The class contains misc. help functions that will be use multiple
+//! times in the source code.<br>
+//! It is not the main class, so they can be a little bit twisted till
+//! the end product class system will be reached a profesional stage.
 // ---------------------------------------------------------------------
 class PL_helper {
 public:
 	//-- FUNCTION DEFINITIONS ---------------------------------
+
+	/*! \fn int PL_helper::PL_success() 
+     *  \brief Prolog member function, that return TRUE on success rule.
+	 */
+	
+	/*! \fn int PL_helper::PL_fail() 
+     *  \brief Prolog member function, that return FALSE on fail rule.
+	 */
 	int PL_success() { return 0; }
 	int PL_fail   () { return 1; }
 };
@@ -130,14 +158,16 @@ struct PL_stream {
 // our encoder class for multiple locales (character set's) ...
 // -----------------------------------------------------------------------
 template <typename T1>
-class PL_Encoder
+class PL_Parser
 {
+public:
 	std::basic_ifstream< T1 > ifile;
 	std::basic_ofstream< T1 > ofile;
 
-	uint8_t   c_size;
+private:
+	uint8_t  PL_size;
+	uint16_t PL_buffer;
 
-public:
 	T1 PL_lookaheadChar;      // parsed char
 	::std::basic_string       < T1 > PL_ident;
 	::std::basic_stringstream < T1 > PL_source;
@@ -145,24 +175,22 @@ public:
 	using PosType = typename std::conditional< std::is_same< T1, char>::value,
 		  uint32_t, uint64_t   >::type;
 
-	PosType  PL_lookaheadPosition;
-	PosType  PL_nestedComment;
-	PosType  PL_lineno;
-	PosType  PL_size;
-	
-	uint16_t PL_buffer;
+public:
+	PosType PL_lookaheadPosition;
+	PosType PL_nestedComment;
+	PosType PL_lineno;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_Encoder(std::basic_string< T1 >&) {
+	PL_Parser(std::basic_string< T1 >&) {
 	}
-	PL_Encoder(std::basic_string< T1 >) {
+	PL_Parser(std::basic_string< T1 >) {
 	}
-	PL_Encoder(char&) {
+	PL_Parser(char&) {
 	}
-	PL_Encoder(char) {
+	PL_Parser(char) {
 	}
-	PL_Encoder() {
+	PL_Parser() {
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -171,43 +199,61 @@ public:
 		char buffer[4];
 			PL_lookaheadPosition  = PL_lookaheadPosition + 1;
 		if (PL_lookaheadPosition >= PL_size) return 0x0;
-		if (c_size < 1) {
+		if (PL_size < 1) {
 			PL_Exception<std::string> ex("data get underflow.");
 			throw ex;
 		}	else
-		if (c_size < 2) {
+		if (PL_size < 2) {
 			PL_source.get(buffer,1);
 			PL_buffer = ((uint16_t) buffer[0] << 8) | 0x00;
 		}	else
-		if (c_size < 3) {
+		if (PL_size < 3) {
 			PL_source.get(buffer,2);
 			PL_buffer = ((uint16_t) buffer[0] << 8) | buffer[1];
 		}
 		return PL_buffer;
 	}
+};
 
+template <typename T1>
+class PL_Prolog: public PL_Parser< T1 > {
+public:
+	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	PL_Prolog(std::basic_string< T1 >&) {
+	}
+	PL_Prolog(std::basic_string< T1 >) {
+	}
+	PL_Prolog(char&) {
+	}
+	PL_Prolog(char) {
+	}
+	PL_Prolog() {
+	}
+
+	//-- FUNCTION DEFINITIONS ---------------------------------
 	std::basic_string< T1 >
-	PL_parseFile(const std::basic_string< T1 > &filename, PL_Encoder &in)
+	PL_parse(const std::basic_string< T1 > &filename, PL_Prolog &in)
 	{
-		if (std::is_same< T1, char       >::value) { ifile.open(filename); c_size = sizeof(char); } else
-		if (std::is_same< T1, std::string>::value) { ifile.open(filename); c_size = sizeof(char); }
+		if (::std::is_same< T1, char         >::value) { PL_Parser< T1 >::ifile.open(filename); } else
+		if (::std::is_same< T1, ::std::string>::value) { PL_Parser< T1 >::ifile.open(filename); }
 		else {
-			ifile.imbue(std::locale(std::locale(),
-			new std::codecvt_utf8< wchar_t >));
-			c_size = sizeof(wchar_t);
+			PL_Parser< T1 >::ifile.imbue(::std::locale(std::locale(), new ::std::codecvt_utf8< wchar_t >));
+			PL_Parser< T1 >::PL_size = sizeof(wchar_t);
 		}
 		
-		if (ifile.is_open()) {
-			PL_source << ifile.rdbuf();
+		if (PL_Parser< T1 >::ifile.is_open()) {
+			PL_Parser< T1 >::PL_source << ifile.rdbuf();
+			PL_Parser< T1 >::PL_size   = sizeof( char );
 			
 			// get size
-			PL_source.seekg(0, std::ios::end);
-			PL_size = PL_source.tellg();
-			PL_source.seekg(0, std::ios::beg);
+			PL_Parser< T1 >::PL_source.seekg(0, ::std::ios::end);
+			PL_Parser< T1 >::PL_size  =
+			PL_Parser< T1 >::PL_source.tellg();
+			PL_Parser< T1 >::PL_source.seekg(0, ::std::ios::beg);
 			
-			return PL_source.str();
+			return PL_Parser< T1 >::PL_source.str();
 		}	else {
-			PL_Exception< std::string > ex("input file read error");
+			PL_Exception< ::std::string > ex("input file read error");
 			throw ex;
 		}
 		
