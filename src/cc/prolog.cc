@@ -281,7 +281,9 @@ public:
 			PL_ident +=
 			PL_lookaheadChar;
 
-			while (PL_lookaheadPosition != PL_file_size)
+			while (
+			PL_lookaheadPosition !=
+			PL_file_size)
 			{
 				PL_lookaheadChar = PL_getch();
 				if ((
@@ -316,82 +318,110 @@ public:
 
 	uint8_t PL_skip_white_spaces()
 	{
-		if (PL_Parser< T1 >::PL_lookaheadChar == 0x00) {
-		if (PL_Parser< T1 >::PL_lookaheadPosition >=
-			PL_Parser< T1 >::PL_file_size)
+		if (PL_lookaheadChar == 0x00) {
+		if (PL_lookaheadPosition >=
+			PL_file_size)
 			return 0;
 		}
 	
 		if (
-		(PL_Parser< T1 >::PL_lookaheadChar == ' ' ) ||
-		(PL_Parser< T1 >::PL_lookaheadChar == '\t')) {
-			if (PL_Parser< T1 >::PL_ident.size() > 0) {
+		(PL_lookaheadChar == ' ' ) ||
+		(PL_lookaheadChar == '\t')) {
+			if (PL_ident.size() > 0) {
 				::std::cout <<
-				PL_Parser< T1 >::PL_ident << ::std::endl;
-				PL_Parser< T1 >::PL_ident.clear();
+				PL_ident << ::std::endl;
+				PL_ident.clear();
 			}	else {
 				return 1;
 			}
 		}
 
-		if (PL_Parser< T1 >::PL_lookaheadChar == '\n') {
-			PL_Parser< T1 >::PL_lineno =
-			PL_Parser< T1 >::PL_lineno + 1;
+		if (PL_lookaheadChar == '\n') {
+			PL_lineno =
+			PL_lineno + 1;
 			return 2;
 		}
 	}
 	
 	void PL_skip_comment_cpp(void)
 	{
-		if (PL_Parser< T1 >::PL_lookaheadChar == '/')
+		if (PL_lookaheadChar == '/') {
+			PL_getch();
+			
+			if (PL_Parser< T1 >::PL_lookaheadChar == '/') {
+				while (PL_lookaheadPosition != PL_file_size)
+				{
+					PL_lookaheadChar =
+					PL_getch(); if (
+					PL_lookaheadChar == '\n') {
+						PL_lineno += 1;
+						break;
+					}
+				}
+			}
+			else if (PL_lookaheadChar == '*') {
+				while (PL_lookaheadPosition != PL_file_size) {
+					PL_lookaheadChar = PL_getch(); if (
+					PL_lookaheadChar == '*') {
+						PL_lookaheadChar = PL_getch(); if (
+						PL_lookaheadChar == '/')
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	void PL_skip_comment_c(void)
+	{
+		if (PL_lookaheadChar == '/')
 		{
-			if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+			if (!(PL_lookaheadChar = PL_getch())) {
 				PL_Exception<std::string> ex("not yet implemented.");
 				throw ex;
 			}
 			
-			if (PL_Parser< T1 >::PL_lookaheadChar == '*')
+			if (PL_lookaheadChar == '*')
 			{
-				PL_Parser< T1 >::PL_nestedComment  =
-				PL_Parser< T1 >::PL_nestedComment  + 1;
+				PL_nestedComment  =
+				PL_nestedComment  + 1;
 				
 				while (1) {
 					label_comment2:
-					if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+					if (!(PL_lookaheadChar = PL_getch())) {
 						PL_Exception< std::string > ex("unterminated comment");
 						throw ex;
 					}
 				
-					if (PL_Parser< T1 >::PL_lookaheadChar == '\n') {
-						PL_Parser< T1 >::PL_lineno =
-						PL_Parser< T1 >::PL_lineno + 1;
+					if (PL_lookaheadChar == '\n') {
+						PL_lineno =
+						PL_lineno + 1;
 						continue;
 					}
 
-					if (PL_Parser< T1 >::PL_lookaheadChar == '/') {
-						if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+					if (PL_lookaheadChar == '/') {
+						if (!(PL_lookaheadChar = PL_getch())) {
 							PL_Exception<std::string> ex("unterminated comment");
 							throw ex;
 						}
 						
-						if (PL_Parser< T1 >::PL_lookaheadChar == '*') {
-							PL_Parser< T1 >::PL_nestedComment =
-							PL_Parser< T1 >::PL_nestedComment + 1;
+						if (PL_lookaheadChar == '*') {
+							PL_nestedComment += 1;
 							continue;
 						}
 					}
 					
-					if (PL_Parser< T1 >::PL_lookaheadChar == '*') {
-						if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+					if (PL_lookaheadChar == '*') {
+						if (!(PL_lookaheadChar = PL_getch())) {
 							PL_Exception<std::string> ex("unterminated comment");
 							throw ex;
 						}
 					
-						if (PL_Parser< T1 >::PL_lookaheadChar == '/') {
-							PL_Parser< T1 >::PL_nestedComment =
-							PL_Parser< T1 >::PL_nestedComment - 1;
+						if (PL_lookaheadChar == '/') {
+							PL_nestedComment =
+							PL_nestedComment - 1;
 							
-							if (PL_Parser< T1 >::PL_nestedComment < 1)
+							if (PL_nestedComment < 1)
 							break;
 						}
 					}
@@ -406,55 +436,55 @@ public:
 	
 	void PL_skip_comment_pas(void)
 	{
-		if (PL_Parser< T1 >::PL_lookaheadChar == '(')
+		if (PL_lookaheadChar == '(')
 		{
-			if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+			if (!(PL_lookaheadChar = PL_getch())) {
 				PL_Exception<std::string> ex("not yet implemented.");
 				throw ex;
 			}
 			
-			if (PL_Parser< T1 >::PL_lookaheadChar == '*')
+			if (PL_lookaheadChar == '*')
 			{
-				PL_Parser< T1 >::PL_nestedComment  =
-				PL_Parser< T1 >::PL_nestedComment  + 1;
+				PL_nestedComment  =
+				PL_nestedComment  + 1;
 				
 				while (1) {
 					label_comment2:
-					if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+					if (!(PL_lookaheadChar = PL_getch())) {
 						PL_Exception< std::string > ex("unterminated comment");
 						throw ex;
 					}
 				
-					if (PL_Parser< T1 >::PL_lookaheadChar == '\n') {
-						PL_Parser< T1 >::PL_lineno =
-						PL_Parser< T1 >::PL_lineno + 1;
+					if (PL_lookaheadChar == '\n') {
+						PL_lineno =
+						PL_lineno + 1;
 						continue;
 					}
 
-					if (PL_Parser< T1 >::PL_lookaheadChar == '(') {
-						if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+					if (PL_lookaheadChar == '(') {
+						if (!(PL_lookaheadChar = PL_getch())) {
 							PL_Exception<std::string> ex("unterminated comment");
 							throw ex;
 						}
 						
-						if (PL_Parser< T1 >::PL_lookaheadChar == '*') {
-							PL_Parser< T1 >::PL_nestedComment =
-							PL_Parser< T1 >::PL_nestedComment + 1;
+						if (PL_lookaheadChar == '*') {
+							PL_nestedComment =
+							PL_nestedComment + 1;
 							continue;
 						}
 					}
 					
-					if (PL_Parser< T1 >::PL_lookaheadChar == '*') {
-						if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch())) {
+					if (PL_lookaheadChar == '*') {
+						if (!(PL_lookaheadChar = PL_getch())) {
 							PL_Exception<std::string> ex("unterminated comment");
 							throw ex;
 						}
 					
-						if (PL_Parser< T1 >::PL_lookaheadChar == ')') {
-							PL_Parser< T1 >::PL_nestedComment =
-							PL_Parser< T1 >::PL_nestedComment - 1;
+						if (PL_lookaheadChar == ')') {
+							PL_nestedComment =
+							PL_nestedComment - 1;
 							
-							if (PL_Parser< T1 >::PL_nestedComment < 1)
+							if (PL_nestedComment < 1)
 							break;
 						}
 					}
@@ -590,6 +620,7 @@ public:
 			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
 			PL_Parser< T1 >::PL_skip_white_spaces()) break;
 			PL_Parser< T1 >::PL_skip_comment_pas ();
+			PL_Parser< T1 >::PL_skip_comment_cpp ();
 		}
 	}
 };
