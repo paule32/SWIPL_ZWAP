@@ -25,7 +25,7 @@
 %%duies
 
 zuzu
-		yy %xxxxcxcs*/
+/*		yy %xxxxcxcs*/
 
 %fgfgfg
 
