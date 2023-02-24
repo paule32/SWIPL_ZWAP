@@ -105,29 +105,6 @@ const int CVT_PASCAL = 2;   // default ?
 int   convert_mode   = 0;
 
 // ---------------------------------------------------------------------
-//! This is a helper class for the zwapel Prolog classes.
-//!
-//! The class contains misc. help functions that will be use multiple
-//! times in the source code.<br>
-//! It is not the main class, so they can be a little bit twisted till
-//! the end product class system will be reached a profesional stage.
-// ---------------------------------------------------------------------
-class PL_helper {
-public:
-	//-- FUNCTION DEFINITIONS ---------------------------------
-
-	/*! \fn int PL_helper::PL_success() 
-     *  \brief Prolog member function, that return TRUE on success rule.
-	 */
-	
-	/*! \fn int PL_helper::PL_fail() 
-     *  \brief Prolog member function, that return FALSE on fail rule.
-	 */
-	int PL_success() { return 0; }
-	int PL_fail   () { return 1; }
-};
-
-// ---------------------------------------------------------------------
 // This application provides support for multiple locales. As such, you
 // have to specified, which charset do you would like to use.
 // charset UTF-8 use multibyte character settings, where the rest is
@@ -140,11 +117,51 @@ class PL_Exception : public std::exception
 
 public:
 	PL_Exception(T1 msg): message(msg){}
-	PL_Exception()      : message("Prolog Exception."){}
+	PL_Exception()      : message("Application Exception."){}
     const char* what()
 	const throw() {
 		return message.c_str();
 	}
+};
+
+template <typename T1>
+class PL_Exception_CommandLine: public PL_Exception< T1 > {
+using PL_Exception< T1 >::PL_Exception;
+};
+
+// ---------------------------------------------------------------------
+//! This is a helper class for the zwapel Prolog classes.
+//!
+//! The class contains misc. help functions that will be use multiple
+//! times in the source code.<br>
+//! It is not the main class, so they can be a little bit twisted till
+//! the end product class system will be reached a profesional stage.
+// ---------------------------------------------------------------------
+class PL_helper {
+public:
+	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	PL_helper() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_helper ()" <<
+		::std::endl;
+		#endif
+	}
+	~PL_helper() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_helper ()" <<
+		::std::endl;
+		#endif
+	}
+	
+	//-- FUNCTION DEFINITIONS ---------------------------------
+
+	//! \fn int PL_helper::PL_success() 
+	//! \brief Prolog member function, that return TRUE on success rule.
+	
+	//! \fn int PL_helper::PL_fail() 
+	//! \brief Prolog member function, that return FALSE on fail rule.
+	int PL_success() { return 0; }
+	int PL_fail   () { return 1; }
 };
 
 // -----------------------------------------------------------------------
@@ -183,19 +200,45 @@ public:
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
 	PL_Parser(std::basic_string< T1 >&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_parser std::basic_string< T1 >&" <<
+		::std::endl;
+		#endif
 		init();
 	}
 	PL_Parser(std::basic_string< T1 >) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_parser std::basic_string< T1 >" <<
+		::std::endl;
+		#endif
 		init();
 	}
 	PL_Parser(char&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_parser char&" <<
+		::std::endl;
+		#endif
 		init();
 	}
 	PL_Parser(char) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_parser char" <<
+		::std::endl;
+		#endif
 		init();
 	}
 	PL_Parser() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_parser ()" <<
+		::std::endl;
+		#endif
 		init();
+	}
+	~PL_Parser() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_parser ()" <<
+		::std::endl;
+		#endif
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -354,15 +397,15 @@ public:
 					PL_lookaheadChar =
 					PL_getch(); if (
 					PL_lookaheadChar == '\n') {
-						PL_lineno += 1;
-						break;
+					PL_lineno += 1;
+					break;
 					}
 				}
 			}
 			else if (PL_lookaheadChar == '*') {
-				while (PL_lookaheadPosition != PL_file_size) {
-					PL_lookaheadChar = PL_getch(); if (
-					PL_lookaheadChar == '*') {
+				while ( PL_lookaheadPosition != PL_file_size) {
+						PL_lookaheadChar = PL_getch(); if (
+						PL_lookaheadChar == '*') {
 						PL_lookaheadChar = PL_getch(); if (
 						PL_lookaheadChar == '/')
 						break;
@@ -386,7 +429,7 @@ public:
 				PL_nestedComment  =
 				PL_nestedComment  + 1;
 				
-				while (1) {
+				while (PL_lookaheadPosition != PL_file_size) {
 					label_comment2:
 					if (!(PL_lookaheadChar = PL_getch())) {
 						PL_Exception< std::string > ex("unterminated comment");
@@ -436,7 +479,25 @@ public:
 	
 	void PL_skip_comment_pas(void)
 	{
-		if (PL_lookaheadChar == '(')
+		if (PL_lookaheadChar == '{')
+		{
+			if (!(PL_lookaheadChar = PL_getch())) {
+				PL_Exception<std::string> ex("not yet implemented.");
+				throw ex;
+			}
+			while (PL_lookaheadPosition != PL_file_size)
+			{
+				PL_lookaheadChar =
+				PL_getch();
+				if (PL_lookaheadChar == '\n') {
+					PL_lineno += 1;
+				}	else if (
+					PL_lookaheadChar == '}') {
+					break;
+				}
+			}
+		}
+		else if (PL_lookaheadChar == '(')
 		{
 			if (!(PL_lookaheadChar = PL_getch())) {
 				PL_Exception<std::string> ex("not yet implemented.");
@@ -445,10 +506,10 @@ public:
 			
 			if (PL_lookaheadChar == '*')
 			{
-				PL_nestedComment  =
-				PL_nestedComment  + 1;
+				PL_nestedComment =
+				PL_nestedComment + 1;
 				
-				while (1) {
+				while (PL_lookaheadPosition != PL_file_size) {
 					label_comment2:
 					if (!(PL_lookaheadChar = PL_getch())) {
 						PL_Exception< std::string > ex("unterminated comment");
@@ -503,15 +564,41 @@ class PL_Prolog: public PL_Parser< T1 >
 {
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_Prolog(std::basic_string< T1 >&) {
+	PL_Prolog(::std::basic_string< T1 >&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Prolog std::basic_string< T1 >&" <<
+		::std::endl;
+		#endif
 	}
-	PL_Prolog(std::basic_string< T1 >) {
+	PL_Prolog(::std::basic_string< T1 >) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Prolog std::basic_string< T1 >" <<
+		::std::endl;
+		#endif
 	}
 	PL_Prolog(char&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Prolog char&&" <<
+		::std::endl;
+		#endif
 	}
 	PL_Prolog(char) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Prolog char" <<
+		::std::endl;
+		#endif
 	}
 	PL_Prolog() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Prolog ()" <<
+		::std::endl;
+		#endif
+	}
+	~PL_Prolog() {
+		#ifdef DEBUG
+		::std::cout << "ctor: ~PL_Prolog ()" <<
+		::std::endl;
+		#endif
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -526,6 +613,7 @@ public:
 			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
 			PL_Parser< T1 >::PL_skip_white_spaces()) break;
 			PL_Parser< T1 >::PL_skip_comment_cpp();
+			PL_Parser< T1 >::PL_skip_comment_c();
 			
 			// one line comment
 			if (PL_Parser< T1 >::PL_lookaheadChar == '%') {
@@ -565,14 +653,40 @@ class PL_dBase: public PL_Parser< T1 >
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
 	PL_dBase(std::basic_string< T1 >&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_dBase std::basic_string< T1 >&" <<
+		::std::endl;
+		#endif
 	}
 	PL_dBase(std::basic_string< T1 >) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_dBase std::basic_string< T1 >" <<
+		::std::endl;
+		#endif
 	}
 	PL_dBase(char&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_dBase char&" <<
+		::std::endl;
+		#endif
 	}
 	PL_dBase(char) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_dBase char" <<
+		::std::endl;
+		#endif
 	}
 	PL_dBase() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_dBase ()" <<
+		::std::endl;
+		#endif
+	}
+	~PL_dBase() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_dBase ()" <<
+		::std::endl;
+		#endif
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -597,15 +711,41 @@ class PL_Pascal: public PL_Parser< T1 >
 {
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_dBase(std::basic_string< T1 >&) {
+	PL_Pascal(std::basic_string< T1 >&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal std::basic_string< T1 >&" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase(std::basic_string< T1 >) {
+	PL_Pascal(std::basic_string< T1 >) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal std::basic_string< T1 >" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase(char&) {
+	PL_Pascal(char&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal char&" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase(char) {
+	PL_Pascal(char) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal char" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase() {
+	PL_Pascal() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal ()" <<
+		::std::endl;
+		#endif
+	}
+	~PL_Pascal() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Pascal ()" <<
+		::std::endl;
+		#endif
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -621,6 +761,15 @@ public:
 			PL_Parser< T1 >::PL_skip_white_spaces()) break;
 			PL_Parser< T1 >::PL_skip_comment_pas ();
 			PL_Parser< T1 >::PL_skip_comment_cpp ();
+			
+			PL_Parser< T1 >::PL_lookaheadChar =
+			PL_Parser< T1 >::PL_parse_ident();
+			if (
+			PL_Parser< T1 >::PL_ident.size() > 0)
+			{
+				std::cout << PL_Parser< T1 >::PL_ident << std::endl;
+				PL_Parser< T1 >::PL_ident.clear();
+			}
 		}
 	}
 };
@@ -630,15 +779,41 @@ class PL_cLang: public PL_Parser< T1 >
 {
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_dBase(std::basic_string< T1 >&) {
+	PL_cLang(std::basic_string< T1 >&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_cLang std::basic_string< T1 >&" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase(std::basic_string< T1 >) {
+	PL_cLang(std::basic_string< T1 >) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_cLang std::basic_string< T1 >" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase(char&) {
+	PL_cLang(char&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_cLang char&" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase(char) {
+	PL_cLang(char) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_cLang char" <<
+		::std::endl;
+		#endif
 	}
-	PL_dBase() {
+	PL_cLang() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_cLang ()" <<
+		::std::endl;
+		#endif
+	}
+	~PL_cLang() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_cLang ()" <<
+		::std::endl;
+		#endif
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -652,7 +827,8 @@ public:
 			label_start:
 			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
 			PL_Parser< T1 >::PL_skip_white_spaces()) break;
-			PL_Parser< T1 >::PL_skip_comment_cpp ();
+			PL_Parser< T1 >::PL_skip_comment_cpp();
+			PL_Parser< T1 >::PL_skip_comment_c();
 		}
 	}
 };
@@ -660,41 +836,137 @@ public:
 template <typename T1>
 class Application: public T1 {
 public:
+	Application() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Application ()" <<
+		::std::endl;
+		#endif
+	}
+	~Application() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Application ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Server: public T1 {
 public:
+	Server() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Server ()" <<
+		::std::endl;
+		#endif
+	}
+	~Server() {
+		#ifdef DEBUG
+		::std::cout << "ctor: ~PL_Server ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Client: public T1 {
 public:
+	Client() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Client ()" <<
+		::std::endl;
+		#endif
+	}
+	~Client() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Client ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Html: public T1 {
 public:
+	Html() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Html ()" <<
+		::std::endl;
+		#endif
+	}
+	~Html() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Html ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Ftp: public T1 {
 public:
+	Ftp() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Ftp ()" <<
+		::std::endl;
+		#endif
+	}
+	~Ftp() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Ftp ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Desktop: public T1 {
 public:
+	Desktop() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Desktop ()" <<
+		::std::endl;
+		#endif
+	}
+	~Desktop() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Desktop ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Console: public T1 {
 public:
+	Console() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Console ()" <<
+		::std::endl;
+		#endif
+	}
+	~Console() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Console ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 template <typename T1>
 class Win32API: public T1 {
 public:
+	Win32API() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Win32API ()" <<
+		::std::endl;
+		#endif
+	}
+	~Win32API() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Win32API ()" <<
+		::std::endl;
+		#endif
+	}
 };
 
 }	// namespace: prolog
@@ -706,39 +978,98 @@ using namespace prolog;
 int
 main(int argc, char** argv)
 {
+	vector< string > iput_file;
+	        string   oput_file;
+			string   s0;
+	
+	int output= 0;
+
 	#if __CHARSET_UTF8__
 	Win32API< Desktop< Application< PL_Prolog< wchar_t > > > > input ;
-	Win32API< Desktop< Application< PL_Prolog< wchar_t > > > > output;
 	#else
-	Win32API< Desktop< Application< PL_Prolog< char  > > > > input ;
-	Win32API< Desktop< Application< PL_Prolog< char  > > > > output;
+	Win32API< Desktop< Application< PL_Prolog< char    > > > > input ;
 	#endif
 
 	try {
-		if (argc < 3) {
-			PL_Exception<std::string> ex("too few arguments.");
+		// ----------------------------------------
+		// get command arguments from console ...
+		// -i<input file> -o<output file>
+		// ----------------------------------------
+		if (argc < 2) {
+			PL_Exception_CommandLine<std::string>
+			ex("too few arguments.");
 			throw ex;
 		}
-		if (std::string(argv[1]).size() < 1) {
-			PL_Exception<std::string> ex("error: can not open input file.");
-			throw ex;
+		for (int arg = 1; arg < argc; ++arg)
+		{
+			s0.clear();
+			s0.append(argv[arg]);
+			if (s0.at(0) == '-')
+			{
+				if (s0.at(1) == 'i')
+				{
+					s0.erase(0,2);
+					iput_file.push_back( s0 );
+				}	else
+				if (s0.at(1) == 'o')
+				{
+					s0.erase(0,2);
+					if (output > 0)
+					{
+						PL_Exception_CommandLine<std::string>
+						ex("only one output supported.");
+						throw ex;
+					}
+					else {
+						oput_file.append(s0);
+						output += 1;
+					}
+				}
+			}
 		}
-		if (std::string(argv[2]).size() < 1) {
-			PL_Exception<std::string> ex("error: can not open output file.");
+
+		// --------------------------------------------
+		// first, check, if user has give output file:
+		// --------------------------------------------
+		if (oput_file.size() < 1) {
+			PL_Exception_CommandLine<std::string>
+			ex("no output file given.");
 			throw ex;
 		}
 
-		input.PL_parseFile( std::string( argv[1] ) );
+		// --------------------------------------------
+		// then handle each argument file seperatly ...
+		// --------------------------------------------
+		for (auto const &item: iput_file)
+		{
+			basic_ifstream< char > ifile;
+			
+			ifile.open( item );
+			if (!ifile.is_open()) {
+				stringstream ss;
+				ss << "can not open input file: " << item;
+				PL_Exception<std::string> ex( ss.str() );
+				throw ex;
+			}
+			input.PL_parseFile( item );
+		}
 
 		STDCOUT
 		<< std::endl
 		<< "Compiled: OK" << std::endl
 		<< "Lines   : "   << input.PL_lineno << std::endl;
 	}
-	catch (PL_Exception<std::string>& e)
+	catch (PL_Exception_CommandLine< std::string >& e) {
+		STDCOUT
+		<< "Command line Error"
+		<< std::endl
+		<< "reason: " << e.what()
+		<< std::endl;
+	}
+	catch (PL_Exception< std::string >& e)
 	{
 		STDCOUT
-		<< "error : " << input.PL_lineno
+		<< "line  : " << input.PL_lineno
 		<< std::endl
 		<< "reason: " << e.what()
 		<< std::endl;
