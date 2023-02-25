@@ -1,36 +1,67 @@
-// --------------------------------------------------------------------------------
-// MIT License
-//
-// Copyright (c) 2023 Jens Kallup
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//
+//!
+//! \~English
+//! \page License
+//! MIT License
+//!
+//! Copyright (c) 2023 Jens Kallup
+//!
+//! Permission is hereby granted, free of charge, to any person obtaining a copy
+//! of this software and associated documentation files (the "Software"), to deal
+//! in the Software without restriction, including without limitation the rights
+//! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//! copies of the Software, and to permit persons to whom the Software is
+//! furnished to do so, subject to the following conditions:
+//!
+//! The above copyright notice and this permission notice shall be included in all
+//! copies or substantial portions of the Software.
+//!
+//! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//! SOFTWARE.
+//!
+//! \~endEnglish
+
+//! \~German
+//! \page Lizenz
+//! MIT Lizenz
+//!
+//! Copyright (c) 2023 Jens Kallup
+//!
+//! Hiermit wird jeder Person, die eine Kopie dieses Programms und der zugeh&ouml;rigen
+//! Dokumentationsunterlagen (hier genannt als "Software") erwirbt, kostenlos die
+//! Erlaubnis erteilt, uneingeschr&auml;nkt mit der Software zu handeln, einschlie&szlig;lich
+//! des Rechts, Kopien der Software zu verwenden, zu kopieren, zu modifizieren,
+//! zusammenzuf&uuml;hren, zu ver&ouml;ffentlichen, zu vertreiben, zu vervielf&auml;ltigen und/oder
+//! zu verkaufen. Personen, denen die Software zur Verf&uuml;gung gestellt wird ist dies
+//! unter folgenden Konditionen gestattet:
+//!
+//! Der vorgenannte Urheberrechtsvermerk und dieser Genehmigungsvermerk m&uuml;ssen in
+//! allen Kopien oder wesentlichen Teilen der Software enthalten sein.
+//!
+//! DIE SOFTWARE WIRD OHNE GEW&Auml;HRLEISTUNGEN JEGLICHER ART, WEDER AUSDR&Uuml;CKLICH NOCH
+//! STILLSCHWEIGEND, ZUR VERF&Uuml;GUNG GESTELLT. DIES UMFASST UNTER ANDEREM DIE GEW&Auml;HRLEISTUNG
+//! DER MARKTG&Auml;NGIGKEIT, DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND DER NICHTVERLETZUNG
+//! VON RECHTEN. IN KEINEM FALL SIND DIE AUTOREN ODER URHEBERRECHTSINHABER HAFTBAR ZU
+//! MACHEN FÜR JEGLICHE ANSPR&Uuml;CHE, SCH&Auml;DEN ODER SONSTIGE HAFTUNGEN, SEI ES AUS VERTRAG,
+//! UNERLAUBTER HANDLUNG ODER ANDEREN GR&Uuml;NDEN, DIE SICH IM ZUSAMMENHANG MIT DER SOFTWARE
+//! ODER DER NUTZUNG ODER DEM SONSTIGEN GEBRAUCH MIT DER SOFTWARE ERGEBEN.
+//!
+//! \~endGerman
+
+//! \~English
+//! \page Description
 //! \mainpage Zwapel Project
 //!
 //! This is the Programer's Documentation for the Zwapel Project.<br>
 //! Zwapel is a SWIPL Clone, which you can download <a href="">here</a>.
 //!
-//! ### Namespace
-//!
-//!   - \ref zwapel - zwapel namespace provides support for X86/X64 remote
-//!     assembly, to speed up the free Prolog System SWIPL.<br>
-//!     SWIPL can download from this <a href="https://www.swi-prolog.org/">link</a>.
+//! \section pageTOC Content
+//!  -# \ref Description
+//!  -# \ref License
 //!
 //! SWI-Prolog offers a comprehensive free Prolog environment.
 //! Since its start in 1987, SWI-Prolog development has been driven by the needs<br>
@@ -38,13 +69,61 @@
 //! as well as commercial applications. Join over a million users <br>
 //! who have downloaded SWI-Prolog.
 //!
+//! ### Namespace
+//!
+//!   - \ref zwapel - zwapel namespace provides support for X86/X64 remote
+//!     assembly, to speed up the free Prolog System SWIPL.<br>
+//!     SWIPL can download from this <a href="https://www.swi-prolog.org/">link</a>.
+//!
 //! ### Legal
 //!
 //!   - zwapel is distributed under the MIT license. Some of the used libraries
 //!     and extension packages have different license conditions. <br>
 //!     The licenses applicable to a running configuration can be examined by
 //!     running license/0. See license for details.
-// --------------------------------------------------------------------------------
+//!
+//! \page Description
+//! Zwapel is a serie of programming Tools to develop Applications with logical,
+//! and procedural programming DSL's
+//!
+//! \~endEnglish
+
+//! \~German
+//! \mainpage Zapel Projekt
+//!
+//! Dies ist die Dokumentation des Zwapel Projekts f&uuml;r Programmierer.<br>
+//! Zwapel ist ein SWIPL Clone, der auf folgender WebSeite <a href="">hier</a> gesaugt
+//! werden kann:
+//!
+//! \section pageTOC Inhalt
+//!  -# \ref Beschreibung
+//!  -# \ref Lizenz
+//!
+//! SWI Prolog bietet eine umfassende freie Prolog-Umgebung.
+//! Seit dem Start im Jahr 1987 wurde die Entwicklung von SWI Prolog den Bed&uuml;rfnissen
+//! der Anwender vorangetrieben. SWI Prolog wird sowohl in Forschung und Lehre als
+//! auch in kommerziellen Anwendungen eingesetzt.
+//! Schlie&szlig;en Sie sich den &uuml;ber eine Million Benutzern an, die SWI Prolog
+//! heruntergeladen haben.
+//!
+//! ### Namenraum
+//!
+//!   - \ref zwapel - Dieser Namenraum unterst&uuml;tzt Sie bei der Programmierung
+//!     von Programmen f&uuml;r "remote assembly" der x86/x64 CPU, <br>
+//!     um die Interpretation des eingelesenen Codes zu beschleunigen.<br>
+//!
+//! ### Rechtliches
+//!
+//!   - zwapel wird unter der MIT-Lizenz verteilt. Einige der benutzten Bibliotheken
+//!     und Erweiterungen können andere Lizenz-Bedingungen haben.<br>
+//!     Um mehr &uuml;ber die Lizenz für das Projekt zu erfahren, k&ouml;nnen Sie
+//!     durch Eingabe von license/0 eingesehen werden.
+//!
+//! \page Beschreibung
+//! Zwapel ist eine ganze Reihe von Programmen, die für das Programmieren von
+//! Anwendungen für logische, und prozedurale Bedürfnisse verwendet werden kann.
+//!
+//! \~endGerman
 
 // ---------------------------------------------------------------------
 // remote assembly headers ...
@@ -92,10 +171,32 @@ using namespace x86;
 using namespace std;
 
 // ---------------------------------------------------------------------
-// const, variables.
+// name space for the PL library:
 // ---------------------------------------------------------------------
 namespace prolog {
 
+// ---------------------------------------------------------------------
+// forward declaration's ...
+// ---------------------------------------------------------------------
+class Win32API;
+class Application;
+class Desktop;
+class Console;
+class Client;
+class Server;
+class Html;
+class Ftp;
+
+class PL_Prolog;
+class PL_Pascal;
+class PL_cLang ;
+class PL_dBase ;
+
+class PL_parser;
+
+// ---------------------------------------------------------------------
+// const, variables.
+// ---------------------------------------------------------------------
 #define STDCOUT  std::cout
 
 const int CVT_NONE   = 0;
@@ -105,47 +206,120 @@ const int CVT_PASCAL = 2;   // default ?
 int   convert_mode   = 0;
 
 // ---------------------------------------------------------------------
-// This application provides support for multiple locales. As such, you
-// have to specified, which charset do you would like to use.
-// charset UTF-8 use multibyte character settings, where the rest is
-// reserved for ANSI style characters.
+//! \class  PL_Exception
+//! \since  Version 0.0.1
+//! \authos paule32
+//! \~English
+//! \brief A tiny class with big advantages. They handle exception in
+//!        Application's, and is used to minimizing Code (no more care,
+//!        and use of using function results in Context of failures.
+//! \~endEnglish
+//! \~German
+//! \brief Eine kleine Klasse, mit großer Wirkung. Sie behandelt Ausnahmen
+//!        in Anwendungen, und wird benutzt, um den Quellcode kleiner, und
+//!        sauberer zu halten. Es ist nicht mehr nötig, sich durch
+//!        Spagetty-Code mit einer Vielzahl an "return" Werten zu navigieren.
+//! \~endGerman
 // ---------------------------------------------------------------------
-template <typename T1>
 class PL_Exception : public std::exception
 {
-	T1 message;
+	const char* message;
 
 public:
-	PL_Exception(T1 msg): message(msg){}
-	PL_Exception()      : message("Application Exception."){}
+	PL_Exception(const char *msg): message(msg){}
+	PL_Exception() : message("Application Exception."){}
     const char* what()
 	const throw() {
-		return message.c_str();
+		return message;
 	}
 };
 
-template <typename T1>
-class PL_Exception_CommandLine: public PL_Exception< T1 > {
-using PL_Exception< T1 >::PL_Exception;
+// ---------------------------------------------------------------------
+//! \class  PL_Exception_CommandLine
+//! \since  Version 0.0.1
+//! \authos paule32
+//! \~English
+//! \brief  A derived class from PL_Exception. It will be used, for
+//!         exception handling at Command Line (Console/Terminal).
+//! \~endEnglish
+//! \~German
+//! \brieg  Eine von PL_Exception abgeleitete Klasse. Sie kommt bei
+//!         Ausnahmen bei Anwendungen in der Console/Terminal zum Einsatz
+//! \~endGerman
+// ---------------------------------------------------------------------
+class PL_Exception_CommandLine: public PL_Exception {
+using PL_Exception::PL_Exception;
 };
 
 // ---------------------------------------------------------------------
-//! This is a helper class for the zwapel Prolog classes.
+//! \class  PL_helper
+//! \since  Version 0.0.1
+//! \~English
+//! \brief  This is a helper class for the zwapel Prolog classes.
 //!
 //! The class contains misc. help functions that will be use multiple
 //! times in the source code.<br>
 //! It is not the main class, so they can be a little bit twisted till
 //! the end product class system will be reached a profesional stage.
+//!
+//! \~endEnglish
+//! \~German
+//! \brief  Dies ist eine Behelfs-Klasse mit verschiedenen Funktionen,
+//!         für verschiedene Zwecke, die mehrmals verwendet werden.
+//!
+//! Diese Klasse enthält verschiedene Hilfs-Funktionen, die mehrmals
+//! im QuellCode Verwendet werden.<br>
+//! Es ist nicht die Haupt-Klasse, und kann ein wenig als unsortiert
+//! bis zur Fertigstellung eingestuft werden.
+//!
+//! \~endGerman
 // ---------------------------------------------------------------------
 class PL_helper {
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	
+	//! \since Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief This is the C++ constructor for the helper class.
+	//!
+	//! The class conatin simple types of functions that will be
+	//! stand as placeholder, because they will be used multiple
+	//! times.<br>
+	//! The C++ Compiler handle the inline function code during the
+	//! compile time.
+	//!
+	//! \param nothing
+	//! \~endEnglish
+	//! \~German
+	//! \brief Dies ist der C++ Klassen Konstrucktor für eine Behelfs-Klasse.
+	//!
+	//! Die Klasse enthält einfachen Typ-Funktionen, die als Platzhalter
+	//! dienen, da sie mehrmals verwendet werden.<br>
+	//! Der C++ Compiler handelt den inline-Function's Code während der
+	//! Übersetzung aus.
+	//!
+	//! \param keine.
+	//! \~endGerman
 	PL_helper() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_helper ()" <<
 		::std::endl;
 		#endif
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief  This is the C++ de-structor for help class clean-up.
+	//! \param  nothing - dtor's have no Arguments.
+	//! \return nothing - free Object with null-Pointer.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ de-struktor für Hilfs-Klassen Bereinigungen.
+	//! \param  keine - dtor's werden keinen Argumente zugewiesen.
+	//! \return keine - freies Objekt mit null-Zeiger.
+	//! \~endGerman
 	~PL_helper() {
 		#ifdef DEBUG
 		::std::cout << "dtor: ~PL_helper ()" <<
@@ -155,20 +329,49 @@ public:
 	
 	//-- FUNCTION DEFINITIONS ---------------------------------
 
-	//! \fn int PL_helper::PL_success() 
+	//! \fn int inline PL_helper::PL_success()
+	//! \since Version 0.0.1
+	//! \author paule32
+	//! \~English
 	//! \brief Prolog member function, that return TRUE on success rule.
+	//!        This function will be used by the Prolog parser.
+	//! \param nothing.
+	//! \~endEnglish
+	//! \~German
+	//! \brief Diese Funktion gibt TRUE als Wert zurück.
+	//!        Sie findet Anwendung beim Prolog Parser.
+	//! \param keine.
+	//! \~endGerman
+	int inline PL_success() { return 0; }
 	
-	//! \fn int PL_helper::PL_fail() 
+	//! \fn int inline PL_helper::PL_fail()
+	//! \since Version 0.0.1
+	//! \author paule32
+	//! \~English
 	//! \brief Prolog member function, that return FALSE on fail rule.
-	int PL_success() { return 0; }
-	int PL_fail   () { return 1; }
+	//!        This function will be used by the Prolog parser.
+	//! \param nothing.
+	//! \~endEnglish
+	//! \~German
+	//! \brief Diese Funktion gibt FALSE als Wert zurück.
+	//!        Sie findet Anwendung beim Prolog Parser.
+	//! \param keine.
+	//! \~endGerman
+	int inline PL_fail   () { return 1; }
 };
 
 // -----------------------------------------------------------------------
-// our encoder class for multiple locales (character set's) ...
+//! \class  PL_parser
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  The Parser class for all PL Projects.
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser Klasse, für alle PL Projekte.
+//! \~endGerman
 // -----------------------------------------------------------------------
-template <typename T1>
-class PL_Parser
+class PL_parser
 {
 	//-- INITIAL STUFF ----------------------------------------
 	void init() {
@@ -178,63 +381,127 @@ class PL_Parser
 	}
 
 public:
-	std::basic_ifstream< T1 > ifile;
-	std::basic_ofstream< T1 > ofile;
+	::std::ifstream ifile;
+	::std::ofstream ofile;
 
 	uint32_t PL_type_size;
 	uint32_t PL_file_size;
 
-	T1 PL_lookaheadChar;      // parsed char
+	char     PL_lookaheadChar;      // parsed char
 
-	::std::basic_string       < T1 > PL_ident;
-	::std::basic_stringstream < T1 > PL_source;
-
-	using PosType = typename std::conditional< std::is_same< T1, char>::value,
-		  uint32_t, uint64_t   >::type;
+	::std::string       PL_ident;
+	::std::stringstream PL_source;
 
 public:
-	PosType PL_lookaheadPosition;
-	PosType PL_nestedComment;
-	PosType PL_lineno;
+	uint32_t PL_lookaheadPosition;
+	uint32_t PL_nestedComment;
+	uint32_t PL_lineno;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_Parser(std::basic_string< T1 >&) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_parser::PL_parser(std::string)
+	//! \see    PL_parser::PL_parser(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for Parser Projects.
+	//! \param  std::string& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für Parser Projekte
+	//! \param  std::string& - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_parser(std::string&) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser std::basic_string< T1 >&" <<
+		::std::cout << "ctor: PL_parser std::string&" <<
 		::std::endl;
 		#endif
 		init();
 	}
-	PL_Parser(std::basic_string< T1 >) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_parser::PL_parser(std::string&)
+	//! \see    PL_parser::PL_parser(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for Parser Projects.
+	//! \param  std::string filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für Parser Projekte
+	//! \param  std::string - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_parser(std::string) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser std::basic_string< T1 >" <<
+		::std::cout << "ctor: PL_parser std::string" <<
 		::std::endl;
 		#endif
 		init();
 	}
-	PL_Parser(char&) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_parser::PL_parser(std::string&)
+	//! \see    PL_parser::PL_parser(std::string)
+	//! \~English
+	//! \brief  This is a C++ constructor class for Parser Projects.
+	//! \param  char& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für Parser Projekte
+	//! \param  char& - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_parser(char&) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_parser char&" <<
 		::std::endl;
 		#endif
 		init();
 	}
-	PL_Parser(char) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser char" <<
-		::std::endl;
-		#endif
-		init();
-	}
-	PL_Parser() {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_parser::PL_parser(std::string&)
+	//! \see    PL_parser::PL_parser(std::string)
+	//! \see    PL_parser::PL_parser(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for Parser Projects.
+	//! \param  nothing - default constructor.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für Parser Projekte
+	//! \param  keine - Standard Konstrukor.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_parser() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_parser ()" <<
 		::std::endl;
 		#endif
 		init();
 	}
-	~PL_Parser() {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief  This is the C++ de-structor for Parser class clean-up.
+	//! \param  nothing - dtor's have no Arguments.
+	//! \return nothing - free Object with null-Pointer.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ de-struktor für Parser Bereinigungen.
+	//! \param  keine - dtor's werden keinen Argumente zugewiesen.
+	//! \return keine - freies Objekt mit null-Zeiger.
+	//! \~endGerman
+	~PL_parser() {
 		#ifdef DEBUG
 		::std::cout << "dtor: ~PL_parser ()" <<
 		::std::endl;
@@ -242,19 +509,20 @@ public:
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
-	T1 PL_getch()
+	char PL_getch()
 	{
 		char buffer[4];
 
 		if (PL_lookaheadPosition >= PL_file_size) return 0x0;
 		if (PL_type_size < 1) {
-			PL_Exception<std::string> ex("data get underflow.");
+			PL_Exception ex("data get underflow.");
 			throw ex;
 		}	else
-		if (PL_type_size < 2) {
+		if (PL_type_size == 1) {
+			PL_lookaheadPosition += 1;
+			
 			PL_lookaheadChar  =
-			PL_source.str().c_str()[
-			PL_lookaheadPosition++];
+			PL_source.str().c_str()[PL_lookaheadPosition];
 		}	else
 		if (PL_type_size < 3) {
 			PL_source.get(buffer,2);
@@ -263,14 +531,15 @@ public:
 		return PL_lookaheadChar;
 	}
 	
-	T1 PL_ungetch()
+	char PL_ungetch()
 	{
 		if (PL_type_size < 1) {
-			PL_Exception<std::string> ex("data set underflow.");
+			PL_Exception ex("data set underflow.");
 			throw ex;
 		}	else
-		if (PL_type_size < 2) {
+		if (PL_type_size == 1) {
 			PL_lookaheadPosition -= 1;
+
 			PL_lookaheadChar  =
 			PL_source.str().c_str()[PL_lookaheadPosition];
 		}	else
@@ -282,19 +551,14 @@ public:
 		return PL_lookaheadChar;
 	}
 	
-	void PL_prepare(const ::std::basic_string< T1 > &filename)
+	void PL_prepare(const ::std::string &filename)
 	{
-		if (::std::is_same< T1, char         >::value) { ifile.open(filename); } else
-		if (::std::is_same< T1, ::std::string>::value) { ifile.open(filename); }
-		else {
-			ifile.imbue(::std::locale(std::locale(), new ::std::codecvt_utf8< wchar_t >));
-			PL_type_size = sizeof( wchar_t );
-		}
-		
-		if (ifile.is_open()) {
+		ifile.open(filename);
+		if (ifile.is_open())
+		{
 			PL_source << ifile.rdbuf();
 			PL_type_size = sizeof( char );
-			
+
 			// get size
 			PL_source.seekg(0, ::std::ios::end );
 			PL_file_size  =
@@ -302,14 +566,13 @@ public:
 			PL_source.seekp(0, ::std::ios::beg );
 			
 		}	else {
-			PL_Exception< ::std::string > ex("input file read error");
-			throw ex;
+			throw PL_Exception("input file read error");
 		}
 		
 		PL_ident.clear();
 	}
 	
-	T1 PL_parse_ident()
+	uint16_t PL_parse_ident()
 	{
 		if ((
 		(PL_lookaheadChar >= 'a')  &&
@@ -391,7 +654,7 @@ public:
 		if (PL_lookaheadChar == '/') {
 			PL_getch();
 			
-			if (PL_Parser< T1 >::PL_lookaheadChar == '/') {
+			if (PL_lookaheadChar == '/') {
 				while (PL_lookaheadPosition != PL_file_size)
 				{
 					PL_lookaheadChar =
@@ -403,11 +666,14 @@ public:
 				}
 			}
 			else if (PL_lookaheadChar == '*') {
-				while ( PL_lookaheadPosition != PL_file_size) {
+				while ( PL_lookaheadPosition != PL_file_size)
+				{
 						PL_lookaheadChar = PL_getch(); if (
 						PL_lookaheadChar == '*') {
+							
 						PL_lookaheadChar = PL_getch(); if (
 						PL_lookaheadChar == '/')
+						
 						break;
 					}
 				}
@@ -420,7 +686,7 @@ public:
 		if (PL_lookaheadChar == '/')
 		{
 			if (!(PL_lookaheadChar = PL_getch())) {
-				PL_Exception<std::string> ex("not yet implemented.");
+				PL_Exception ex("not yet implemented.");
 				throw ex;
 			}
 			
@@ -432,7 +698,7 @@ public:
 				while (PL_lookaheadPosition != PL_file_size) {
 					label_comment2:
 					if (!(PL_lookaheadChar = PL_getch())) {
-						PL_Exception< std::string > ex("unterminated comment");
+						PL_Exception ex("unterminated comment");
 						throw ex;
 					}
 				
@@ -444,7 +710,7 @@ public:
 
 					if (PL_lookaheadChar == '/') {
 						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception<std::string> ex("unterminated comment");
+							PL_Exception ex("unterminated comment");
 							throw ex;
 						}
 						
@@ -456,7 +722,7 @@ public:
 					
 					if (PL_lookaheadChar == '*') {
 						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception<std::string> ex("unterminated comment");
+							PL_Exception ex("unterminated comment");
 							throw ex;
 						}
 					
@@ -471,7 +737,7 @@ public:
 				}
 			}	else {
 				// todo
-				PL_Exception<std::string> ex("not yets implemented.");
+				PL_Exception ex("not yets implemented.");
 				throw ex;
 			}
 		}
@@ -482,7 +748,7 @@ public:
 		if (PL_lookaheadChar == '{')
 		{
 			if (!(PL_lookaheadChar = PL_getch())) {
-				PL_Exception<std::string> ex("not yet implemented.");
+				PL_Exception ex("not yet implemented.");
 				throw ex;
 			}
 			while (PL_lookaheadPosition != PL_file_size)
@@ -500,7 +766,7 @@ public:
 		else if (PL_lookaheadChar == '(')
 		{
 			if (!(PL_lookaheadChar = PL_getch())) {
-				PL_Exception<std::string> ex("not yet implemented.");
+				PL_Exception ex("not yet implemented.");
 				throw ex;
 			}
 			
@@ -512,7 +778,7 @@ public:
 				while (PL_lookaheadPosition != PL_file_size) {
 					label_comment2:
 					if (!(PL_lookaheadChar = PL_getch())) {
-						PL_Exception< std::string > ex("unterminated comment");
+						PL_Exception ex("unterminated comment");
 						throw ex;
 					}
 				
@@ -524,7 +790,7 @@ public:
 
 					if (PL_lookaheadChar == '(') {
 						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception<std::string> ex("unterminated comment");
+							PL_Exception ex("unterminated comment");
 							throw ex;
 						}
 						
@@ -537,7 +803,7 @@ public:
 					
 					if (PL_lookaheadChar == '*') {
 						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception<std::string> ex("unterminated comment");
+							PL_Exception ex("unterminated comment");
 							throw ex;
 						}
 					
@@ -552,290 +818,612 @@ public:
 				}
 			}	else {
 				// todo
-				PL_Exception<std::string> ex("not yets implemented.");
+				PL_Exception ex("not yets implemented.");
 				throw ex;
 			}
 		}
 	}
 };
 
-template <typename T1>
-class PL_Prolog: public PL_Parser< T1 >
+class PL_Prolog
 {
 public:
+	PL_parser* parser;
+
+public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_Prolog(::std::basic_string< T1 >&) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Prolog::PL_Prolog(std::string&)
+	//! \see    PL_Prolog::PL_Prolog(char&)
+	//! \see    PL_Prolog::PL_Prolog()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Prolog Parser.
+	//! \param  Application& ptr - Pointer to the Application class.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
+	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Prolog(Application&) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog std::basic_string< T1 >&" <<
+		::std::cout << "ctor: PL_Prolog Application" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_Prolog(::std::basic_string< T1 >) {
+
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(std::string)
+	//! \see    PL_Prolog::PL_Prolog(char&)
+	//! \see    PL_Prolog::PL_Prolog()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Prolog Parser.
+	//! \param  std::string& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
+	//! \param  std::string& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Prolog(::std::string&) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog std::basic_string< T1 >" <<
+		::std::cout << "ctor: PL_Prolog std::string&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(std::string&)
+	//! \see    PL_Prolog::PL_Prolog(char&)
+	//! \see    PL_Prolog::PL_Prolog()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Prolog Parser.
+	//! \param  std::string filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
+	//! \param  std::string dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Prolog(::std::string) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Prolog std::string" <<
+		::std::endl;
+		#endif
+		parser = new PL_parser;
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(std::string&)
+	//! \see    PL_Prolog::PL_Prolog(std::string)
+	//! \see    PL_Prolog::PL_Prolog()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Prolog Parser.
+	//! \param  char& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
+	//! \param  char& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
 	PL_Prolog(char&) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_Prolog char&&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_Prolog(char) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog char" <<
-		::std::endl;
-		#endif
-	}
+
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(std::string&)
+	//! \see    PL_Prolog::PL_Prolog(std::string)
+	//! \see    PL_Prolog::PL_Prolog(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Prolog Parser.
+	//! \param  nothing - Standard constructor.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
+	//! \param  keine - Standard Konstruktor.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
 	PL_Prolog() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_Prolog ()" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief  This is a C++ de-structor for the Prolog Parser class clean-up.
+	//! \param  nothing - dtor's have no Arguments.
+	//! \return nothing - free Object with null-Pointer.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für die Prolog Parser Klassen-Bereinigung.
+	//! \param  keine - dtor's werden keine Argumente zugewiesen.
+	//! \return keine - freies Objekt mit null-Zeiger.
+	//! \~endGerman
 	~PL_Prolog() {
+		delete parser;
 		#ifdef DEBUG
-		::std::cout << "ctor: ~PL_Prolog ()" <<
+		::std::cout << "dtor: ~PL_Prolog ()" <<
 		::std::endl;
 		#endif
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
-	void PL_parseFile(const ::std::basic_string< T1 > &filename )
+	void PL_parseFile(const ::std::string &filename )
 	{
-			PL_Parser< T1 >::PL_prepare(filename);
+			parser->PL_prepare(filename);
 		while (
-			PL_Parser< T1 >::PL_lookaheadPosition !=
-			PL_Parser< T1 >::PL_file_size)
+			parser->PL_lookaheadPosition !=
+			parser->PL_file_size)
 		{
 			label_start:
-			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
-			PL_Parser< T1 >::PL_skip_white_spaces()) break;
-			PL_Parser< T1 >::PL_skip_comment_cpp();
-			PL_Parser< T1 >::PL_skip_comment_c();
+			parser->PL_lookaheadChar =
+			
+			parser->PL_getch(); if (!
+			parser->PL_skip_white_spaces()) break;
+
+			//parser->PL_skip_comment_cpp();
+			//parser->PL_skip_comment_c();
 			
 			// one line comment
-			if (PL_Parser< T1 >::PL_lookaheadChar == '%') {
+			if (parser->PL_lookaheadChar == '%') {
 				label_comment:
-				while (1) {
-					if (!(PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch()))
+				while (
+					parser->PL_lookaheadPosition !=
+					parser->PL_file_size)
+				{
+					if (!(
+					parser->PL_lookaheadChar =
+					parser->PL_getch()))
 					break;
 				
-					if (PL_Parser< T1 >::PL_lookaheadChar == '\n') {
-						PL_Parser< T1 >::PL_lineno =
-						PL_Parser< T1 >::PL_lineno + 1;
+					if (parser->PL_lookaheadChar == '\n') {
+						parser->PL_lineno += 1;
 						break;
 					}
 				}
-				
-				if (PL_Parser< T1 >::PL_lookaheadPosition >=
-					PL_Parser< T1 >::PL_file_size)
-					break;
 
 				continue;
 			}
 
-				PL_Parser< T1 >::PL_lookaheadChar =
-				PL_Parser< T1 >::PL_parse_ident();
-			if (PL_Parser< T1 >::PL_ident.size() > 0)
+				parser->PL_lookaheadChar =
+				parser->PL_parse_ident();
+			if (parser->PL_ident.size() > 0)
 			{
-				std::cout << PL_Parser< T1 >::PL_ident << std::endl;
-				PL_Parser< T1 >::PL_ident.clear();
+				std::cout <<
+				parser->PL_ident  << std::endl;
+				parser->PL_ident.clear();
 			}
 		}
 	}
+
+	void exit(int returnCode = 0)
+	{
+		#ifdef DEBUG
+		::std::cout << "PL exit" <<
+		::std::endl;
+		#endif
+	}
+
+	int exec()
+	{
+		#ifdef DEBUG
+		::std::cout << "PL exec" <<
+		::std::endl;
+		#endif
+	}
 };
 
-template <typename T1>
-class PL_dBase: public PL_Parser< T1 >
+// -----------------------------------------------------------------------
+//! \class  PL_dBase
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  The Parser class for PL - dBase Projects.
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser Klasse, für PL - dBase Projekte.
+//! \~endGerman
+// -----------------------------------------------------------------------
+class PL_dBase
 {
 public:
+	PL_parser* parser;
+
+public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_dBase(std::basic_string< T1 >&) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(std::string)
+	//! \see    PL_dBase::PL_dBase(char&)
+	//! \see    PL_dBase::PL_dBase()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the dBase Parser.
+	//! \param  std::string& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den dBase Parser.
+	//! \param  std::string& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_dBase(std::string&) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase std::basic_string< T1 >&" <<
+		::std::cout << "ctor: PL_dBase std::string&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_dBase(std::basic_string< T1 >) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(std::string&)
+	//! \see    PL_dBase::PL_dBase(char&)
+	//! \see    PL_dBase::PL_dBase()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the dBase Parser.
+	//! \param  std::string& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den dBase Parser.
+	//! \param  std::string& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_dBase(std::string) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase std::basic_string< T1 >" <<
+		::std::cout << "ctor: PL_dBase std::string" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(std::string&)
+	//! \see    PL_dBase::PL_dBase(std::string)
+	//! \see    PL_dBase::PL_dBase()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the dBase Parser.
+	//! \param  char& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den dBase Parser.
+	//! \param  char& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
 	PL_dBase(char&) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_dBase char&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_dBase(char) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase char" <<
-		::std::endl;
-		#endif
-	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(std::string&)
+	//! \see    PL_dBase::PL_dBase(std::string))
+	//! \see    PL_dBase::PL_dBase(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the dBase Parser.
+	//! \param  nothing - default constructor.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den dBase Parser.
+	//! \param  nothing - Standard Konstruktor.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
 	PL_dBase() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_dBase ()" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief  This is a C++ de-structor for the dBase Parser class clean-up.
+	//! \param  nothing - dtor's have no Argument's
+	//! \return nothing - free Object with null-Pointer
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ De-struktor für die dBase Parser Klassen-Bereinigung.
+	//! \param  keine - dtor's werden keine Argumente zugewiesen.
+	//! \return keine - freies Objekt mit null-Zeiger
+	//! \~endGerman
 	~PL_dBase() {
 		#ifdef DEBUG
 		::std::cout << "dtor: ~PL_dBase ()" <<
 		::std::endl;
 		#endif
+		delete parser;
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
-	void PL_parseFile(const ::std::basic_string< T1 > &filename )
+	void PL_parseFile(const ::std::string &filename )
 	{
-			PL_Parser< T1 >::PL_prepare(filename);
+			parser->PL_prepare(filename);
 		while (
-			PL_Parser< T1 >::PL_lookaheadPosition !=
-			PL_Parser< T1 >::PL_file_size)
+			parser->PL_lookaheadPosition !=
+			parser->PL_file_size)
 		{
 			label_start:
-			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
-			PL_Parser< T1 >::PL_skip_white_spaces ()) break;
-			PL_Parser< T1 >::PL_skip_comment_cpp  ();
-			PL_Parser< T1 >::PL_skip_comment_dbase();
+			parser->PL_lookaheadChar =
+			parser->PL_getch(); if (!
+			
+			parser->PL_skip_white_spaces ()) break;
+			parser->PL_skip_comment_cpp  ();
+			
+			//PL_skip_comment_dbase();
 		}
 	}
 };
 
-template <typename T1>
-class PL_Pascal: public PL_Parser< T1 >
+class PL_Pascal
 {
 public:
+	PL_parser* parser;
+
+public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_Pascal(std::basic_string< T1 >&) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Pascal::PL_Pascal(std::string)
+	//! \see    PL_Pascal::PL_Pascal(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascal Parser.
+	//! \param  std::string& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  std::string& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Pascal(std::string&) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal std::basic_string< T1 >&" <<
+		::std::cout << "ctor: PL_Pascal std::string&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_Pascal(std::basic_string< T1 >) {
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Pascal::PL_Pascal(std::string&)
+	//! \see    PL_Pascal::PL_Pascal(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascal Parser.
+	//! \param  std::string filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  std::string dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Pascal(std::string) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal std::basic_string< T1 >" <<
+		::std::cout << "ctor: PL_Pascal std::string" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Pascal::PL_Pascal(std::string&)
+	//! \see    PL_Pascal::PL_Pascal(std::string)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascall Parser.
+	//! \param  char& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  char& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
 	PL_Pascal(char&) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_Pascal char&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_Pascal(char) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal char" <<
-		::std::endl;
-		#endif
-	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Pascal::PL_Pascal(std::string&)
+	//! \see    PL_Pascal::PL_Pascal(std::string)
+	//! \see    PL_Pascal::PL_Pascal(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascal Parser.
+	//! \param  nothing - default constructor.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  keine - Standard Konstruktor.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
 	PL_Pascal() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_Pascal ()" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief  This is a C++ de-structor for the Pascal Parser class clean-up.
+	//! \param  nothing - dtor's have no Argument's
+	//! \return nothing - free Object with null-Pointer
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ De-struktor für die Pascal Parser Klassen-Bereinigung.
+	//! \param  keine - dtor's werden keine Argumente zugewiesen.
+	//! \return keine - freies Objekt mit null-Zeiger
+	//! \~endGerman
 	~PL_Pascal() {
 		#ifdef DEBUG
 		::std::cout << "dtor: ~PL_Pascal ()" <<
 		::std::endl;
 		#endif
+		delete parser;
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
-	void PL_parseFile(const ::std::basic_string< T1 > &filename )
+	void PL_parseFile(const ::std::string &filename )
 	{
-			PL_Parser< T1 >::PL_prepare(filename);
+			parser->PL_prepare(filename);
 		while (
-			PL_Parser< T1 >::PL_lookaheadPosition !=
-			PL_Parser< T1 >::PL_file_size)
+			parser->PL_lookaheadPosition !=
+			parser->PL_file_size)
 		{
 			label_start:
-			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
-			PL_Parser< T1 >::PL_skip_white_spaces()) break;
-			PL_Parser< T1 >::PL_skip_comment_pas ();
-			PL_Parser< T1 >::PL_skip_comment_cpp ();
+			parser->PL_lookaheadChar =
 			
-			PL_Parser< T1 >::PL_lookaheadChar =
-			PL_Parser< T1 >::PL_parse_ident();
-			if (
-			PL_Parser< T1 >::PL_ident.size() > 0)
+			parser->PL_getch(); if (!
+			parser->PL_skip_white_spaces()) break;
+			
+			parser->PL_skip_comment_pas ();
+			parser->PL_skip_comment_cpp ();
+			
+			parser->PL_lookaheadChar =
+			parser->PL_parse_ident();
+			
+			if (parser->PL_ident.size() > 0)
 			{
-				std::cout << PL_Parser< T1 >::PL_ident << std::endl;
-				PL_Parser< T1 >::PL_ident.clear();
+				std::cout <<
+				parser->PL_ident << std::endl;
+				parser->PL_ident.clear();
 			}
 		}
 	}
 };
 
-template <typename T1>
-class PL_cLang: public PL_Parser< T1 >
+class PL_cLang
 {
 public:
+	PL_parser* parser;
+
+public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_cLang(std::basic_string< T1 >&) {
+	PL_cLang(std::string&) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang std::basic_string< T1 >&" <<
+		::std::cout << "ctor: PL_cLang std::string&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
-	PL_cLang(std::basic_string< T1 >) {
+	PL_cLang(std::string) {
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang std::basic_string< T1 >" <<
+		::std::cout << "ctor: PL_cLang std::string" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
 	PL_cLang(char&) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_cLang char&" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
 	PL_cLang(char) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_cLang char" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
 	PL_cLang() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_cLang ()" <<
 		::std::endl;
 		#endif
+		parser = new PL_parser;
 	}
 	~PL_cLang() {
 		#ifdef DEBUG
 		::std::cout << "dtor: ~PL_cLang ()" <<
 		::std::endl;
 		#endif
+		delete parser;
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
-	void PL_parseFile(const ::std::basic_string< T1 > &filename )
+	void PL_parseFile(const ::std::string &filename )
 	{
-			PL_Parser< T1 >::PL_prepare(filename);
+			parser->PL_prepare(filename);
 		while (
-			PL_Parser< T1 >::PL_lookaheadPosition !=
-			PL_Parser< T1 >::PL_file_size)
+			parser->PL_lookaheadPosition !=
+			parser->PL_file_size)
 		{
 			label_start:
-			PL_Parser< T1 >::PL_lookaheadChar = PL_Parser< T1 >::PL_getch(); if (!
-			PL_Parser< T1 >::PL_skip_white_spaces()) break;
-			PL_Parser< T1 >::PL_skip_comment_cpp();
-			PL_Parser< T1 >::PL_skip_comment_c();
+			parser->PL_lookaheadChar =
+			
+			parser->PL_getch(); if (!
+			parser->PL_skip_white_spaces()) break;
+			
+			parser->PL_skip_comment_cpp();
+			parser->PL_skip_comment_c();
 		}
 	}
 };
 
-template <typename T1>
-class Application: public T1 {
+class Application {
 public:
+	Application(Console&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Application Console" <<
+		::std::endl;
+		#endif
+	}
+	Application(Desktop&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Application Desktop" <<
+		::std::endl;
+		#endif
+	}
 	Application() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_Application ()" <<
@@ -848,79 +1436,27 @@ public:
 		::std::endl;
 		#endif
 	}
-};
+	
+	void exit(int returnCode = 0)
+	{
+		#ifdef DEBUG
+		::std::cout << "Application exit" <<
+		::std::endl;
+		#endif
+	}
 
-template <typename T1>
-class Server: public T1 {
-public:
-	Server() {
+	int exec()
+	{
 		#ifdef DEBUG
-		::std::cout << "ctor: PL_Server ()" <<
-		::std::endl;
-		#endif
-	}
-	~Server() {
-		#ifdef DEBUG
-		::std::cout << "ctor: ~PL_Server ()" <<
-		::std::endl;
-		#endif
-	}
-};
-
-template <typename T1>
-class Client: public T1 {
-public:
-	Client() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Client ()" <<
-		::std::endl;
-		#endif
-	}
-	~Client() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Client ()" <<
+		::std::cout << "Application exec" <<
 		::std::endl;
 		#endif
 	}
 };
 
-template <typename T1>
-class Html: public T1 {
+class Desktop {
 public:
-	Html() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Html ()" <<
-		::std::endl;
-		#endif
-	}
-	~Html() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Html ()" <<
-		::std::endl;
-		#endif
-	}
-};
-
-template <typename T1>
-class Ftp: public T1 {
-public:
-	Ftp() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Ftp ()" <<
-		::std::endl;
-		#endif
-	}
-	~Ftp() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Ftp ()" <<
-		::std::endl;
-		#endif
-	}
-};
-
-template <typename T1>
-class Desktop: public T1 {
-public:
+	Desktop(Win32API&) { }
 	Desktop() {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_Desktop ()" <<
@@ -933,10 +1469,25 @@ public:
 		::std::endl;
 		#endif
 	}
+	
+	void exit(int returnCode = 0)
+	{
+		#ifdef DEBUG
+		::std::cout << "Desktop exit" <<
+		::std::endl;
+		#endif
+	}
+
+	int exec()
+	{
+		#ifdef DEBUG
+		::std::cout << "Desktop exec" <<
+		::std::endl;
+		#endif
+	}
 };
 
-template <typename T1>
-class Console: public T1 {
+class Console {
 public:
 	Console() {
 		#ifdef DEBUG
@@ -952,8 +1503,7 @@ public:
 	}
 };
 
-template <typename T1>
-class Win32API: public T1 {
+class Win32API {
 public:
 	Win32API() {
 		#ifdef DEBUG
@@ -964,6 +1514,70 @@ public:
 	~Win32API() {
 		#ifdef DEBUG
 		::std::cout << "dtor: ~PL_Win32API ()" <<
+		::std::endl;
+		#endif
+	}
+};
+
+class Server {
+public:
+	Server() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Server ()" <<
+		::std::endl;
+		#endif
+	}
+	~Server() {
+		#ifdef DEBUG
+		::std::cout << "ctor: ~PL_Server ()" <<
+		::std::endl;
+		#endif
+	}
+};
+
+class Client {
+public:
+	Client() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Client ()" <<
+		::std::endl;
+		#endif
+	}
+	~Client() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Client ()" <<
+		::std::endl;
+		#endif
+	}
+};
+
+class Html {
+public:
+	Html() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Html ()" <<
+		::std::endl;
+		#endif
+	}
+	~Html() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Html ()" <<
+		::std::endl;
+		#endif
+	}
+};
+
+class Ftp {
+public:
+	Ftp() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Ftp ()" <<
+		::std::endl;
+		#endif
+	}
+	~Ftp() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Ftp ()" <<
 		::std::endl;
 		#endif
 	}
@@ -984,22 +1598,19 @@ main(int argc, char** argv)
 	
 	int output= 0;
 
-	#if __CHARSET_UTF8__
-	Win32API< Desktop< Application< PL_Prolog< wchar_t > > > > input ;
-	#else
-	Win32API< Desktop< Application< PL_Prolog< char    > > > > input ;
-	#endif
+	Win32API    win;
+	Desktop     gui( win );
+	Application app( gui );
+	PL_Prolog   prg( app );
 
 	try {
 		// ----------------------------------------
 		// get command arguments from console ...
 		// -i<input file> -o<output file>
 		// ----------------------------------------
-		if (argc < 2) {
-			PL_Exception_CommandLine<std::string>
-			ex("too few arguments.");
-			throw ex;
-		}
+		if (argc < 2)
+		throw PL_Exception_CommandLine("too few arguments.");
+
 		for (int arg = 1; arg < argc; ++arg)
 		{
 			s0.clear();
@@ -1014,16 +1625,13 @@ main(int argc, char** argv)
 				if (s0.at(1) == 'o')
 				{
 					s0.erase(0,2);
+					
 					if (output > 0)
-					{
-						PL_Exception_CommandLine<std::string>
-						ex("only one output supported.");
-						throw ex;
-					}
-					else {
-						oput_file.append(s0);
-						output += 1;
-					}
+					throw PL_Exception_CommandLine
+					("only one output supported.");
+
+					oput_file.append(s0);
+					output += 1;
 				}
 			}
 		}
@@ -1031,45 +1639,42 @@ main(int argc, char** argv)
 		// --------------------------------------------
 		// first, check, if user has give output file:
 		// --------------------------------------------
-		if (oput_file.size() < 1) {
-			PL_Exception_CommandLine<std::string>
-			ex("no output file given.");
-			throw ex;
-		}
+		if (oput_file.size() < 1)
+		throw PL_Exception_CommandLine("no output file given.");
 
 		// --------------------------------------------
 		// then handle each argument file seperatly ...
 		// --------------------------------------------
 		for (auto const &item: iput_file)
 		{
-			basic_ifstream< char > ifile;
+			ifstream ifile;
 			
 			ifile.open( item );
 			if (!ifile.is_open()) {
-				stringstream ss;
-				ss << "can not open input file: " << item;
-				PL_Exception<std::string> ex( ss.str() );
-				throw ex;
+				string ss;
+				ss += "can not open input file: ";
+				ss += item;
+				throw PL_Exception( ss.c_str() );
 			}
-			input.PL_parseFile( item );
+			prg.PL_parseFile( item );
 		}
 
 		STDCOUT
 		<< std::endl
 		<< "Compiled: OK" << std::endl
-		<< "Lines   : "   << input.PL_lineno << std::endl;
+		<< "Lines   : "   << prg.parser->PL_lineno << std::endl;
 	}
-	catch (PL_Exception_CommandLine< std::string >& e) {
+	catch (PL_Exception_CommandLine& e) {
 		STDCOUT
 		<< "Command line Error"
 		<< std::endl
 		<< "reason: " << e.what()
 		<< std::endl;
 	}
-	catch (PL_Exception< std::string >& e)
+	catch (PL_Exception& e)
 	{
 		STDCOUT
-		<< "line  : " << input.PL_lineno
+		<< "line  : " << prg.parser->PL_lineno
 		<< std::endl
 		<< "reason: " << e.what()
 		<< std::endl;
