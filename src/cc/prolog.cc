@@ -162,6 +162,7 @@
 # include <csignal>
 # include <type_traits>
 # include <typeinfo>
+# include <cctype>
 
 // ---------------------------------------------------------------------
 // namespace placeholder.
@@ -187,12 +188,18 @@ class Server;
 class Html;
 class Ftp;
 
+// ---------------------------------------------------------------------
+// PL parser stuff:
+// ---------------------------------------------------------------------
 class PL_Prolog;
 class PL_Pascal;
 class PL_cLang ;
 class PL_dBase ;
 
 class PL_parser;
+
+# define TOK_IDENT 1000
+# define TOK_WHITE 1001
 
 // ---------------------------------------------------------------------
 // const, variables.
@@ -223,14 +230,37 @@ int   convert_mode   = 0;
 // ---------------------------------------------------------------------
 class PL_Exception : public std::exception
 {
-	const char* message;
-
+	const ::std::string _message;
+	const uint32_t      _lineno;
 public:
-	PL_Exception(const char *msg): message(msg){}
-	PL_Exception() : message("Application Exception."){}
+	PL_Exception( ::std::string& msg, uint32_t line):
+		_message( msg ),
+		_lineno (line)
+		{}
+	PL_Exception( ::std::string msg, uint32_t line):
+		_message( msg ),
+		_lineno (line)
+		{}
+	PL_Exception(const char* msg, uint32_t line):
+		_message( ::std::string( msg ) ),
+		_lineno (line)
+		{}
+	PL_Exception(const char* msg):
+		_message( ::std::string( msg ) ),
+		_lineno (1)
+		{}
+	PL_Exception():
+		_message("Application Exception."),
+		_lineno (1)
+		{}
+		
     const char* what()
 	const throw() {
-		return message;
+		return _message.c_str();
+	}
+	const uint32_t line()
+	const throw() {
+		return _lineno;
 	}
 };
 
@@ -249,6 +279,53 @@ public:
 // ---------------------------------------------------------------------
 class PL_Exception_CommandLine: public PL_Exception {
 using PL_Exception::PL_Exception;
+};
+class PL_Exception_ParserError: public PL_Exception {
+using PL_Exception::PL_Exception;
+};
+
+class Application {
+public:
+	Application(Console&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Application Console" <<
+		::std::endl;
+		#endif
+	}
+	Application(Desktop&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Application Desktop" <<
+		::std::endl;
+		#endif
+	}
+	Application() {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Application ()" <<
+		::std::endl;
+		#endif
+	}
+	~Application() {
+		#ifdef DEBUG
+		::std::cout << "dtor: ~PL_Application ()" <<
+		::std::endl;
+		#endif
+	}
+	
+	void exit(int returnCode = 0)
+	{
+		#ifdef DEBUG
+		::std::cout << "Application exit" <<
+		::std::endl;
+		#endif
+	}
+
+	int exec()
+	{
+		#ifdef DEBUG
+		::std::cout << "Application exec" <<
+		::std::endl;
+		#endif
+	}
 };
 
 // ---------------------------------------------------------------------
@@ -387,7 +464,8 @@ public:
 	uint32_t PL_type_size;
 	uint32_t PL_file_size;
 
-	char     PL_lookaheadChar;      // parsed char
+	uint16_t PL_token;
+	uint16_t PL_lookaheadChar;      // parsed char
 
 	::std::string       PL_ident;
 	::std::stringstream PL_source;
@@ -515,8 +593,7 @@ public:
 
 		if (PL_lookaheadPosition >= PL_file_size) return 0x0;
 		if (PL_type_size < 1) {
-			PL_Exception ex("data get underflow.");
-			throw ex;
+			throw PL_Exception("data get underflow.",PL_lineno);
 		}	else
 		if (PL_type_size == 1) {
 			PL_lookaheadPosition += 1;
@@ -534,8 +611,7 @@ public:
 	char PL_ungetch()
 	{
 		if (PL_type_size < 1) {
-			PL_Exception ex("data set underflow.");
-			throw ex;
+			throw PL_Exception("data set underflow.",PL_lineno);
 		}	else
 		if (PL_type_size == 1) {
 			PL_lookaheadPosition -= 1;
@@ -566,7 +642,7 @@ public:
 			PL_source.seekp(0, ::std::ios::beg );
 			
 		}	else {
-			throw PL_Exception("input file read error");
+			throw PL_Exception("input file read error",PL_lineno);
 		}
 		
 		PL_ident.clear();
@@ -574,145 +650,150 @@ public:
 	
 	uint16_t PL_parse_ident()
 	{
-		if ((
-		(PL_lookaheadChar >= 'a')  &&
-		(PL_lookaheadChar <= 'z')) ||
-		(
-		(PL_lookaheadChar >= 'A')  &&
-		(PL_lookaheadChar <= 'Z')) ||
-		(
-		(PL_lookaheadChar == '_')))
-		{
-			label_ident:
-			PL_ident +=
-			PL_lookaheadChar;
+		PL_ident +=
+		PL_lookaheadChar;
 
-			while (
+		while (
 			PL_lookaheadPosition !=
 			PL_file_size)
-			{
-				PL_lookaheadChar = PL_getch();
-				if ((
-				(PL_lookaheadChar >= 'a')  &&
-				(PL_lookaheadChar <= 'z')) ||
-				(
-				(PL_lookaheadChar >= 'A')  &&
-				(PL_lookaheadChar <= 'Z')) ||
-				(
-				(PL_lookaheadChar >= '0')  &&
-				(PL_lookaheadChar <= '9')) ||
-				(
-				(PL_lookaheadChar == '_'))) {
-					if (PL_nestedComment < 1)
-					goto label_ident;
-				}
-				else if (PL_lookaheadChar == '\n') {
-					PL_lineno =
-					PL_lineno + 1;
-					break;
-				}
-				else if (PL_lookaheadChar == '\t') break;
-				else if (PL_lookaheadChar == ' ' ) break;
-				else {
-					PL_lookaheadChar = PL_ungetch();
-					break;
-				}
+		{
+			PL_lookaheadChar = PL_getch();
+			if (::std::isalnum(PL_lookaheadChar) ||
+				PL_lookaheadChar == '_') {
+				PL_ident +=
+				PL_lookaheadChar;
+			}
+			else if (PL_lookaheadChar == '\n') {
+				PL_lineno =
+				PL_lineno + 1;
+				break;
+			}
+			else if (PL_lookaheadChar == '\t') break;
+			else if (PL_lookaheadChar == ' ' ) break;
+			else {
+				PL_lookaheadChar = PL_ungetch();
+				break;
 			}
 		}
 		return PL_lookaheadChar;
 	}
 
-	uint8_t PL_skip_white_spaces()
+	uint16_t PL_skip_white_spaces()
 	{
-		if (PL_lookaheadChar == 0x00) {
-		if (PL_lookaheadPosition >=
-			PL_file_size)
-			return 0;
-		}
-	
-		if (
-		(PL_lookaheadChar == ' ' ) ||
-		(PL_lookaheadChar == '\t')) {
-			if (PL_ident.size() > 0) {
-				::std::cout <<
-				PL_ident << ::std::endl;
-				PL_ident.clear();
+		while(
+			PL_lookaheadPosition !=
+			PL_file_size) {
+			PL_lookaheadChar = PL_getch();
+				
+			if (PL_lookaheadChar == 0x00) {
+				PL_lookaheadChar = 0;
+				break;
+			}
+			else if(std::isalnum(PL_lookaheadChar) ||
+					PL_lookaheadChar == '_') {
+					PL_lookaheadChar =
+					PL_parse_ident() ;
+					PL_lookaheadChar = TOK_IDENT;
+					break;
+			}
+			else if (PL_lookaheadChar == ' ' ) {
+				continue;
+			}
+			else if (PL_lookaheadChar == '\t') {
+				continue;
+			}
+			else if (PL_lookaheadChar == '\n') {
+				PL_lineno += 1;
+				continue;
 			}	else {
-				return 1;
+				break;
 			}
 		}
-
-		if (PL_lookaheadChar == '\n') {
-			PL_lineno =
-			PL_lineno + 1;
-			return 2;
-		}
+		return PL_lookaheadChar;
 	}
 	
-	void PL_skip_comment_cpp(void)
+	uint16_t PL_skip_comment_cpp(void)
 	{
 		if (PL_lookaheadChar == '/') {
-			PL_getch();
-			
-			if (PL_lookaheadChar == '/') {
-				while (PL_lookaheadPosition != PL_file_size)
-				{
-					PL_lookaheadChar =
-					PL_getch(); if (
-					PL_lookaheadChar == '\n') {
-					PL_lineno += 1;
-					break;
-					}
+			while (
+				PL_lookaheadPosition !=
+				PL_file_size)
+			{
+				PL_lookaheadChar = PL_getch(); if (
+				PL_lookaheadChar == '\n') {
+				PL_lineno += 1;
+				break;
 				}
 			}
-			else if (PL_lookaheadChar == '*') {
-				while ( PL_lookaheadPosition != PL_file_size)
-				{
-						PL_lookaheadChar = PL_getch(); if (
-						PL_lookaheadChar == '*') {
-							
-						PL_lookaheadChar = PL_getch(); if (
-						PL_lookaheadChar == '/')
+			
+			if (PL_lookaheadChar == '\n') {
+				PL_lookaheadChar =
+				PL_skip_white_spaces();
+			}
+
+			return PL_lookaheadChar;
+		}
+		else if (PL_lookaheadChar == '*') {
+			while (
+				PL_lookaheadPosition !=
+				PL_file_size)
+			{
+				PL_lookaheadChar = PL_getch(); if (
+				PL_lookaheadChar == '*') {
 						
-						break;
-					}
+				PL_lookaheadChar = PL_getch(); if (
+				PL_lookaheadChar == '/')
+					break;
 				}
 			}
 		}
 	}
-	
+
+	//! \fn     void PL_skip_comment_c(void)
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_skip_comment_cpp(void)
+	//! \see    PL_skip_comment_pas(void)
+	//! \~English
+	//! \brief  This function member is related to the C Parser.
+	//!         Here, we deal with C source code comment's.
+	//! \param  nothing - void.
+	//! \return nothing - void.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Diese C++ Funktion wird im C Parser verwendet.
+	//!         Es werden nomale c und C++ Kommentare behandelt.
+	//! \param  keine - void.
+	//! \return keine - void.
+	//! \~endGerman
 	void PL_skip_comment_c(void)
 	{
 		if (PL_lookaheadChar == '/')
 		{
-			if (!(PL_lookaheadChar = PL_getch())) {
-				PL_Exception ex("not yet implemented.");
-				throw ex;
-			}
+			if (!(PL_lookaheadChar = PL_getch()))
+			throw PL_Exception("not yet implemented.",PL_lineno);
 			
 			if (PL_lookaheadChar == '*')
-			{
-				PL_nestedComment  =
-				PL_nestedComment  + 1;
+			{	PL_nestedComment += 1;
 				
-				while (PL_lookaheadPosition != PL_file_size) {
+				while (
+					PL_lookaheadPosition !=
+					PL_file_size)
+				{
 					label_comment2:
-					if (!(PL_lookaheadChar = PL_getch())) {
-						PL_Exception ex("unterminated comment");
-						throw ex;
-					}
+					
+					if (!(PL_lookaheadChar = PL_getch()))
+					throw PL_Exception("unterminated comment",PL_lineno);
 				
 					if (PL_lookaheadChar == '\n') {
-						PL_lineno =
-						PL_lineno + 1;
+						PL_lineno += 1;
 						continue;
 					}
 
-					if (PL_lookaheadChar == '/') {
-						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception ex("unterminated comment");
-							throw ex;
-						}
+					if (PL_lookaheadChar == '/')
+					{
+						if (!(PL_lookaheadChar = PL_getch()))
+						throw PL_Exception("unterminated comment",PL_lineno);
 						
 						if (PL_lookaheadChar == '*') {
 							PL_nestedComment += 1;
@@ -720,96 +801,129 @@ public:
 						}
 					}
 					
-					if (PL_lookaheadChar == '*') {
-						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception ex("unterminated comment");
-							throw ex;
-						}
+					if (PL_lookaheadChar == '*')
+					{
+						if (!(PL_lookaheadChar = PL_getch()))
+						throw PL_Exception("unterminated comment",PL_lineno);
 					
-						if (PL_lookaheadChar == '/') {
-							PL_nestedComment =
-							PL_nestedComment - 1;
-							
-							if (PL_nestedComment < 1)
-							break;
+						if (  PL_lookaheadChar == '/') {
+						if (++PL_nestedComment < 1)
+						break;
 						}
 					}
 				}
 			}	else {
 				// todo
-				PL_Exception ex("not yets implemented.");
-				throw ex;
+				throw PL_Exception("not yets implemented.",PL_lineno);
 			}
 		}
 	}
-	
-	void PL_skip_comment_pas(void)
+
+	//! \fn     void PL_skip_comment_pas(void)
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_skip_comment_cpp(void)
+	//! \~English
+	//! \brief  This function member is related to the Pascal Parser.
+	//!         Here, we deal with Pascal comment's.
+	//! \param  nothing - void.
+	//! \return nothing - void.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Diese C++ Funktion wird im Pascal Parser verwendet.
+	//!         Es werden nomale Pascal, und C++ Kommentare behandelt.
+	//! \param  keine - void.
+	//! \return keine - void.
+	//! \~endGerman
+	uint16_t PL_skip_comment_pas(void)
 	{
+		cout << "pas" << endl;
 		if (PL_lookaheadChar == '{')
 		{
-			if (!(PL_lookaheadChar = PL_getch())) {
-				PL_Exception ex("not yet implemented.");
-				throw ex;
-			}
-			while (PL_lookaheadPosition != PL_file_size)
+			while (
+				PL_lookaheadPosition !=
+				PL_file_size)
 			{
 				PL_lookaheadChar =
 				PL_getch();
+			
+				if (PL_lookaheadChar == '$') {
+					PL_lookaheadChar =
+					PL_getch();
+					
+					if (PL_lookaheadChar == '}')
+					return 0;
+				
+					if (::std::isalnum(PL_lookaheadChar) ||
+						PL_lookaheadChar == '_') {
+						PL_lookaheadChar =
+						PL_parse_ident() ;
+						cout << "def: " << PL_ident << endl << endl;
+						return 0;
+					}	else if (PL_lookaheadChar == '}' ) {
+						break;
+					}	else if (PL_lookaheadChar == '\n') {
+						PL_lineno += 1;
+						continue;
+					}	else if (PL_lookaheadChar == ' ' ) {
+						continue;
+					}	else if (PL_lookaheadChar == '\t') {
+						continue;
+					}	else if (PL_lookaheadChar == '\0') {
+						throw PL_Exception_ParserError(
+						"unterminated comment.");
+					}
+				}	else
+				if (PL_lookaheadChar == '}') {
+					PL_lookaheadChar =
+					PL_skip_white_spaces();
+					
+					return PL_lookaheadChar;
+				}	else
 				if (PL_lookaheadChar == '\n') {
 					PL_lineno += 1;
-				}	else if (
-					PL_lookaheadChar == '}') {
-					break;
+					continue;
 				}
 			}
 		}
 		else if (PL_lookaheadChar == '(')
 		{
-			if (!(PL_lookaheadChar = PL_getch())) {
-				PL_Exception ex("not yet implemented.");
-				throw ex;
-			}
+			if (!(PL_lookaheadChar = PL_getch()))
+			throw PL_Exception("not yet implemented.",PL_lineno);
 			
 			if (PL_lookaheadChar == '*')
-			{
-				PL_nestedComment =
-				PL_nestedComment + 1;
+			{	PL_nestedComment += 1;
 				
-				while (PL_lookaheadPosition != PL_file_size) {
+				while (
+					PL_lookaheadPosition !=
+					PL_file_size)
+				{
 					label_comment2:
-					if (!(PL_lookaheadChar = PL_getch())) {
-						PL_Exception ex("unterminated comment");
-						throw ex;
-					}
+
+					if (!(PL_lookaheadChar = PL_getch()))
+					throw PL_Exception("unterminated comment",PL_lineno);
 				
 					if (PL_lookaheadChar == '\n') {
-						PL_lineno =
-						PL_lineno + 1;
+						PL_lineno += 1;
 						continue;
 					}
 
 					if (PL_lookaheadChar == '(') {
-						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception ex("unterminated comment");
-							throw ex;
-						}
-						
+						if (!(PL_lookaheadChar = PL_getch()))
+						throw PL_Exception("unterminated comment",PL_lineno);
+
 						if (PL_lookaheadChar == '*') {
-							PL_nestedComment =
-							PL_nestedComment + 1;
+							PL_nestedComment += 1;
 							continue;
 						}
 					}
 					
 					if (PL_lookaheadChar == '*') {
-						if (!(PL_lookaheadChar = PL_getch())) {
-							PL_Exception ex("unterminated comment");
-							throw ex;
-						}
+						if (!(PL_lookaheadChar = PL_getch()))
+						throw PL_Exception("unterminated comment",PL_lineno);
 					
 						if (PL_lookaheadChar == ')') {
-							PL_nestedComment =
-							PL_nestedComment - 1;
+							PL_nestedComment -= 1;
 							
 							if (PL_nestedComment < 1)
 							break;
@@ -818,8 +932,7 @@ public:
 				}
 			}	else {
 				// todo
-				PL_Exception ex("not yets implemented.");
-				throw ex;
+				throw PL_Exception("not yets implemented.",PL_lineno);
 			}
 		}
 	}
@@ -858,7 +971,7 @@ public:
 
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(Application&)
 	//! \see    PL_Prolog::PL_Prolog(std::string)
 	//! \see    PL_Prolog::PL_Prolog(char&)
 	//! \see    PL_Prolog::PL_Prolog()
@@ -882,7 +995,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(Application&)
 	//! \see    PL_Prolog::PL_Prolog(std::string&)
 	//! \see    PL_Prolog::PL_Prolog(char&)
 	//! \see    PL_Prolog::PL_Prolog()
@@ -906,7 +1019,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(Application&)
 	//! \see    PL_Prolog::PL_Prolog(std::string&)
 	//! \see    PL_Prolog::PL_Prolog(std::string)
 	//! \see    PL_Prolog::PL_Prolog()
@@ -930,7 +1043,7 @@ public:
 
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application)
+	//! \see    PL_Prolog::PL_Prolog(Application&)
 	//! \see    PL_Prolog::PL_Prolog(std::string&)
 	//! \see    PL_Prolog::PL_Prolog(std::string)
 	//! \see    PL_Prolog::PL_Prolog(char&)
@@ -1019,6 +1132,11 @@ public:
 				parser->PL_ident.clear();
 			}
 		}
+		
+		STDCOUT
+		<< std::endl
+		<< "Compiled: OK" << std::endl
+		<< "Lines   : "   << parser->PL_lineno << std::endl;
 	}
 
 	void exit(int returnCode = 0)
@@ -1059,7 +1177,32 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(Application&)
+	//! \see    PL_dBase::PL_dBase(std::string&)
+	//! \see    PL_dBase::PL_dBase(std::string)
+	//! \see    PL_dBase::PL_dBase(char&)
+	//! \see    PL_dBase::PL_dBase()
+	//! \~English
+	//! \brief  This is the C++ constructor class for the dBase Parser.
+	//! \param  Application& ptr - Pointer to the Application class.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist der C++ Konstruktor für den dBase Parser.
+	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_dBase(Application&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_dBase Application" <<
+		::std::endl;
+		#endif
+		parser = new PL_parser;
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_dBase::PL_dBase(Application&)
 	//! \see    PL_dBase::PL_dBase(std::string)
 	//! \see    PL_dBase::PL_dBase(char&)
 	//! \see    PL_dBase::PL_dBase()
@@ -1083,7 +1226,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(Application&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(char&)
 	//! \see    PL_dBase::PL_dBase()
@@ -1107,7 +1250,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(Application&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(std::string)
 	//! \see    PL_dBase::PL_dBase()
@@ -1131,7 +1274,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application)
+	//! \see    PL_dBase::PL_dBase(Application&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(std::string))
 	//! \see    PL_dBase::PL_dBase(char&)
@@ -1190,6 +1333,10 @@ public:
 			
 			//PL_skip_comment_dbase();
 		}
+		STDCOUT
+		<< std::endl
+		<< "Compiled: OK" << std::endl
+		<< "Lines   : "   << parser->PL_lineno << std::endl;
 	}
 };
 
@@ -1203,8 +1350,34 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
+	//! \see    PL_Pascal::PL_Pascal(std::string&)
 	//! \see    PL_Pascal::PL_Pascal(std::string)
 	//! \see    PL_Pascal::PL_Pascal(char&)
+	//! \see    PL_Pascal::PL_Pascal()
+	//! \~English
+	//! \brief  This is the C++ constructor class for the Pascal Parser.
+	//! \param  Application& ptr - Pointer to the Application class.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist der C++ Konstruktor für den Pascal Parser.
+	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Pascal(Application&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal Application" <<
+		::std::endl;
+		#endif
+		parser = new PL_parser;
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Pascal::PL_Pascal(std::string&)
+	//! \see    PL_Pascal::PL_Pascal(std::string)
+	//! \see    PL_Pascal::PL_Pascal(char&)
+	//! \see    PL_Pascal::PL_Pascal()
 	//! \~English
 	//! \brief  This is a C++ constructor class for the Pascal Parser.
 	//! \param  std::string& filename - file to parse.
@@ -1319,24 +1492,57 @@ public:
 			parser->PL_file_size)
 		{
 			label_start:
-			parser->PL_lookaheadChar =
-			
-			parser->PL_getch(); if (!
-			parser->PL_skip_white_spaces()) break;
-			
-			parser->PL_skip_comment_pas ();
-			parser->PL_skip_comment_cpp ();
+			//parser->PL_lookaheadChar =
+			//parser->PL_getch();
 			
 			parser->PL_lookaheadChar =
-			parser->PL_parse_ident();
+			parser->PL_skip_white_spaces();
 			
-			if (parser->PL_ident.size() > 0)
-			{
-				std::cout <<
-				parser->PL_ident << std::endl;
-				parser->PL_ident.clear();
+			if (parser->PL_lookaheadChar == '/') parser->PL_lookaheadChar = parser->PL_skip_comment_cpp ();
+			if (parser->PL_lookaheadChar == '{') parser->PL_lookaheadChar = parser->PL_skip_comment_pas ();
+			if (parser->PL_lookaheadChar == '(') parser->PL_lookaheadChar = parser->PL_skip_comment_pas ();
+			
+			if (parser->PL_lookaheadChar == '\n')
+				parser->PL_lineno        +=    1; else
+			if (parser->PL_lookaheadChar == ' ' ) continue; else
+			if (parser->PL_lookaheadChar == '\t') continue; else
+
+			if (::std::isalnum(
+				parser->PL_lookaheadChar) ||
+				parser->PL_lookaheadChar  == '_') {
+
+				parser->PL_lookaheadChar =
+				parser->PL_parse_ident();
+			
+				if (parser->PL_ident.size() > 0)
+				{
+					::std::transform(
+					parser->PL_ident.cbegin(), parser->PL_ident.cend(),
+					parser->PL_ident.begin (), [](uint8_t c) {
+						return ::std::toupper(c);
+					});
+	
+					if (parser->PL_ident == "UNIT") {
+						std::cout <<
+						parser->PL_ident << std::endl;
+						parser->PL_ident.clear();
+					}	else {
+						throw PL_Exception_ParserError(
+						"unknown keyword found.");
+					}
+				}
 			}
+			#if 0
+			else {
+				throw PL_Exception_ParserError(
+				"unknow character found.");
+			}
+			#endif
 		}
+		STDCOUT
+		<< std::endl
+		<< "Compiled: OK" << std::endl
+		<< "Lines   : "   << parser->PL_lineno << std::endl;
 	}
 };
 
@@ -1347,6 +1553,31 @@ public:
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_cLang::PL_cLang(std::string&)
+	//! \see    PL_cLang::PL_cLang(std::string)
+	//! \see    PL_cLang::PL_cLang(char&)
+	//! \see    PL_cLang::PL_cLang()
+	//! \~English
+	//! \brief  This is the C++ constructor class for the C Parser.
+	//! \param  Application& ptr - Pointer to the Application class.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist der C++ Konstruktor für den C Parser.
+	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_cLang(Application&) {
+		#ifdef DEBUG
+		::std::cout << "ctor: PL_Pascal Application" <<
+		::std::endl;
+		#endif
+		parser = new PL_parser;
+	}
+
 	PL_cLang(std::string&) {
 		#ifdef DEBUG
 		::std::cout << "ctor: PL_cLang std::string&" <<
@@ -1407,50 +1638,11 @@ public:
 			parser->PL_skip_comment_cpp();
 			parser->PL_skip_comment_c();
 		}
-	}
-};
-
-class Application {
-public:
-	Application(Console&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Application Console" <<
-		::std::endl;
-		#endif
-	}
-	Application(Desktop&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Application Desktop" <<
-		::std::endl;
-		#endif
-	}
-	Application() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Application ()" <<
-		::std::endl;
-		#endif
-	}
-	~Application() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Application ()" <<
-		::std::endl;
-		#endif
-	}
-	
-	void exit(int returnCode = 0)
-	{
-		#ifdef DEBUG
-		::std::cout << "Application exit" <<
-		::std::endl;
-		#endif
-	}
-
-	int exec()
-	{
-		#ifdef DEBUG
-		::std::cout << "Application exec" <<
-		::std::endl;
-		#endif
+		
+		STDCOUT
+		<< std::endl
+		<< "Compiled: OK" << std::endl
+		<< "Lines   : "   << parser->PL_lineno << std::endl;
 	}
 };
 
@@ -1598,11 +1790,6 @@ main(int argc, char** argv)
 	
 	int output= 0;
 
-	Win32API    win;
-	Desktop     gui( win );
-	Application app( gui );
-	PL_Prolog   prg( app );
-
 	try {
 		// ----------------------------------------
 		// get command arguments from console ...
@@ -1615,24 +1802,34 @@ main(int argc, char** argv)
 		{
 			s0.clear();
 			s0.append(argv[arg]);
-			if (s0.at(0) == '-')
-			{
-				if (s0.at(1) == 'i')
-				{
-					s0.erase(0,2);
-					iput_file.push_back( s0 );
-				}	else
-				if (s0.at(1) == 'o')
-				{
-					s0.erase(0,2);
-					
-					if (output > 0)
-					throw PL_Exception_CommandLine
-					("only one output supported.");
 
-					oput_file.append(s0);
-					output += 1;
-				}
+			switch (s0.at(0)) {
+				case '-':
+					switch (s0.at(1)) {
+						case 'i':
+							s0.erase(0,2);
+							iput_file.push_back( s0 );
+						break;
+						case 'o':
+							if (output > 0)
+							throw PL_Exception_CommandLine(
+							"only one output supported.");
+						
+							s0.erase(0,2);
+
+							oput_file.append(s0);
+							output += 1;
+						break;
+						default:
+							throw PL_Exception_CommandLine(
+							"unknown option.");
+						break;
+					}
+				break;
+				default:
+					throw PL_Exception_CommandLine(
+					"unknown option.");
+				break;
 			}
 		}
 
@@ -1647,36 +1844,125 @@ main(int argc, char** argv)
 		// --------------------------------------------
 		for (auto const &item: iput_file)
 		{
-			ifstream ifile;
-			
-			ifile.open( item );
+			ifstream ifile(item);
 			if (!ifile.is_open()) {
-				string ss;
-				ss += "can not open input file: ";
-				ss += item;
-				throw PL_Exception( ss.c_str() );
+				stringstream ss;
+				ss << "can not open input file: ";
+				ss << item;
+				throw PL_Exception_CommandLine( ss.str().c_str() );
 			}
-			prg.PL_parseFile( item );
-		}
 
-		STDCOUT
-		<< std::endl
-		<< "Compiled: OK" << std::endl
-		<< "Lines   : "   << prg.parser->PL_lineno << std::endl;
+			// -----------------------------------------------------
+			// we deal with the extension of the file; here: Prolog
+			// -----------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "pl")
+			{
+				Win32API    win ;
+				Desktop     gui ( win );
+				Application app ( gui );
+				PL_Prolog   prg ( app );
+				
+				prg.PL_parseFile( item );
+				
+				return 0;
+			}
+			// -----------------------------------------------------
+			// we deal with the extension of the file; here: Pascal
+			// -----------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "pas")
+			{
+				Win32API    win ;
+				Desktop     gui ( win );
+				Application app ( gui );
+				PL_Pascal   prg ( app );
+				
+				prg.PL_parseFile( item );
+				
+				return 0;
+			}
+			// -----------------------------------------------------
+			// // we deal with the extension of the file; here: C
+			// -----------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "cc")
+			{
+				Win32API    win ;
+				Desktop     gui ( win );
+				Application app ( gui );
+				PL_cLang    prg ( app );
+				
+				prg.PL_parseFile( item );
+				
+				return 0;
+			}
+			// -------------------------------------------------------
+			// // we deal with the extension of the file; here: dBase
+			// -------------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "prg")
+			{
+				Win32API    win ;
+				Desktop     gui ( win );
+				Application app ( gui );
+				PL_dBase    prg ( app );
+				prg.PL_parseFile( item );
+				
+				return 0;
+			}
+
+			// -----------------------------------------------------
+			// any other file extension => fail.
+			// -----------------------------------------------------
+			throw PL_Exception_CommandLine(
+			"could not determine parser on file extension.");
+		}
 	}
+	
+	//-- CENTRALOZED EXCEPTION HANDLING -----------------------
+	
+	// -------------------------------------------
+	// exception, coming from command line error:
+	// -------------------------------------------
 	catch (PL_Exception_CommandLine& e) {
 		STDCOUT
 		<< "Command line Error"
 		<< std::endl
 		<< "reason: " << e.what()
 		<< std::endl;
+		
+		return 1;
 	}
+	// -------------------------------------------
+	// exception coming in context of PL parser:
+	// -------------------------------------------
+	catch (PL_Exception_ParserError& e)
+	{
+		STDCOUT
+		<< "parser error in line: " << e.line()
+		<< std::endl
+		<< "reason: " << e.what()
+		<< std::endl;
+
+		return 1;
+	}
+	// -------------------------------------------
+	// common exception, context is PL:
+	// -------------------------------------------
 	catch (PL_Exception& e)
 	{
 		STDCOUT
-		<< "line  : " << prg.parser->PL_lineno
+		<< "line  : " << e.line()
 		<< std::endl
 		<< "reason: " << e.what()
+		<< std::endl;
+
+		return 1;
+	}
+	// -------------------------------------------
+	// all other exception (defualt):
+	// -------------------------------------------
+	catch (...)
+	{
+		STDCOUT
+		<< "default exception"
 		<< std::endl;
 
 		return 1;
