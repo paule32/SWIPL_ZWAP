@@ -9,7 +9,11 @@ src/pp/dcu/**
 src/pp/out/**
 src/pp/Win64/**
 src/pp/*.~*
+src/cc/doxydoc/**
+src/cc/locale/**
+src/cc/po/**
 src/cc/*.o
+src/cc/warnings.txt
 src/cc/*.exe
 src/pl/*.dll
 src/pl/*.exe

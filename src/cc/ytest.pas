@@ -1,7 +1,16 @@
 // dddddd
 
 
-		
+			  
+			  
+{$define}{$endif}
 
-	{$defina
+
+program programs;{$
+};
+
+procedure begin;
+begin
+
+end;
 

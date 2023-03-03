@@ -147,6 +147,12 @@
 # include <sys/stat.h>
 
 // ---------------------------------------------------------------------
+// application localization ...
+// ---------------------------------------------------------------------
+# include <libintl.h>
+# include <locale.h>
+
+// ---------------------------------------------------------------------
 // c++ header
 // ---------------------------------------------------------------------
 # include <iostream>
@@ -163,6 +169,36 @@
 # include <type_traits>
 # include <typeinfo>
 # include <cctype>
+
+// ---------------------------------------------------------------------
+// Turbo Vision for C++ ...
+// ---------------------------------------------------------------------
+# define Uses_TRect
+# define Uses_TKeys
+# define Uses_TStaticText
+# define Uses_TButton
+# define Uses_TStatusLine
+# define Uses_TStatusItem
+# define Uses_TStatusDef
+# define Uses_TChDirDialog
+# define Uses_TFileDialog
+# define Uses_MsgBox
+# define Uses_TDisplay
+# define Uses_TScreen
+# define Uses_TEditor
+# define Uses_TMemo
+# define Uses_TStreamableClass
+# define Uses_TEvent
+# define Uses_TDialog
+# define Uses_TMenu
+# define Uses_TSubMenu
+# define Uses_TMenuItem
+# define Uses_TMenuBar
+# define Uses_TDeskTop
+# define Uses_TProgram
+# define Uses_TApplication
+
+# include <tvision/tv.h>
 
 // ---------------------------------------------------------------------
 // namespace placeholder.
@@ -191,15 +227,65 @@ class Ftp;
 // ---------------------------------------------------------------------
 // PL parser stuff:
 // ---------------------------------------------------------------------
-class PL_Prolog;
-class PL_Pascal;
-class PL_cLang ;
-class PL_dBase ;
+class    PL_Prolog ;
+class    PL_Pascal ;
+class    PL_cLang  ;
+class    PL_dBase  ;
+class    PL_Fortran;
 
-class PL_parser;
+class    PL_parser; 		// common parser stuff
+
+uint32_t PL_line_row = 1;	// PL parser row number
+uint32_t PL_line_col = 1;   // ...       column #
 
 # define TOK_IDENT 1000
 # define TOK_WHITE 1001
+
+// ---------------------------------------------------------------------
+// some mark-up styles, and code writing shortner ...
+// ---------------------------------------------------------------------
+# define BEGIN_WHILE       \
+  while (                  \
+  PL_lookaheadPosition !=  \
+  PL_file_size)    {
+# define END_WHILE }
+
+#ifdef DEBUG
+# define DEBUGSTR(x)       \
+  ::std::cout <<  x  <<    \
+  ::std::endl ;
+#else
+# define DEBUGSTR(x)
+#endif
+
+# define SUCCESS 0
+# define FAILURE 1
+
+inline int NT_ListExpr  () { return 1; }
+inline int NT_ListString() { return 2; }
+
+struct PL_ASTList_Expr {
+	double lhs;
+	double rhs;
+	int    op;
+};
+
+struct PL_ASTList_String {
+	::std::string str;
+	int           op;
+};
+
+struct PL_ASTList_Node {
+	int lineno;
+	int nodeType;
+	::std::string name;
+	
+	::std::vector< PL_ASTList_Expr   * > nodes_expr;
+	::std::vector< PL_ASTList_String * > nodes_string;
+	
+	struct PL_ASTList_Node * next;
+} *pl_head, *pl_tail, * pl_ptr ;
+
 
 // ---------------------------------------------------------------------
 // const, variables.
@@ -217,41 +303,55 @@ int   convert_mode   = 0;
 //! \since  Version 0.0.1
 //! \authos paule32
 //! \~English
-//! \brief A tiny class with big advantages. They handle exception in
-//!        Application's, and is used to minimizing Code (no more care,
-//!        and use of using function results in Context of failures.
+//! \brief A tiny class with big advantages.
+//! \details
+//! This class handle exception in Application's, and is used to
+//! minimizing Code (no more care, and use of using function results in
+//! Context of failures.
+//!
 //! \~endEnglish
 //! \~German
-//! \brief Eine kleine Klasse, mit großer Wirkung. Sie behandelt Ausnahmen
-//!        in Anwendungen, und wird benutzt, um den Quellcode kleiner, und
-//!        sauberer zu halten. Es ist nicht mehr nötig, sich durch
-//!        Spagetty-Code mit einer Vielzahl an "return" Werten zu navigieren.
+//! \brief Eine kleine Klasse, mit großer Wirkung.
+//! \details
+//! Sie behandelt Ausnahmen
+//! in Anwendungen, und wird benutzt, um den Quellcode kleiner, und
+//! sauberer zu halten. Es ist nicht mehr nötig, sich durch
+//! Spagetty-Code mit einer Vielzahl an "return" Werten zu navigieren.
+//!
 //! \~endGerman
 // ---------------------------------------------------------------------
 class PL_Exception : public std::exception
 {
 	const ::std::string _message;
-	const uint32_t      _lineno;
+
+	const uint32_t   _line_row;
+	const uint32_t   _line_col;
+
 public:
 	PL_Exception( ::std::string& msg, uint32_t line):
 		_message( msg ),
-		_lineno (line)
+		_line_row(line),
+		_line_col(PL_line_col)
 		{}
 	PL_Exception( ::std::string msg, uint32_t line):
 		_message( msg ),
-		_lineno (line)
+		_line_row(line),
+		_line_col(PL_line_col)
 		{}
 	PL_Exception(const char* msg, uint32_t line):
 		_message( ::std::string( msg ) ),
-		_lineno (line)
+		_line_row(line),
+		_line_col(PL_line_col)
 		{}
 	PL_Exception(const char* msg):
 		_message( ::std::string( msg ) ),
-		_lineno (1)
+		_line_row(PL_line_row),
+		_line_col(PL_line_col)
 		{}
 	PL_Exception():
 		_message("Application Exception."),
-		_lineno (1)
+		_line_row(PL_line_row),
+		_line_col(PL_line_col)
 		{}
 		
     const char* what()
@@ -260,7 +360,7 @@ public:
 	}
 	const uint32_t line()
 	const throw() {
-		return _lineno;
+		return _line_row;
 	}
 };
 
@@ -284,47 +384,135 @@ class PL_Exception_ParserError: public PL_Exception {
 using PL_Exception::PL_Exception;
 };
 
-class Application {
+// ---------------------------------------------------------------------
+// Application object for Console Projects ...
+// ---------------------------------------------------------------------
+const unsigned cmMMChangeMenu = 0x1600;
+
+const unsigned cmOne     = 100;
+const unsigned cmTwo     = 101;
+const unsigned cmThree   = 102;
+const unsigned cmCycle   = 110;
+const unsigned cmNothing = 111;
+
+class Application: public TApplication {
+	int curMenu;
 public:
-	Application(Console&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Application Console" <<
-		::std::endl;
-		#endif
+	class TMultiMenu : public ::TMenuBar {
+	protected:
+		::TMenu** mList;
+		int       numMenus;
+	public:
+		//! Constructor for a TMultiMenu object.  This version takes an array
+		//! of TMenu pointers.
+		TMultiMenu( const TRect& bounds, TMenu *aMenu[], int nMenus = 0 ):
+			::TMenuBar( bounds, aMenu[0])
+		{
+			if  (nMenus == 0)
+			for (nMenus  = 0; aMenu[nMenus] != NULL; nMenus++);
+
+			mList    = new TMenu *[nMenus];
+			numMenus =             nMenus ;
+
+			for (int i = 0; i < nMenus; i++)
+			mList[i]   = aMenu[i];
+		}
+
+		//! Constructor for a TMultiMenu object.  This version takes an array
+		//! of TSubMenu objects.
+		TMultiMenu( const TRect& bounds, TSubMenu aMenu[], int nMenus):
+			TMenuBar( bounds, aMenu[0]),
+			mList (new TMenu *[nMenus]),
+			numMenus( nMenus )
+		{
+			mList[0]   = menu;                  // First menu is already allocated.
+
+			for (int i =  1; i    < nMenus; i++)
+			mList[i]   = new TMenu( aMenu[i]);
+		}
+		
+		//! Destructor for a TMultiMenu object.  Destroys any stored menus
+		//! except for the current one (which will be destroyed by ~TMenuBar)
+		//! and frees the space where the list was stored.
+		~TMultiMenu() {
+			for (int i = 0; i < numMenus; i++)
+				
+			if (mList[i] != menu)          // Delete all but current menu.
+		
+			delete mList[i];
+			delete [] mList;
+		}
+
+		virtual void handleEvent(TEvent& event)
+		{
+			if (event.what == evBroadcast &&
+				event.message.command == cmMMChangeMenu)
+			{
+				if (event.message.infoInt >= 0 &&
+					event.message.infoInt < numMenus)
+				{
+					if (menu != mList[ event.message.infoInt ]) {
+						menu  = mList[ event.message.infoInt ];
+						drawView();
+					}
+				}
+				clearEvent( event );
+			}	else
+			::TMenuBar::handleEvent( event );
+		}
+	};
+
+	static ::TMenuBar*
+	initMenuBar( ::TRect r )
+	{
+		r.b.y = r.a.y + 1;
+		::TMenu *M[] =
+		{
+			new ::TMenu(
+				*new ::TMenuItem( "~F~ile menu", kbAltF, new ::TMenu(
+					*new TMenuItem( "~o~ne", 1000, kbAlt0)))),
+			0
+		};
+		return new TMultiMenu( r, M );
 	}
-	Application(Desktop&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Application Desktop" <<
-		::std::endl;
-		#endif
+	virtual void
+	handleEvent( ::TEvent& event ) {
+		if (event.what == evCommand &&
+			event.message.command >= cmOne &&
+			event.message.command <= cmThree)
+		{
+			curMenu = ( event.message.command - cmOne) % 3;
+			clearEvent( event );
+		}
+		else
+        ::TApplication::handleEvent( event );
 	}
-	Application() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Application ()" <<
-		::std::endl;
-		#endif
+
+public:
+	Application(Console& con):
+		::TProgInit(
+			&Application::initStatusLine,
+			&Application::initMenuBar,
+			&Application::initDeskTop),
+		TApplication(),
+		curMenu(0)
+	{
+		//DEBUGSTR("ctor: PL_Application Console")
 	}
+	
 	~Application() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Application ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_Application ()")
 	}
 	
 	void exit(int returnCode = 0)
 	{
-		#ifdef DEBUG
-		::std::cout << "Application exit" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("Application exit")
 	}
 
 	int exec()
 	{
-		#ifdef DEBUG
-		::std::cout << "Application exec" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("Application exec")
+		return 0;
 	}
 };
 
@@ -333,7 +521,7 @@ public:
 //! \since  Version 0.0.1
 //! \~English
 //! \brief  This is a helper class for the zwapel Prolog classes.
-//!
+//! \details
 //! The class contains misc. help functions that will be use multiple
 //! times in the source code.<br>
 //! It is not the main class, so they can be a little bit twisted till
@@ -343,7 +531,7 @@ public:
 //! \~German
 //! \brief  Dies ist eine Behelfs-Klasse mit verschiedenen Funktionen,
 //!         für verschiedene Zwecke, die mehrmals verwendet werden.
-//!
+//! \details
 //! Diese Klasse enthält verschiedene Hilfs-Funktionen, die mehrmals
 //! im QuellCode Verwendet werden.<br>
 //! Es ist nicht die Haupt-Klasse, und kann ein wenig als unsortiert
@@ -359,7 +547,7 @@ public:
 	//! \author paule32
 	//! \~English
 	//! \brief This is the C++ constructor for the helper class.
-	//!
+	//! \details
 	//! The class conatin simple types of functions that will be
 	//! stand as placeholder, because they will be used multiple
 	//! times.<br>
@@ -370,7 +558,7 @@ public:
 	//! \~endEnglish
 	//! \~German
 	//! \brief Dies ist der C++ Klassen Konstrucktor für eine Behelfs-Klasse.
-	//!
+	//! \details
 	//! Die Klasse enthält einfachen Typ-Funktionen, die als Platzhalter
 	//! dienen, da sie mehrmals verwendet werden.<br>
 	//! Der C++ Compiler handelt den inline-Function's Code während der
@@ -379,10 +567,7 @@ public:
 	//! \param keine.
 	//! \~endGerman
 	PL_helper() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_helper ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_helper ()")
 	}
 	
 	//! \since  Version 0.0.1
@@ -398,10 +583,7 @@ public:
 	//! \return keine - freies Objekt mit null-Zeiger.
 	//! \~endGerman
 	~PL_helper() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_helper ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_helper ()")
 	}
 	
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -438,6 +620,237 @@ public:
 };
 
 // -----------------------------------------------------------------------
+//! \class  PL_ASTList
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  AST - The Parser Abstract Syntax Tree class for all PL Projects.
+//!         Here implemented as linked list.
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser AST-Klasse, für alle PL Projekte.
+//!         Hier als linked list umgesetzt.
+//! \~endGerman
+// -----------------------------------------------------------------------
+class PL_ASTList
+{
+public:	
+	PL_ASTList()
+	{	struct PL_ASTList_Node *current, *temp;
+		pl_head = nullptr;
+		pl_tail = nullptr;
+		current = pl_head;
+		temp    = pl_head;
+		while (current != nullptr) {
+			current = current->next;
+			delete temp;
+			temp = current;
+		}
+	}
+   ~PL_ASTList() {
+		struct PL_ASTList_Node *current, *temp;
+		current = pl_head;
+		temp    = pl_head;
+		while (current != nullptr) {
+			current = current->next; delete temp;
+			temp    = current;
+		}
+    }
+   
+	struct PL_ASTList_Node* initNode(::std::string s, int i) {
+	struct PL_ASTList_Node* pl_ptr = new PL_ASTList_Node;
+		
+		// error? then just return
+		if (pl_ptr == nullptr)
+		return static_cast<
+		struct PL_ASTList_Node * >(nullptr);
+	
+		// assign it
+		// then return pointer to the node
+		else {
+			pl_ptr->name   = s;
+			pl_ptr->lineno = i;
+			return pl_ptr;
+		}
+	}
+	
+	void reverse() {
+		if ((pl_head == nullptr) || (pl_head->next == nullptr))
+		return;
+	
+		PL_ASTList_Node *parent = pl_head;
+		PL_ASTList_Node *me     = pl_head->next;
+		PL_ASTList_Node *child  = me     ->next;
+		
+		// convert head to tail
+		pl_head->next = nullptr;
+		
+		// reverse pointer direction
+		me->next      = pl_head;
+		
+		while (child != nullptr) {
+			me->next  = parent;
+			parent    = me;
+			me        = child;
+			child     = child->next;
+		}
+		
+		// when we reached tail
+		// we become head
+		pl_head = me;
+		
+		// the head now pointing to the second last node
+		pl_head->next = parent;
+	}
+	
+	void addNode(
+	struct PL_ASTList_Node* newNode) {
+
+		// if there no node, put it to head
+		if (pl_head == nullptr) {
+			pl_head  = newNode;
+			pl_tail  = newNode;
+		}
+		
+		// link int the new_node to the tail of the list
+		// then mark the next field as then end of the list
+		// adjust tail to point to the last node
+		pl_tail->next = newNode;
+		newNode->next = nullptr;
+		pl_tail       = newNode;
+	}
+
+	void insertNode(
+	struct PL_ASTList_Node* newnode) {
+	struct PL_ASTList_Node* temp, *prev;
+		
+		if (pl_head == nullptr) {			// uf an empty list,
+			pl_head = newnode;			// set "head" to it
+			pl_tail = newnode;
+			pl_head->next = nullptr;		// set end of list to null
+			return;
+		}
+		temp = pl_head; 				// start at beginning of list
+		while (temp->name < newnode->name) {		// while current name < new name
+			temp = temp->next;			// to be inserted then
+			if (temp == nullptr)			// goto to the next node in list
+			break;					// don't go past end of list
+		}
+		if (temp == pl_head) {
+			newnode->next = pl_head;
+			pl_head = newnode;
+		}	else {
+			prev = pl_head;
+			while (prev->next != temp) {
+				prev = prev->next;
+			}
+			prev   ->next = newnode;
+			newnode->next = temp;
+			
+			if (pl_tail == prev)
+			pl_tail = newnode;
+		}
+	}
+	
+	struct PL_ASTList_Node* searchName(
+	struct PL_ASTList_Node* ptr, ::std::string name)
+	{
+		while (name != ptr->name) {
+			ptr = ptr->next;
+			if (ptr == nullptr)
+			break;
+		}
+		return ptr;
+	}
+	
+	struct PL_ASTList_Node* searchID(
+	struct PL_ASTList_Node* ptr, int id)
+	{
+		while (id != ptr->lineno) {
+			ptr = ptr->next;
+			if (ptr == nullptr)
+			break;
+		}
+		return ptr;
+	}
+	
+	void deleteList(
+	struct PL_ASTList_Node* ptr) {
+	struct PL_ASTList_Node* temp, *prev;
+		
+		temp = ptr;     // node to be deleted
+		prev = pl_head; // start of the list, will cycle to node before temp
+		
+		if (temp == prev) {
+			pl_head = pl_head->next;
+			
+			if (pl_tail == temp)
+			pl_tail = pl_tail->next;
+
+			delete temp;
+		}	else {
+			while (prev->next != temp) {
+				prev = prev->next;
+			}
+			prev->next = temp->next;
+			
+			if (pl_tail == temp)
+			pl_tail = prev;
+		
+			delete temp;
+		}
+	}
+	
+	void displayNode(
+	struct PL_ASTList_Node* ptr) const {
+
+		::std::cout << ptr->lineno << ": " << ptr->name <<
+		::std::endl ;
+		
+		if (ptr->nodeType == NT_ListExpr()) {
+			::std::cout <<
+			ptr->nodes_expr.at(0)->lhs << ::std::endl <<
+			ptr->nodes_expr.at(0)->rhs << ::std::endl ;
+		}
+	}
+	
+	void displayList(
+	struct PL_ASTList_Node* ptr) const {
+
+		if (!ptr)
+		::std::cout << "nothing to display" <<
+		::std::endl ;
+		
+		while (ptr) {
+			displayNode(ptr);
+			ptr = ptr->next;
+		}
+	}
+	
+	//-- EXPRESSION STUFF -------------------------------------
+	
+	void addExpr(uint32_t lhs, uint32_t rhs) {
+	struct PL_ASTList_Node *current;
+	
+		auto *n_expr = new PL_ASTList_Expr;
+		
+		current = pl_head;
+		current->nodeType = NT_ListExpr();
+
+		n_expr->lhs = static_cast< double >(lhs);
+		n_expr->rhs = static_cast< double >(rhs);
+		
+		current->nodes_expr.push_back(n_expr);
+	}
+};
+
+class PL_ASTListRunner {
+public:
+	PL_ASTListRunner(){}
+	~PL_ASTListRunner(){}
+};
+
+// -----------------------------------------------------------------------
 //! \class  PL_parser
 //! \since  Version 0.0.1
 //! \author paule32
@@ -450,30 +863,45 @@ public:
 // -----------------------------------------------------------------------
 class PL_parser
 {
+private:
 	//-- INITIAL STUFF ----------------------------------------
 	void init() {
-		PL_lookaheadPosition = 0;
-		PL_lineno            = 1;
-		PL_nestedComment     = 0;
+		PL_lookaheadPosition = -1;
+		PL_line_row          =  1;
+		PL_line_col          =  1;
+		PL_nestedComment     =  0;
 	}
 
-public:
+	::std::vector< ::std::string > PL_pascal_keywords = {
+		"define", "endif",
+		"unit", "library", "program",
+		"interface", "implementation",
+		"var", "const",
+		"begin", "end", "exit", "result",
+		"procedure", "function",
+		"for", "while", "repeat", "until", "do"
+		"string", "integer", "char", "byte",
+		"mod", "div", "abs",
+		"sin", "cos", "tan",
+		"if", "else", "case", "break"
+	};
+	
 	::std::ifstream ifile;
 	::std::ofstream ofile;
 
+public:
 	uint32_t PL_type_size;
 	uint32_t PL_file_size;
-
+	
 	uint16_t PL_token;
 	uint16_t PL_lookaheadChar;      // parsed char
-
+	
 	::std::string       PL_ident;
 	::std::stringstream PL_source;
 
 public:
 	uint32_t PL_lookaheadPosition;
 	uint32_t PL_nestedComment;
-	uint32_t PL_lineno;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
@@ -493,10 +921,7 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_parser(std::string&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser std::string&" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_parser std::string&")
 		init();
 	}
 	
@@ -515,10 +940,7 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_parser(std::string) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser std::string" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_parser std::string")
 		init();
 	}
 	
@@ -537,10 +959,7 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_parser(char&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser char&" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_parser char&")
 		init();
 	}
 	
@@ -560,10 +979,7 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_parser() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_parser ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_parser ()")
 		init();
 	}
 	
@@ -580,55 +996,43 @@ public:
 	//! \return keine - freies Objekt mit null-Zeiger.
 	//! \~endGerman
 	~PL_parser() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_parser ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_parser ()")
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
 	char PL_getch()
 	{
-		char buffer[4];
+		PL_lookaheadChar =
+		PL_source.str().c_str()[++PL_lookaheadPosition];
+		PL_line_col += 1;
 
-		if (PL_lookaheadPosition >= PL_file_size) return 0x0;
-		if (PL_type_size < 1) {
-			throw PL_Exception("data get underflow.",PL_lineno);
-		}	else
-		if (PL_type_size == 1) {
-			PL_lookaheadPosition += 1;
-			
-			PL_lookaheadChar  =
-			PL_source.str().c_str()[PL_lookaheadPosition];
-		}	else
-		if (PL_type_size < 3) {
-			PL_source.get(buffer,2);
-			PL_lookaheadChar = ((uint16_t) buffer[0] << 8) | buffer[1];
-		}
 		return PL_lookaheadChar;
 	}
 	
-	char PL_ungetch()
+	uint16_t PL_ungetch()
 	{
-		if (PL_type_size < 1) {
-			throw PL_Exception("data set underflow.",PL_lineno);
-		}	else
-		if (PL_type_size == 1) {
-			PL_lookaheadPosition -= 1;
+		PL_lookaheadChar  =
+		PL_source.str().c_str()[--PL_lookaheadPosition];
+		PL_line_col -= 1;
 
-			PL_lookaheadChar  =
-			PL_source.str().c_str()[PL_lookaheadPosition];
-		}	else
-		if (PL_type_size < 3) {
-			PL_lookaheadPosition -= 2;
-			PL_lookaheadChar =
-			PL_source.str().c_str()[PL_lookaheadPosition];
-		}
 		return PL_lookaheadChar;
 	}
 	
 	void PL_prepare(const ::std::string &filename)
 	{
+		/*
+		PL_ASTList     myAST;
+		PL_ASTList_Node* ptr;
+		
+		ptr = myAST.initNode("main", PL_line_row);
+		myAST.addNode(ptr);
+		myAST.addExpr(12,10012);
+		
+		
+		myAST.displayList(pl_head);
+
+		throw PL_Exception("kein fehler");*/
+		
 		ifile.open(filename);
 		if (ifile.is_open())
 		{
@@ -642,30 +1046,31 @@ public:
 			PL_source.seekp(0, ::std::ios::beg );
 			
 		}	else {
-			throw PL_Exception("input file read error",PL_lineno);
+			throw PL_Exception("input file read error",PL_line_row);
 		}
 		
-		PL_ident.clear();
+		PL_ident = ::std::string("");
 	}
 	
 	uint16_t PL_parse_ident()
 	{
-		PL_ident +=
-		PL_lookaheadChar;
+		//PL_ident = PL_lookaheadChar;
+		PL_lookaheadChar =
+		PL_ungetch();
 
-		while (
-			PL_lookaheadPosition !=
-			PL_file_size)
-		{
+		BEGIN_WHILE
 			PL_lookaheadChar = PL_getch();
 			if (::std::isalnum(PL_lookaheadChar) ||
 				PL_lookaheadChar == '_') {
 				PL_ident +=
 				PL_lookaheadChar;
+				//printf("----> %c\n", PL_lookaheadChar);
+				continue;
 			}
-			else if (PL_lookaheadChar == '\n') {
-				PL_lineno =
-				PL_lineno + 1;
+			else if (
+				PL_lookaheadChar == '\n') {
+				PL_line_row += 1;
+				PL_line_col  = 1;
 				break;
 			}
 			else if (PL_lookaheadChar == '\t') break;
@@ -674,15 +1079,28 @@ public:
 				PL_lookaheadChar = PL_ungetch();
 				break;
 			}
-		}
+		END_WHILE
 		return PL_lookaheadChar;
+	}
+
+	bool
+	PL_check_white_spaces()
+	{
+		bool result = false;
+		if (PL_lookaheadChar == ' ' ||
+			PL_lookaheadChar == '\t') {
+			result = true;
+		}
+		else if (PL_lookaheadChar == '\n') {
+			PL_line_row += 1;
+			PL_line_col  = 1;
+			result = true;
+		}	return result;
 	}
 
 	uint16_t PL_skip_white_spaces()
 	{
-		while(
-			PL_lookaheadPosition !=
-			PL_file_size) {
+		BEGIN_WHILE
 			PL_lookaheadChar = PL_getch();
 				
 			if (PL_lookaheadChar == 0x00) {
@@ -690,63 +1108,58 @@ public:
 				break;
 			}
 			else if(std::isalnum(PL_lookaheadChar) ||
-					PL_lookaheadChar == '_') {
-					PL_lookaheadChar =
-					PL_parse_ident() ;
-					PL_lookaheadChar = TOK_IDENT;
-					break;
-			}
-			else if (PL_lookaheadChar == ' ' ) {
-				continue;
-			}
-			else if (PL_lookaheadChar == '\t') {
-				continue;
-			}
-			else if (PL_lookaheadChar == '\n') {
-				PL_lineno += 1;
-				continue;
-			}	else {
+				PL_lookaheadChar == '_') {
+				PL_lookaheadChar =
+				PL_parse_ident() ;
+				PL_lookaheadChar = TOK_IDENT;
 				break;
 			}
-		}
+			else if (PL_check_white_spaces())
+			continue; else
+			break;
+		END_WHILE
 		return PL_lookaheadChar;
 	}
 	
 	uint16_t PL_skip_comment_cpp(void)
 	{
-		if (PL_lookaheadChar == '/') {
-			while (
-				PL_lookaheadPosition !=
-				PL_file_size)
-			{
-				PL_lookaheadChar = PL_getch(); if (
-				PL_lookaheadChar == '\n') {
-				PL_lineno += 1;
-				break;
-				}
-			}
-			
-			if (PL_lookaheadChar == '\n') {
-				PL_lookaheadChar =
-				PL_skip_white_spaces();
-			}
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch();
 
-			return PL_lookaheadChar;
-		}
-		else if (PL_lookaheadChar == '*') {
-			while (
-				PL_lookaheadPosition !=
-				PL_file_size)
-			{
-				PL_lookaheadChar = PL_getch(); if (
-				PL_lookaheadChar == '*') {
+			if (PL_lookaheadChar == '/') {
+				PL_lookaheadChar =
+				PL_getch();
+				if (PL_lookaheadChar == '/') {
+					cout << "c++ coment" << endl;
+					BEGIN_WHILE
+						PL_lookaheadChar = PL_getch(); if (
+						PL_lookaheadChar == '\n') {
+						PL_line_row += 1;
+						PL_line_col  = 1;
+						break;
+						}
+					END_WHILE
+				}	else
+				if (PL_lookaheadChar == '*') {
+					BEGIN_WHILE
+						PL_lookaheadChar = PL_getch(); if (
+						PL_lookaheadChar == '*') {
 						
-				PL_lookaheadChar = PL_getch(); if (
-				PL_lookaheadChar == '/')
-					break;
+						PL_lookaheadChar = PL_getch(); if (
+						PL_lookaheadChar == '/')
+						break;
+						}
+					END_WHILE
+				}	else {
+					throw PL_Exception_ParserError("nit yet implemented");
 				}
 			}
-		}
+			else if (PL_check_white_spaces())
+			continue; else return
+			PL_lookaheadChar;
+		END_WHILE
+		return 0;
 	}
 
 	//! \fn     void PL_skip_comment_c(void)
@@ -771,29 +1184,27 @@ public:
 		if (PL_lookaheadChar == '/')
 		{
 			if (!(PL_lookaheadChar = PL_getch()))
-			throw PL_Exception("not yet implemented.",PL_lineno);
+			throw PL_Exception("not yet implemented.",PL_line_row);
 			
 			if (PL_lookaheadChar == '*')
 			{	PL_nestedComment += 1;
 				
-				while (
-					PL_lookaheadPosition !=
-					PL_file_size)
-				{
+				BEGIN_WHILE
 					label_comment2:
 					
 					if (!(PL_lookaheadChar = PL_getch()))
-					throw PL_Exception("unterminated comment",PL_lineno);
+					throw PL_Exception("unterminated comment",PL_line_row);
 				
 					if (PL_lookaheadChar == '\n') {
-						PL_lineno += 1;
+						PL_line_row += 1;
+						PL_line_col  = 1;
 						continue;
 					}
 
 					if (PL_lookaheadChar == '/')
 					{
 						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception("unterminated comment",PL_lineno);
+						throw PL_Exception("unterminated comment",PL_line_row);
 						
 						if (PL_lookaheadChar == '*') {
 							PL_nestedComment += 1;
@@ -804,17 +1215,17 @@ public:
 					if (PL_lookaheadChar == '*')
 					{
 						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception("unterminated comment",PL_lineno);
+						throw PL_Exception("unterminated comment",PL_line_row);
 					
 						if (  PL_lookaheadChar == '/') {
 						if (++PL_nestedComment < 1)
 						break;
 						}
 					}
-				}
+				END_WHILE
 			}	else {
 				// todo
-				throw PL_Exception("not yets implemented.",PL_lineno);
+				throw PL_Exception("not yets implemented.",PL_line_row);
 			}
 		}
 	}
@@ -838,110 +1249,348 @@ public:
 	uint16_t PL_skip_comment_pas(void)
 	{
 		cout << "pas" << endl;
-		if (PL_lookaheadChar == '{')
-		{
-			while (
-				PL_lookaheadPosition !=
-				PL_file_size)
+		uint16_t PL_result = 0;
+
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch();
+		
+			// { comment }
+			// {$define}
+			if (PL_lookaheadChar == '{')
 			{
+				PL_nestedComment += 1;
 				PL_lookaheadChar =
 				PL_getch();
 			
 				if (PL_lookaheadChar == '$') {
+					PL_ident = "";
 					PL_lookaheadChar =
-					PL_getch();
+					PL_parse_ident();
+						
+					cout << "comm: " << PL_ident << endl;
 					
-					if (PL_lookaheadChar == '}')
-					return 0;
-				
-					if (::std::isalnum(PL_lookaheadChar) ||
-						PL_lookaheadChar == '_') {
-						PL_lookaheadChar =
-						PL_parse_ident() ;
-						cout << "def: " << PL_ident << endl << endl;
-						return 0;
-					}	else if (PL_lookaheadChar == '}' ) {
+					if (PL_lookaheadChar == TOK_IDENT) {
+						cout << "PL: " << PL_ident << endl;
+						PL_ident = "";
+						continue;
+					}	else
+					if (PL_lookaheadChar == '}') {
+						PL_nestedComment -= 1;
+						if (PL_nestedComment > 0)
+						continue; else
 						break;
-					}	else if (PL_lookaheadChar == '\n') {
-						PL_lineno += 1;
+					}	else
+					if (PL_lookaheadChar == '\n') {
+						PL_line_row += 1;
+						PL_line_col  = 1;
 						continue;
-					}	else if (PL_lookaheadChar == ' ' ) {
-						continue;
-					}	else if (PL_lookaheadChar == '\t') {
-						continue;
-					}	else if (PL_lookaheadChar == '\0') {
-						throw PL_Exception_ParserError(
-						"unterminated comment.");
 					}
 				}	else
 				if (PL_lookaheadChar == '}') {
-					PL_lookaheadChar =
-					PL_skip_white_spaces();
-					
-					return PL_lookaheadChar;
-				}	else
-				if (PL_lookaheadChar == '\n') {
-					PL_lineno += 1;
-					continue;
+					PL_nestedComment -= 1;
+					if (PL_nestedComment > 0)
+					continue; else
+					break;
 				}
-			}
-		}
-		else if (PL_lookaheadChar == '(')
-		{
-			if (!(PL_lookaheadChar = PL_getch()))
-			throw PL_Exception("not yet implemented.",PL_lineno);
+			}	else
+			if (PL_lookaheadChar == '\n') {
+				PL_line_row += 1;
+				PL_line_col  = 1;
+				continue;
+			}	else
+			if (PL_lookaheadChar == '\t') {
+				continue;
+			}	else
+			if (PL_lookaheadChar == ' ') {
+				continue;
+			}	else
+			// (* comment *)
+			if (PL_lookaheadChar == '(') {
+				PL_lookaheadChar =
+				PL_getch();
 			
-			if (PL_lookaheadChar == '*')
-			{	PL_nestedComment += 1;
-				
-				while (
-					PL_lookaheadPosition !=
-					PL_file_size)
-				{
-					label_comment2:
-
-					if (!(PL_lookaheadChar = PL_getch()))
-					throw PL_Exception("unterminated comment",PL_lineno);
-				
-					if (PL_lookaheadChar == '\n') {
-						PL_lineno += 1;
-						continue;
-					}
-
-					if (PL_lookaheadChar == '(') {
-						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception("unterminated comment",PL_lineno);
-
-						if (PL_lookaheadChar == '*') {
-							PL_nestedComment += 1;
+				if (PL_lookaheadChar == '*') {
+					PL_nestedComment += 1;
+					BEGIN_WHILE
+						PL_lookaheadChar =
+						PL_getch();
+					
+						if (PL_lookaheadChar == '\n') {
+							PL_line_row += 1;
+							PL_line_col  = 1;
 							continue;
+						}	else
+						if (PL_lookaheadChar == '*') {
+							PL_lookaheadChar =
+							PL_getch();
+						
+							if (PL_lookaheadChar == ')') {
+								PL_nestedComment -= 1;
+								PL_lookaheadChar =
+								PL_getch();
+								if (
+								PL_nestedComment > 0)
+								continue; else
+								break;
+							}	else
+							if (PL_lookaheadChar == '\n') {
+								PL_line_row += 1;
+								PL_line_col  = 1;
+							}
 						}
-					}
-					
-					if (PL_lookaheadChar == '*') {
-						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception("unterminated comment",PL_lineno);
-					
-						if (PL_lookaheadChar == ')') {
-							PL_nestedComment -= 1;
-							
-							if (PL_nestedComment < 1)
-							break;
-						}
-					}
+					END_WHILE
+				}	else {
+					throw PL_Exception_ParserError("parens error");
 				}
 			}	else {
-				// todo
-				throw PL_Exception("not yets implemented.",PL_lineno);
+				PL_lookaheadChar =
+				PL_ungetch();
+				break;
+			}
+		END_WHILE
+		return 0;
+	}
+	
+	uint16_t PL_handle_pas_white_spaces()
+	{
+		uint16_t result = 0;
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch();
+		
+			if (PL_lookaheadChar == '/') {
+				PL_ungetch();
+				PL_lookaheadChar  =
+				PL_skip_comment_cpp  (); }
+				
+			if (PL_lookaheadChar == '{') {
+				PL_ungetch();
+				PL_lookaheadChar  =
+				PL_skip_comment_pas  (); }
+				
+			if (PL_lookaheadChar == '(') {
+				PL_ungetch();
+				PL_lookaheadChar  =
+				PL_skip_comment_pas  (); }
+		
+			if (PL_lookaheadChar == '\n') {
+				PL_line_row += 1;
+				PL_line_col  = 1;
+			}
+			if (PL_lookaheadChar == ' ' ) continue; else
+			if (PL_lookaheadChar == '\t') continue; else
+		
+			if (PL_lookaheadChar == '}' ) {
+			if (PL_nestedComment  > 0)
+				PL_nestedComment -= 1; else
+				throw PL_Exception_ParserError(
+				"comment not terminated.");
+			}	else
+			if (PL_lookaheadChar == ';') {
+				result = ';';
+				break;
+			}
+			
+			if (::std::isalnum(
+				PL_lookaheadChar) ||
+				PL_lookaheadChar  == '_') {
+
+				result = PL_lookaheadChar;
+				break;
+			}
+		END_WHILE
+		return result;
+	}
+	
+	bool
+	PL_check_pascal_keyword(::std::string kw) {
+		bool result = false;
+		::std::transform(
+		kw.begin(),
+		kw.end(),
+		kw.begin(), ::tolower);
+		
+		for (auto const& item: PL_pascal_keywords) {
+			if (item == kw) {
+				result = true;
+				break;
 			}
 		}
+		return result;
 	}
 };
 
-class PL_Prolog
+// -----------------------------------------------------------------------
+//! \class  PL_Fortran
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  The Parser class for PL - dBase Projects.
+//! \details
+//! Good old Fortran stuff.
+//!
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser Klasse, für PL - dBase Projekte.
+//! Das gute Alte St&uuml;
+//!
+//! \~endGerman
+// -----------------------------------------------------------------------
+class PL_Fortran: public PL_parser
 {
 public:
-	PL_parser* parser;
+	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Prolog::PL_Prolog(std::string&)
+	//! \see    PL_Prolog::PL_Prolog(char&)
+	//! \see    PL_Prolog::PL_Prolog()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Prolog Parser.
+	//! \param  Application& ptr - Pointer to the Application class.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
+	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Fortran(Application&) {
+		DEBUGSTR("ctor: PL_Fortran Application")
+	//	init();
+	}
+	
+	PL_Fortran() { }
+	
+	//-- FUNCTION DEFINITIONS ---------------------------------
+	void PL_handle_ident()
+	{
+		::std::transform(
+		PL_ident.begin(),
+		PL_ident.end(),
+		PL_ident.begin(), ::tolower);
+	}
+
+	uint16_t
+	PL_handle_for_white_spaces()
+	{
+		uint16_t result = 0;
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch();
+			
+			if (PL_lookaheadChar == 'c') {
+				if (PL_line_col < 2) {
+					BEGIN_WHILE
+					
+					END_WHILE
+				}
+			}
+		END_WHILE
+		return result;
+	}
+			
+	void PL_parseFile(const ::std::string &filename )
+	{
+			PL_prepare(filename);
+		BEGIN_WHILE
+			PL_handle_for_white_spaces();
+
+			if (::std::isalnum(
+				PL_lookaheadChar) ||
+				PL_lookaheadChar  == '_') {
+					
+				PL_ident =
+				PL_lookaheadChar;
+				PL_parse_ident();
+				
+				PL_handle_ident();
+				continue;
+			}
+		END_WHILE
+	}
+};
+
+// -----------------------------------------------------------------------
+//! \class  PL_Assembler
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  The Parser class for PL - Assembly Projects.
+//! \details
+//! Good old Assembler stuff.
+//!
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser Klasse, für PL - Assembler Projekte.
+//! Das gute Alte St&uuml;
+//!
+//! \~endGerman
+// -----------------------------------------------------------------------
+class PL_Assembler: public PL_parser
+{
+	void init() {
+	}
+public:
+	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	PL_Assembler(Application&) {
+		DEBUGSTR("ctor: PL_Assembler Application")
+		init();
+	}
+	PL_Assembler() { }
+	
+	//-- FUNCTION DEFINITIONS ---------------------------------
+	uint16_t
+	PL_handle_for_white_spaces()
+	{
+		uint16_t result = 0;
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch();
+			
+			if (PL_lookaheadChar == 'c') {
+				if (PL_line_col < 2) {
+					BEGIN_WHILE
+					
+					END_WHILE
+				}
+			}
+		END_WHILE
+		return result;
+	}
+			
+	void PL_parseFile(const ::std::string &filename )
+	{
+			PL_prepare(filename);
+		BEGIN_WHILE
+			PL_handle_for_white_spaces();
+
+			if (::std::isalnum(
+				PL_lookaheadChar) ||
+				PL_lookaheadChar  == '_') {
+					
+				PL_ident =
+				PL_lookaheadChar;
+				PL_parse_ident();
+				
+				//PL_handle_ident();
+				continue;
+			}
+		END_WHILE
+	}
+};
+
+class PL_Prolog: public PL_parser
+{
+private:
+	void init() {
+		ast = new PL_ASTList;
+	}
+
+public:
+	PL_ASTList * ast;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
@@ -962,11 +1611,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Prolog(Application&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog Application" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Prolog Application")
+		init();
 	}
 
 	//! \since  Version 0.0.1
@@ -986,11 +1632,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Prolog(::std::string&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog std::string&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Prolog std::string&")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1010,11 +1653,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Prolog(::std::string) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog std::string" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Prolog std::string")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1034,11 +1674,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Prolog(char&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog char&&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Prolog char&&")
+		init();
 	}
 
 	//! \since  Version 0.0.1
@@ -1058,11 +1695,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Prolog() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Prolog ()" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Prolog ()")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1078,81 +1712,71 @@ public:
 	//! \return keine - freies Objekt mit null-Zeiger.
 	//! \~endGerman
 	~PL_Prolog() {
-		delete parser;
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Prolog ()" <<
-		::std::endl;
-		#endif
+		delete ast;
+		DEBUGSTR("dtor: ~PL_Prolog ()")
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
 	void PL_parseFile(const ::std::string &filename )
 	{
-			parser->PL_prepare(filename);
-		while (
-			parser->PL_lookaheadPosition !=
-			parser->PL_file_size)
-		{
-			label_start:
-			parser->PL_lookaheadChar =
+		PL_prepare(filename);
+		BEGIN_WHILE
+			PL_lookaheadChar =
 			
-			parser->PL_getch(); if (!
-			parser->PL_skip_white_spaces()) break;
+			PL_getch(); if (!
+			PL_skip_white_spaces()) break;
 
-			//parser->PL_skip_comment_cpp();
-			//parser->PL_skip_comment_c();
-			
-			// one line comment
-			if (parser->PL_lookaheadChar == '%') {
+			// -------------------
+			// one line comment:
+			// -------------------
+			if (PL_lookaheadChar == '%') {
 				label_comment:
-				while (
-					parser->PL_lookaheadPosition !=
-					parser->PL_file_size)
-				{
+				BEGIN_WHILE
 					if (!(
-					parser->PL_lookaheadChar =
-					parser->PL_getch()))
+					PL_lookaheadChar =
+					PL_getch()))
 					break;
 				
-					if (parser->PL_lookaheadChar == '\n') {
-						parser->PL_lineno += 1;
+					if (PL_lookaheadChar == '\n') {
+						PL_line_row += 1;
+						PL_line_col  = 1;
 						break;
 					}
-				}
-
+				END_WHILE
 				continue;
 			}
 
-				parser->PL_lookaheadChar =
-				parser->PL_parse_ident();
-			if (parser->PL_ident.size() > 0)
+				PL_lookaheadChar =
+				PL_parse_ident();
+			if (PL_ident.size() > 0)
 			{
 				std::cout <<
-				parser->PL_ident  << std::endl;
-				parser->PL_ident.clear();
+				PL_ident  << std::endl;
+				PL_ident = ::std::string("");
 			}
-		}
+		END_WHILE
 		
-		STDCOUT
-		<< std::endl
-		<< "Compiled: OK" << std::endl
-		<< "Lines   : "   << parser->PL_lineno << std::endl;
+		if (PL_nestedComment > 0) {
+			throw PL_Exception_ParserError(
+			"comment not terminated.",
+			PL_line_row);
+		}	else {
+			STDCOUT
+			<< std::endl
+			<< "Compiled: OK" << std::endl
+			<< "Lines   : "   << PL_line_row << std::endl;
+		}
 	}
 
 	void exit(int returnCode = 0)
 	{
-		#ifdef DEBUG
-		::std::cout << "PL exit" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("PL exit")
 	}
 
 	int exec()
 	{
-		#ifdef DEBUG
-		::std::cout << "PL exec" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("PL exec")
+		return 0;
 	}
 };
 
@@ -1167,10 +1791,15 @@ public:
 //! \brief  Die Parser Klasse, für PL - dBase Projekte.
 //! \~endGerman
 // -----------------------------------------------------------------------
-class PL_dBase
+class PL_dBase: public PL_parser
 {
+private:
+	void init() {
+		ast = new PL_ASTList;
+	}
+
 public:
-	PL_parser* parser;
+	PL_ASTList * ast;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
@@ -1193,11 +1822,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_dBase(Application&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase Application" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_dBase Application")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1217,11 +1843,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_dBase(std::string&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase std::string&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_dBase std::string&")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1241,11 +1864,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_dBase(std::string) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase std::string" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_dBase std::string")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1265,11 +1885,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_dBase(char&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase char&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_dBase char&")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1289,11 +1906,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_dBase() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_dBase ()" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_dBase ()")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1309,41 +1923,49 @@ public:
 	//! \return keine - freies Objekt mit null-Zeiger
 	//! \~endGerman
 	~PL_dBase() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_dBase ()" <<
-		::std::endl;
-		#endif
-		delete parser;
+		delete ast;
+		DEBUGSTR("dtor: ~PL_dBase ()")
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
 	void PL_parseFile(const ::std::string &filename )
 	{
-			parser->PL_prepare(filename);
-		while (
-			parser->PL_lookaheadPosition !=
-			parser->PL_file_size)
-		{
-			label_start:
-			parser->PL_lookaheadChar =
-			parser->PL_getch(); if (!
+			PL_prepare(filename);
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch(); if (!
 			
-			parser->PL_skip_white_spaces ()) break;
-			parser->PL_skip_comment_cpp  ();
+			PL_skip_white_spaces ()) break;
+			PL_skip_comment_cpp  ();
 			
 			//PL_skip_comment_dbase();
-		}
+		END_WHILE
 		STDCOUT
 		<< std::endl
 		<< "Compiled: OK" << std::endl
-		<< "Lines   : "   << parser->PL_lineno << std::endl;
+		<< "Lines   : "   << PL_line_row << std::endl;
 	}
 };
 
-class PL_Pascal
+// -----------------------------------------------------------------------
+//! \class  PL_Pascal
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  A class for PL - Pascal Parser Projects.
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser Klasse, für PL - Pascal Projekte.
+//! \~endGerman
+// -----------------------------------------------------------------------
+class PL_Pascal: public PL_parser
 {
+	void init() {
+		ast    = new PL_ASTList;
+	}
+
 public:
-	PL_parser* parser;
+	PL_ASTList * ast;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
@@ -1365,11 +1987,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Pascal(Application&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal Application" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Pascal Application")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1389,11 +2008,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Pascal(std::string&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal std::string&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Pascal std::string&")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1411,11 +2027,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Pascal(std::string) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal std::string" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Pascal std::string")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1433,11 +2046,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Pascal(char&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal char&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Pascal char&")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1456,11 +2066,8 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Pascal() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal ()" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Pascal ()")
+		init();
 	}
 	
 	//! \since  Version 0.0.1
@@ -1476,80 +2083,127 @@ public:
 	//! \return keine - freies Objekt mit null-Zeiger
 	//! \~endGerman
 	~PL_Pascal() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Pascal ()" <<
-		::std::endl;
-		#endif
-		delete parser;
+		DEBUGSTR("dtor: ~PL_Pascal ()")
+		delete ast;
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
+	void PL_handle_ident()
+	{
+		::std::transform(
+		PL_ident.begin(),
+		PL_ident.end(),
+		PL_ident.begin(), ::tolower);
+		
+		PL_ident.erase(0,1);
+
+		if (PL_check_pascal_keyword(PL_ident)) {
+			cout << "ident1: " << PL_ident << endl;
+
+			if (PL_ident == "program") {
+				PL_ident = "";
+				PL_lookaheadChar = PL_handle_pas_white_spaces();
+				
+				if (PL_lookaheadChar == TOK_IDENT) {
+					cout << "--> " << PL_ident << endl;
+					PL_ident = "";
+				}	else
+				if (::std::isalnum(
+					PL_lookaheadChar) ||
+					PL_lookaheadChar  == '_') {
+						
+					PL_ident =
+					PL_lookaheadChar;
+					PL_parse_ident();
+
+					PL_ident.erase(0,1);
+					if (PL_check_pascal_keyword(PL_ident)) {
+						throw PL_Exception_ParserError(
+						"identifier as keywords not allowed.");
+					}
+					cout << "program => " << PL_ident << endl;
+					
+					PL_lookaheadChar = PL_handle_pas_white_spaces();
+					if (
+					PL_lookaheadChar != ';')
+					throw PL_Exception_ParserError("semicolon expected.");
+				}	else {
+					printf(">>%c<<\n",PL_lookaheadChar);
+				}
+			}	else
+			if (PL_ident == "LIBRARY") {
+				PL_ident = ::std::string("");
+				PL_handle_pas_white_spaces();
+				
+			}	else
+			if (PL_ident == "unit") {
+				PL_ident = "";
+				PL_lookaheadChar = PL_handle_pas_white_spaces();
+				
+				if (::std::isalnum(
+					PL_lookaheadChar) ||
+					PL_lookaheadChar  == '_') {
+
+					PL_ident =
+					PL_lookaheadChar;
+					PL_parse_ident();
+					
+					cout << "ident3: " << PL_ident << endl;
+				}	else {
+					printf(">>%c<<\n",PL_lookaheadChar);
+				}
+			}	else
+			if (PL_lookaheadChar == TOK_IDENT) {
+				cout << "id: " << PL_ident << endl;
+			}
+		}	else {
+			throw PL_Exception_ParserError(
+			"unknown keyword found.",
+			PL_line_row);
+		}
+	}
+	
 	void PL_parseFile(const ::std::string &filename )
 	{
-			parser->PL_prepare(filename);
-		while (
-			parser->PL_lookaheadPosition !=
-			parser->PL_file_size)
-		{
-			label_start:
-			//parser->PL_lookaheadChar =
-			//parser->PL_getch();
-			
-			parser->PL_lookaheadChar =
-			parser->PL_skip_white_spaces();
-			
-			if (parser->PL_lookaheadChar == '/') parser->PL_lookaheadChar = parser->PL_skip_comment_cpp ();
-			if (parser->PL_lookaheadChar == '{') parser->PL_lookaheadChar = parser->PL_skip_comment_pas ();
-			if (parser->PL_lookaheadChar == '(') parser->PL_lookaheadChar = parser->PL_skip_comment_pas ();
-			
-			if (parser->PL_lookaheadChar == '\n')
-				parser->PL_lineno        +=    1; else
-			if (parser->PL_lookaheadChar == ' ' ) continue; else
-			if (parser->PL_lookaheadChar == '\t') continue; else
+			PL_prepare(filename);
+		BEGIN_WHILE
+			PL_handle_pas_white_spaces();
 
 			if (::std::isalnum(
-				parser->PL_lookaheadChar) ||
-				parser->PL_lookaheadChar  == '_') {
-
-				parser->PL_lookaheadChar =
-				parser->PL_parse_ident();
-			
-				if (parser->PL_ident.size() > 0)
-				{
-					::std::transform(
-					parser->PL_ident.cbegin(), parser->PL_ident.cend(),
-					parser->PL_ident.begin (), [](uint8_t c) {
-						return ::std::toupper(c);
-					});
-	
-					if (parser->PL_ident == "UNIT") {
-						std::cout <<
-						parser->PL_ident << std::endl;
-						parser->PL_ident.clear();
-					}	else {
-						throw PL_Exception_ParserError(
-						"unknown keyword found.");
-					}
-				}
+				PL_lookaheadChar) ||
+				PL_lookaheadChar  == '_') {
+					
+				PL_ident =
+				PL_lookaheadChar;
+				PL_parse_ident();
+				
+				PL_handle_ident();
+				continue;
 			}
-			#if 0
-			else {
-				throw PL_Exception_ParserError(
-				"unknow character found.");
-			}
-			#endif
+		END_WHILE
+		
+		if (PL_nestedComment > 0) {
+			throw PL_Exception_ParserError(
+			"comment not terminated.",
+			PL_line_row);
+		}	else {
+			STDCOUT
+			<< std::endl
+			<< "Compiled: OK" << std::endl
+			<< "Lines   : "   << PL_line_row << std::endl;
 		}
-		STDCOUT
-		<< std::endl
-		<< "Compiled: OK" << std::endl
-		<< "Lines   : "   << parser->PL_lineno << std::endl;
 	}
 };
 
-class PL_cLang
+class PL_cLang: public PL_parser
 {
+private:
+	void init() {
+		ast    = new PL_ASTList;
+	}
+
 public:
-	PL_parser* parser;
+	PL_ASTList * ast;
 
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
@@ -1571,207 +2225,328 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_cLang(Application&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Pascal Application" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_Pascal Application")
+		init();
 	}
 
 	PL_cLang(std::string&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang std::string&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_cLang std::string&")
+		init();
 	}
 	PL_cLang(std::string) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang std::string" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_cLang std::string")
+		init();
 	}
 	PL_cLang(char&) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang char&" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_cLang char&")
+		init();
 	}
 	PL_cLang(char) {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang char" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_cLang char")
+		init();
 	}
 	PL_cLang() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_cLang ()" <<
-		::std::endl;
-		#endif
-		parser = new PL_parser;
+		DEBUGSTR("ctor: PL_cLang ()")
+		init();
 	}
 	~PL_cLang() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_cLang ()" <<
-		::std::endl;
-		#endif
-		delete parser;
+		DEBUGSTR("dtor: ~PL_cLang ()")
+		delete ast;
 	}
 
 	//-- FUNCTION DEFINITIONS ---------------------------------
 	void PL_parseFile(const ::std::string &filename )
 	{
-			parser->PL_prepare(filename);
-		while (
-			parser->PL_lookaheadPosition !=
-			parser->PL_file_size)
-		{
-			label_start:
-			parser->PL_lookaheadChar =
+			PL_prepare(filename);
+		BEGIN_WHILE
+			PL_lookaheadChar =
 			
-			parser->PL_getch(); if (!
-			parser->PL_skip_white_spaces()) break;
+			PL_getch(); if (!
+			PL_skip_white_spaces()) break;
 			
-			parser->PL_skip_comment_cpp();
-			parser->PL_skip_comment_c();
-		}
+			PL_skip_comment_cpp();
+			PL_skip_comment_c();
+		END_WHILE
 		
 		STDCOUT
 		<< std::endl
 		<< "Compiled: OK" << std::endl
-		<< "Lines   : "   << parser->PL_lineno << std::endl;
+		<< "Lines   : "   << PL_line_row << std::endl;
 	}
 };
+
+// -----------------------------------------------------------------------
+//! \class  PL_Pascal
+//! \since  Version 0.0.1
+//! \author paule32
+//! \~English
+//! \brief  A class for PL - Pascal Parser Projects.
+//! \~endEnglish
+//! \~German
+//! \brief  Die Parser Klasse, für PL - Pascal Projekte.
+//! \~endGerman
+// -----------------------------------------------------------------------
+class PL_Executable: public PL_parser
+{
+	void init() {
+		ast    = new PL_ASTList;
+	}
+
+public:
+	PL_ASTList * ast;
+
+public:
+	//-- CONSTRUCTORS DEFINITIONS -----------------------------
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Executable::PL_Executable(std::string&)
+	//! \see    PL_Executable::PL_Executable(std::string)
+	//! \see    PL_Executable::PL_Executable(char&)
+	//! \see    PL_Executable::PL_Executable()
+	//! \~English
+	//! \brief  This is the C++ constructor class for the Pascal Parser.
+	//! \param  Application& ptr - Pointer to the Application class.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist der C++ Konstruktor für den Pascal Parser.
+	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Executable(Application&) {
+		DEBUGSTR("ctor: PL_Executable Application")
+		init();
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Executable::PL_Executable(std::string&)
+	//! \see    PL_Executable::PL_Executable(std::string)
+	//! \see    PL_Executable::PL_Executable(char&)
+	//! \see    PL_Executable::PL_Executable()
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascal Parser.
+	//! \param  std::string& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  std::string& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Executable(std::string&) {
+		DEBUGSTR("ctor: PL_Executable std::string&")
+		init();
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Executable::PL_Executable(std::string&)
+	//! \see    PL_Executable::PL_Executable(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascal Parser.
+	//! \param  std::string filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  std::string dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Executable(std::string) {
+		DEBUGSTR("ctor: PL_Executable std::string")
+		init();
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Executable::PL_Executable(std::string&)
+	//! \see    PL_Executable::PL_Executable(std::string)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascall Parser.
+	//! \param  char& filename - file to parse.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  char& dateiname - Datei die der Parser abarbeiten soll.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Executable(char&) {
+		DEBUGSTR("ctor: PL_Executable char&")
+		init();
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \see    PL_Executable::PL_Executable(std::string&)
+	//! \see    PL_Executable::PL_Executable(std::string)
+	//! \see    PL_Executable::PL_Executable(char&)
+	//! \~English
+	//! \brief  This is a C++ constructor class for the Pascal Parser.
+	//! \param  nothing - default constructor.
+	//! \return internal used Object with Pointer to itself.
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
+	//! \param  keine - Standard Konstruktor.
+	//! \return internes Objekt auf diese Klasse.
+	//! \~endGerman
+	PL_Executable() {
+		DEBUGSTR("ctor: PL_Executable ()")
+		init();
+	}
+	
+	//! \since  Version 0.0.1
+	//! \author paule32
+	//! \~English
+	//! \brief  This is a C++ de-structor for the Pascal Parser class clean-up.
+	//! \param  nothing - dtor's have no Argument's
+	//! \return nothing - free Object with null-Pointer
+	//! \~endEnglish
+	//! \~German
+	//! \brief  Dies ist ein C++ De-struktor für die Pascal Parser Klassen-Bereinigung.
+	//! \param  keine - dtor's werden keine Argumente zugewiesen.
+	//! \return keine - freies Objekt mit null-Zeiger
+	//! \~endGerman
+	~PL_Executable() {
+		DEBUGSTR("dtor: ~PL_Executable ()")
+		delete ast;
+	}
+	
+	//-- FUNCTION DEFINITIONS ---------------------------------
+	void PL_handle_ident()
+	{
+		::std::transform(
+		PL_ident.begin(),
+		PL_ident.end(),
+		PL_ident.begin(), ::tolower);
+	}
+
+	uint16_t
+	PL_handle_for_white_spaces()
+	{
+		uint16_t result = 0;
+		BEGIN_WHILE
+			PL_lookaheadChar =
+			PL_getch();
+			
+			if (PL_lookaheadChar == 'c') {
+				if (PL_line_col < 2) {
+					BEGIN_WHILE
+					
+					END_WHILE
+				}
+			}
+		END_WHILE
+		return result;
+	}
+			
+	void PL_parseFile(const ::std::string &filename )
+	{
+			PL_prepare(filename);
+		BEGIN_WHILE
+			PL_handle_for_white_spaces();
+
+			if (::std::isalnum(
+				PL_lookaheadChar) ||
+				PL_lookaheadChar  == '_') {
+					
+				PL_ident =
+				PL_lookaheadChar;
+				PL_parse_ident();
+				
+				PL_handle_ident();
+				continue;
+			}
+		END_WHILE
+	}
+};
+
 
 class Desktop {
 public:
 	Desktop(Win32API&) { }
 	Desktop() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Desktop ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_Desktop ()")
 	}
 	~Desktop() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Desktop ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_Desktop ()")
 	}
 	
 	void exit(int returnCode = 0)
 	{
-		#ifdef DEBUG
-		::std::cout << "Desktop exit" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("Desktop exit")
 	}
 
 	int exec()
 	{
-		#ifdef DEBUG
-		::std::cout << "Desktop exec" <<
-		::std::endl;
-		#endif
-	}
-};
-
-class Console {
-public:
-	Console() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Console ()" <<
-		::std::endl;
-		#endif
-	}
-	~Console() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Console ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("Desktop exec")
+		return 0;
 	}
 };
 
 class Win32API {
 public:
 	Win32API() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Win32API ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_Win32API ()")
 	}
 	~Win32API() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Win32API ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_Win32API ()")
+	}
+};
+
+class Console {
+public:
+	Console(Win32API& w32) {
+		DEBUGSTR("ctor: PL_Console ()")
+	}
+	Console() {
+		DEBUGSTR("ctor: PL_Console ()")
+	}
+	~Console() {
+		DEBUGSTR("dtor: ~PL_Console ()")
 	}
 };
 
 class Server {
 public:
 	Server() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Server ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_Server ()")
 	}
 	~Server() {
-		#ifdef DEBUG
-		::std::cout << "ctor: ~PL_Server ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: ~PL_Server ()")
 	}
 };
 
 class Client {
 public:
 	Client() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Client ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_Client ()")
 	}
 	~Client() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Client ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_Client ()")
 	}
 };
 
 class Html {
 public:
 	Html() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Html ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_Html ()")
 	}
 	~Html() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Html ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_Html ()")
 	}
 };
 
 class Ftp {
 public:
 	Ftp() {
-		#ifdef DEBUG
-		::std::cout << "ctor: PL_Ftp ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("ctor: PL_Ftp ()")
 	}
 	~Ftp() {
-		#ifdef DEBUG
-		::std::cout << "dtor: ~PL_Ftp ()" <<
-		::std::endl;
-		#endif
+		DEBUGSTR("dtor: ~PL_Ftp ()")
 	}
 };
 
@@ -1784,19 +2559,29 @@ using namespace prolog;
 int
 main(int argc, char** argv)
 {
-	vector< string > iput_file;
-	        string   oput_file;
-			string   s0;
+	::std::vector< ::std::string > iput_file;
+	::std::string                  oput_file;
+	::std::string                  s0;
 	
 	int output= 0;
 
 	try {
+		setlocale(LC_ALL,"");
+		bindtextdomain ("prolog32", getenv("PWD"));
+		textdomain     ("prolog32");
+
 		// ----------------------------------------
 		// get command arguments from console ...
 		// -i<input file> -o<output file>
 		// ----------------------------------------
-		if (argc < 2)
-		throw PL_Exception_CommandLine("too few arguments.");
+		if (argc < 2) {
+			Win32API      win ;
+			Console       con ( win );
+			Application   app ( con );
+			
+			app.run();
+			return SUCCESS;
+		}
 
 		for (int arg = 1; arg < argc; ++arg)
 		{
@@ -1853,13 +2638,55 @@ main(int argc, char** argv)
 			}
 
 			// -----------------------------------------------------
+			// we deal with the extension of the file; here: EXE/COM
+			// -----------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "exe")
+			{
+				Win32API      win ;
+				Console       con ( win );
+				Application   app ( con );
+				PL_Executable prg ( app );
+				
+				prg.PL_parseFile  ( item );
+				
+				return 0;
+			}
+			// -------------------------------------------------------
+			// we deal with the extension of the file; here: Assembler
+			// -------------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "asm")
+			{
+				Win32API     win ;
+				Console      con ( win );
+				Application  app ( con );
+				PL_Assembler prg ( app );
+				
+				prg.PL_parseFile ( item );
+				
+				return 0;
+			}
+			// -----------------------------------------------------
+			// we deal with the extension of the file; here: Fortran
+			// -----------------------------------------------------
+			if (item.substr(item.find_last_of(".") + 1) == "for")
+			{
+				Win32API    win ;
+				Console     con ( win );
+				Application app ( con );
+				PL_Fortran  prg ( app );
+				
+				prg.PL_parseFile( item );
+				
+				return 0;
+			}
+			// -----------------------------------------------------
 			// we deal with the extension of the file; here: Prolog
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pl")
 			{
 				Win32API    win ;
-				Desktop     gui ( win );
-				Application app ( gui );
+				Console     con ( win );
+				Application app ( con );
 				PL_Prolog   prg ( app );
 				
 				prg.PL_parseFile( item );
@@ -1872,8 +2699,8 @@ main(int argc, char** argv)
 			if (item.substr(item.find_last_of(".") + 1) == "pas")
 			{
 				Win32API    win ;
-				Desktop     gui ( win );
-				Application app ( gui );
+				Console     con ( win );
+				Application app ( con );
 				PL_Pascal   prg ( app );
 				
 				prg.PL_parseFile( item );
@@ -1886,8 +2713,8 @@ main(int argc, char** argv)
 			if (item.substr(item.find_last_of(".") + 1) == "cc")
 			{
 				Win32API    win ;
-				Desktop     gui ( win );
-				Application app ( gui );
+				Console     con ( win );
+				Application app ( con );
 				PL_cLang    prg ( app );
 				
 				prg.PL_parseFile( item );
@@ -1900,8 +2727,8 @@ main(int argc, char** argv)
 			if (item.substr(item.find_last_of(".") + 1) == "prg")
 			{
 				Win32API    win ;
-				Desktop     gui ( win );
-				Application app ( gui );
+				Console     con ( win );
+				Application app ( con );
 				PL_dBase    prg ( app );
 				prg.PL_parseFile( item );
 				
@@ -1936,8 +2763,8 @@ main(int argc, char** argv)
 	catch (PL_Exception_ParserError& e)
 	{
 		STDCOUT
-		<< "parser error in line: " << e.line()
-		<< std::endl
+		<< "parser error in line: " << e.line () << std::endl
+		<< "compiler: FAIL."        << std::endl
 		<< "reason: " << e.what()
 		<< std::endl;
 
