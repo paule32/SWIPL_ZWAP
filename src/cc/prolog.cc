@@ -173,8 +173,17 @@
 // ---------------------------------------------------------------------
 // Turbo Vision for C++ ...
 // ---------------------------------------------------------------------
+# define Uses_TApplication
+# define Uses_TProgram
+# define Uses_TObject
+# define Uses_TInputLine
+# define Uses_TLabel
+# define Uses_TCheckBoxes
+# define Uses_TDrawBuffer
 # define Uses_TRect
 # define Uses_TKeys
+# define Uses_TSItem
+# define Uses_TRadioButtons
 # define Uses_TStaticText
 # define Uses_TButton
 # define Uses_TStatusLine
@@ -182,6 +191,7 @@
 # define Uses_TStatusDef
 # define Uses_TChDirDialog
 # define Uses_TFileDialog
+# define Uses_THistory
 # define Uses_MsgBox
 # define Uses_TDisplay
 # define Uses_TScreen
@@ -199,6 +209,8 @@
 # define Uses_TApplication
 
 # include <tvision/tv.h>
+
+class TApplication;
 
 // ---------------------------------------------------------------------
 // namespace placeholder.
@@ -393,10 +405,12 @@ const unsigned cmOne     = 100;
 const unsigned cmTwo     = 101;
 const unsigned cmThree   = 102;
 const unsigned cmCycle   = 110;
-const unsigned cmNothing = 111;
+
+const unsigned cmNothing    = 200;
+const unsigned cmAboutBox   = 201;
+const unsigned cmNewProject = 202;
 
 class Application: public TApplication {
-	int curMenu;
 public:
 	class TMultiMenu : public ::TMenuBar {
 	protected:
@@ -430,7 +444,7 @@ public:
 			for (int i =  1; i    < nMenus; i++)
 			mList[i]   = new TMenu( aMenu[i]);
 		}
-		
+
 		//! Destructor for a TMultiMenu object.  Destroys any stored menus
 		//! except for the current one (which will be destroyed by ~TMenuBar)
 		//! and frees the space where the list was stored.
@@ -441,53 +455,176 @@ public:
 		
 			delete mList[i];
 			delete [] mList;
-		}
+		}		
+	};
 
-		virtual void handleEvent(TEvent& event)
-		{
-			if (event.what == evBroadcast &&
-				event.message.command == cmMMChangeMenu)
-			{
-				if (event.message.infoInt >= 0 &&
-					event.message.infoInt < numMenus)
-				{
-					if (menu != mList[ event.message.infoInt ]) {
-						menu  = mList[ event.message.infoInt ];
-						drawView();
-					}
-				}
-				clearEvent( event );
-			}	else
-			::TMenuBar::handleEvent( event );
+	class TClockView: public TView {
+		char lastTime[9];
+		char curTime [9];
+		
+	public:
+		TClockView(TRect& r): TView(r) {
+			strcpy(lastTime, "        ");
+			strcpy(curTime , "        ");
+		}
+		virtual void draw() {
+			TDrawBuffer buf;
+			TColorAttr c = getColor(2);
+			
+			buf.moveChar(0, ' ',     c , (short)size.x);
+			buf.moveStr (0, curTime, c);
+			writeLine   (0, 0, (short)size.x, 1, buf);
+		}
+		virtual void update() {
+			time_t t = time(0);
+			char *date = ctime(&t);
+
+			date[19] = '\0';
+			strcpy(curTime, &date[11]);        /* Extract time. */
+
+			if( strcmp(lastTime, curTime)) {
+				drawView();
+				strcpy(lastTime, curTime);
+			}
 		}
 	};
+	
+	virtual void
+	handleEvent(TEvent& event)
+	{
+		TApplication::handleEvent(event);
+		if (event.what != evCommand) {
+			clearEvent(event);
+			return;
+		}
+
+		switch (event.message.command)
+		{
+			case cmNewProject:
+				createNewProjectDialog();
+				clearEvent(event);
+			break;
+			
+			case cmAboutBox:
+				::std::string sz;
+				sz = "\x3Zwapel 0.0.1\n\n\x3(c) 2023 by Jens Kallup";
+				messageBox( sz.c_str(),mfInformation | mfOKButton);
+				clearEvent(event);
+			break;
+		}
+	}
 
 	static ::TMenuBar*
 	initMenuBar( ::TRect r )
 	{
 		r.b.y = r.a.y + 1;
-		::TMenu *M[] =
-		{
-			new ::TMenu(
-				*new ::TMenuItem( "~F~ile menu", kbAltF, new ::TMenu(
-					*new TMenuItem( "~o~ne", 1000, kbAlt0)))),
-			0
-		};
-		return new TMultiMenu( r, M );
-	}
-	virtual void
-	handleEvent( ::TEvent& event ) {
-		if (event.what == evCommand &&
-			event.message.command >= cmOne &&
-			event.message.command <= cmThree)
-		{
-			curMenu = ( event.message.command - cmOne) % 3;
-			clearEvent( event );
-		}
-		else
-        ::TApplication::handleEvent( event );
+		//::TMenu *M[] =
+		//{
+			return new ::TMenuBar(r,
+			*new ::TSubMenu( "~F~ile", hcNoContext) +
+				*new TMenuItem( "~O~pen...", cmNewProject, kbF3, hcNoContext, "F3" ) +
+				*new TMenuItem( "~S~ave", 101, kbF2, hcNoContext, "F2" ) +
+				newLine() +
+				*new TMenuItem( "~C~hange directory...", 102, kbNoKey, hcNoContext ) +
+				*new TMenuItem( "E~x~it", cmQuit, kbAltX, hcNoContext, "Alt-X" ) +
+				
+			*new TSubMenu( "~W~indow", hcNoContext ) +
+				*new TMenuItem( "~M~ove", cmResize, kbCtrlF5, hcNoContext, "Cntl-F5") +
+				*new TMenuItem( "~N~ext", cmNext, kbF6, hcNoContext, "F6") +
+				*new TMenuItem( "~P~rev", cmPrev, kbShiftF6, hcNoContext, "Shift-F6") +
+				*new TMenuItem( "~C~lose", cmClose, kbAltF3, hcNoContext, "Alt-F3") +
+				
+			*new TSubMenu( "~H~elp", hcNoContext ) +
+				*new TMenuItem( "~I~ndex", cmResize, kbCtrlF5, hcNoContext, "Cntl-F5") +
+				*new TMenuItem( "~O~nline Help", cmNext, kbF6, hcNoContext, "F6") +
+				newLine() +
+				*new TMenuItem( "~A~bout...", cmAboutBox, kbF1, hcNoContext, "F1" ));
+		//	0
+		//};
+		//return new TMultiMenu( r, M );
 	}
 
+	static ::TStatusLine*
+	initStatusLine( ::TRect r )
+	{
+		r.a.y = r.b.y - 1;
+		return new ::TStatusLine( r,
+			*new ::TStatusDef( 0, 0xFFFF ) +
+			*new ::TStatusItem( "~F3~ Open", kbF3, cmNewProject ) +
+			*new ::TStatusItem( "~F10~ Menu", kbF10, cmMenu) +
+
+			*new ::TStatusItem( 0, kbShiftDel, cmCut ) +
+			*new ::TStatusItem( 0, kbCtrlIns, cmCopy ) +
+			*new ::TStatusItem( 0, kbShiftIns, cmPaste ) +
+			*new ::TStatusItem( "", kbCtrlF5, cmResize )
+		);
+	}
+	
+	void
+	createNewProjectDialog()
+	{
+		TDialog *d  = new TDialog( TRect( 0,0, 52,13), "New Project");
+		d->options |= ofCentered;
+		
+		TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 80);
+		d->insert(control);
+		d->insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
+		d->insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
+
+		d->insert( new TRadioButtons( TRect( 3,4, 36,8),
+			new TSItem("Pascal",
+			new TSItem("C/C++",
+			new TSItem("dBase",
+			new TSItem("Fortran",
+			new TSItem("Prolog",
+			new TSItem("Assembler", 0) )))))));
+			
+		d->insert( new TRadioButtons( TRect( 3,9, 23,12),
+			new TSItem("PE-Exe  32-Bit",
+			new TSItem("DOS-Exe 16-Bit",
+			new TSItem("DOS-Com 16-Bit", 0) ))));
+			
+		d->insert( new TCheckBoxes( TRect( 24,9, 36,12 ),
+			new TSItem("gdwarf",
+			new TSItem("binary", 0) )));
+
+		d->insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,     bfDefault ));
+		d->insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmOK,     bfDefault ));
+		d->insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel, bfNormal  ));
+		d->insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,   bfNormal  ));
+		
+		d->selectNext(false);
+		
+		TView *p = TProgram::application->validView(d);
+		if (!p) {
+			::std::string sz;
+			sz = "Error:\nCould not create view.";
+			messageBox( sz.c_str(),mfInformation | mfOKButton);
+		}
+		
+		TProgram::deskTop->execView(p);
+		TObject::destroy(p);
+	}
+	
+	static Boolean isTileable(TView *p, void*)
+	{
+		if ((p->options & ofTileable) != 0)
+		return true;
+		return false;
+	}
+	void idle()
+	{
+		TProgram::idle();
+		clock->update ();
+		if (deskTop->firstThat(isTileable,0) != 0) {
+			enableCommand(cmTile);
+			enableCommand(cmCascade);
+		}	else {
+			disableCommand(cmTile);
+			disableCommand(cmCascade);
+		}
+	}
+	
 public:
 	Application(Console& con):
 		::TProgInit(
@@ -497,7 +634,12 @@ public:
 		TApplication(),
 		curMenu(0)
 	{
-		//DEBUGSTR("ctor: PL_Application Console")
+		TRect r = getExtent();
+		r.a.x = r.b.x - 9;
+		r.b.y = r.a.y + 1;
+		clock = new TClockView(r);
+		clock->growMode = gfGrowLoX | gfGrowHiX;
+		insert(clock);
 	}
 	
 	~Application() {
@@ -514,6 +656,10 @@ public:
 		DEBUGSTR("Application exec")
 		return 0;
 	}
+	
+private:
+	TClockView *clock;
+	int curMenu;
 };
 
 // ---------------------------------------------------------------------
