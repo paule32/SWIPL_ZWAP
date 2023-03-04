@@ -157,6 +157,7 @@
 // ---------------------------------------------------------------------
 # include <iostream>
 # include <string>
+# include <strstream>
 # include <sstream>
 # include <fstream>
 # include <istream>
@@ -169,6 +170,7 @@
 # include <type_traits>
 # include <typeinfo>
 # include <cctype>
+# include <iomanip>
 
 // ---------------------------------------------------------------------
 // Turbo Vision for C++ ...
@@ -176,6 +178,11 @@
 # define Uses_TApplication
 # define Uses_TProgram
 # define Uses_TObject
+# define Uses_TView
+# define Uses_TWindow
+# define Uses_fpstream
+# define Uses_ipstream
+# define Uses_opstream
 # define Uses_TInputLine
 # define Uses_TLabel
 # define Uses_TCheckBoxes
@@ -184,6 +191,8 @@
 # define Uses_TKeys
 # define Uses_TSItem
 # define Uses_TRadioButtons
+# define Uses_TCollection
+# define Uses_TScroller
 # define Uses_TStaticText
 # define Uses_TButton
 # define Uses_TStatusLine
@@ -197,6 +206,7 @@
 # define Uses_TScreen
 # define Uses_TEditor
 # define Uses_TMemo
+# define Uses_TStreamable
 # define Uses_TStreamableClass
 # define Uses_TEvent
 # define Uses_TDialog
@@ -205,10 +215,11 @@
 # define Uses_TMenuItem
 # define Uses_TMenuBar
 # define Uses_TDeskTop
-# define Uses_TProgram
-# define Uses_TApplication
 
 # include <tvision/tv.h>
+# include <tvision/help.h>
+
+# include "prolog64.hlp.h"
 
 class TApplication;
 
@@ -399,16 +410,21 @@ using PL_Exception::PL_Exception;
 // ---------------------------------------------------------------------
 // Application object for Console Projects ...
 // ---------------------------------------------------------------------
-const unsigned cmMMChangeMenu = 0x1600;
+const unsigned cmMMChangeMenu      = 0x1600;
 
-const unsigned cmOne     = 100;
-const unsigned cmTwo     = 101;
-const unsigned cmThree   = 102;
-const unsigned cmCycle   = 110;
+const unsigned cmNothing           = 200;
+const unsigned cmAboutBox          = 201;
+const unsigned cmNewProject        = 202;
+const unsigned cmNewProjectCancel  = 203;
+const unsigned cmHelp              = 204;
 
-const unsigned cmNothing    = 200;
-const unsigned cmAboutBox   = 201;
-const unsigned cmNewProject = 202;
+const unsigned cmAsciiTableCmdBase = 910;
+const unsigned cmAsciiTableCmd     = 911;
+const unsigned cmCharFocused       =   0;
+
+const unsigned maxLineLength = 256;
+
+static short winNumber = 0;
 
 class Application: public TApplication {
 public:
@@ -488,10 +504,395 @@ public:
 			}
 		}
 	};
+
+	class TTable: public TView
+	{
+	public:
+		TTable( TRect& r ):
+			TView(r),
+			name("TTable") {
+			eventMask |= evKeyboard;
+		}
+		TTable( StreamableInit ):
+			TView(streamableInit),
+			name("TTable")
+			{}
+		
+		virtual void draw()
+		{
+			TDrawBuffer buf;
+			TColorAttr  color = getColor(6);
+
+			for(ushort y = 0; y <= size.y-1; y++) {
+				buf.moveChar(0, ' ', color, (short)size.x );
+				for ( ushort x = 0; x <= size.x-1; x++)
+				buf.moveChar(x, (ushort)(32*y+x), color, (ushort)1 );
+				writeLine(0, y, (short)size.x, (ushort)1, buf);
+			}
+			showCursor();
+		}
+
+		virtual void
+		handleEvent( TEvent& event )
+		{
+		    TView::handleEvent(event);
+
+			if (event.what == evMouseDown)
+			{
+				do {
+					if (mouseInView(event.mouse.where)) {
+						TPoint spot = makeLocal(event.mouse.where);
+						setCursor(spot.x, spot.y);
+						charFocused();
+					}
+				} while (mouseEvent(event, evMouseMove));
+		
+				clearEvent(event);
+			}	else
+			{
+				if (event.what == evKeyboard)
+				{
+					switch (event.keyDown.keyCode)
+					{
+						case kbHome: setCursor(0,0); break;
+						case kbEnd: setCursor(size.x-1, size.y-1); break;
+						case kbUp:
+							if (cursor.y > 0)
+							setCursor(cursor.x, cursor.y-1);
+						break;
+						case kbDown:
+							if (cursor.y < size.y-1)
+							setCursor(cursor.x, cursor.y+1);
+						break;
+						case kbLeft:
+							if (cursor.x > 0)
+							setCursor(cursor.x-1, cursor.y);
+						break;
+						case kbRight:
+							if (cursor.x < size.x-1)
+							setCursor(cursor.x+1, cursor.y);
+						break;
+						default:
+							setCursor(event.keyDown.charScan.charCode % 32,
+							event.keyDown.charScan.charCode / 32);
+						break;
+					}
+					
+					charFocused();
+					clearEvent(event);
+				}
+			}
+		}
+		
+		void charFocused()
+		{
+			message(owner, evBroadcast, cmAsciiTableCmdBase + cmCharFocused,
+			(void *)(size_t)(cursor.x + 32 * cursor.y));
+		}
+	private:
+		virtual const char *streamableName() const
+		{ return name; }
+		
+	protected:
+		virtual void write( opstream& os) { TView::write(os); }
+		virtual void *read( ipstream& is) { TView::read (is); return this; }
+
+	public:
+		        const char * const name;
+		static TStreamable *build();
+	};
+
+	class TReport: public TView
+	{
+	public:
+		TReport( TRect& r):
+			TView(r),
+			name("TReport") {
+			asciiChar = 0;
+		}
+		TReport( StreamableInit ):
+			TView(streamableInit),
+			name("TReport")
+			{}
+
+		virtual void draw()
+		{
+			TDrawBuffer buf;
+			TColorAttr  color = getColor(6);
+			char        str[80];
+			ostrstream  statusStr( str, sizeof str );
+
+			statusStr
+			<< "  Char: "     << (char ) ((asciiChar == 0) ? 0x20 : asciiChar)
+			<< " Decimal: "   << setw(3) << (int) asciiChar
+			<< " Hex " << hex << setiosflags(ios::uppercase)
+			<< setw(2) << (int) asciiChar << "     " << ends;
+
+			buf.moveStr(0, str , color);
+			writeLine(0,0, 32,1, buf);
+		}
+
+		virtual void
+		handleEvent( TEvent& event )
+		{
+			TView::handleEvent(event);
+			if (event.what == evBroadcast) {
+				if (event.message.command == cmAsciiTableCmdBase + cmCharFocused) {
+					asciiChar = event.message.infoByte;
+					drawView();
+				}
+			}
+		}
+
+	private:
+		uchar asciiChar;
+		virtual const char *streamableName() const
+		{ return name; }
+
+	protected:
+		virtual void write( opstream& os) { TView::write(os); os << asciiChar; }
+		virtual void *read( ipstream& is) { TView::read (is); is >> asciiChar; return this; }
+
+	public:
+		        const char * const name;
+		static TStreamable *build() {
+			return new TReport( streamableInit );
+		}
+	};
+
+	class TAsciiChart: public TWindow {
+	public:
+		TAsciiChart():
+			TWindowInit( &TAsciiChart::initFrame ),
+			TWindow(TRect(0, 0, 34, 12), "ASCII Chart", wnNoNumber),
+			name("TAsciiChart")
+		{
+			TView *control;
+
+			flags &= ~(wfGrow | wfZoom);
+			growMode = 0;
+			palette = wpGrayWindow;
+
+			TRect r = getExtent();
+			r.grow(-1, -1);
+			r.a.y = r.b.y - 1;
+			control = new TReport( r );
+			control->options |= ofFramed;
+			control->eventMask |= evBroadcast;
+			insert(control);
+
+			r = getExtent();
+			r.grow(-1, -1);
+			r.b.y = r.b.y - 2;
+			control = new TTable( r );
+			control->options |= ofFramed;
+			control->options |= ofSelectable;
+			control->blockCursor();
+			insert(control);
+			control->select();
+		}
+
+		TAsciiChart(StreamableInit):
+			TWindowInit(0),
+			TWindow(streamableInit),
+			name("TAsciiChart")
+			{}
+			
+		virtual void handleEvent( TEvent &event ) {
+			TWindow::handleEvent( event );
+		}
+
+	private:
+		virtual const char *streamableName() const
+		{ return name; }
+	protected:
+		virtual void write( opstream& os) { TWindow::write(os); }
+		virtual void* read( ipstream& is) { TWindow::read (is); return this; }
+	public:
+		       const char  * const name;
+		static TStreamable * build() {
+			return new TAsciiChart( streamableInit );
+		}
+	};
 	
+	class TLineCollection: public TCollection {
+	public:
+		TLineCollection(short lim, short delta) : TCollection(lim, delta) {}
+		virtual void  freeItem(void *p) { delete[] (char *) p; }
+	private:
+		virtual void *readItem( ipstream& ) { return 0; }
+		virtual void writeItem( void *, opstream& ) {}
+	};
+
+	class TFileViewer: public TScroller {
+	public:
+		char *fileName;
+		
+		TCollection *fileLines;
+		Boolean isValid;
+		
+		TFileViewer( const TRect& bounds,
+			TScrollBar *aHScrollBar,
+			TScrollBar *aVScrollBar,
+			const char *aFileName):
+			TScroller( bounds, aHScrollBar, aVScrollBar ),
+			name("TFileViewer") {
+			
+			growMode = gfGrowHiX | gfGrowHiY;
+			isValid  = true;
+			fileName = 0;
+			readFile( aFileName );
+		}
+		
+		~TFileViewer() {
+			delete[] fileName;
+			destroy (fileLines);
+		}
+		TFileViewer( StreamableInit ):
+			TScroller(streamableInit),
+			name("TFileViewer")
+			{}
+		
+		void draw()
+		{
+			char *p;
+
+			TColorAttr c =  getColor(1);
+			for( short i = 0; i < size.y; i++ ) {
+				TDrawBuffer b;
+				b.moveChar( 0, ' ', c, (short)size.x );
+
+				if ( delta.y + i < fileLines->getCount() ) {
+					p = (char *)( fileLines->at(delta.y+i) );
+					if( p )
+					b.moveStr( 0, p, c, (short)size.x, (short)delta.x );
+				}
+				writeBuf( 0, i, (short)size.x, 1, b );
+			}
+		}
+		
+		void readFile( const char *fName )
+		{
+			delete[] fileName;
+
+			limit.x   = 0;
+			fileName  = newStr( fName );
+			fileLines = new TLineCollection(5, 5);
+			
+			ifstream fileToView( fName );
+			if (!fileToView ) {
+				char buf[256] = {0};
+				ostrstream os( buf, sizeof( buf )-1 );
+				os << "Failed to open file '" << fName << "'." << ends;
+				messageBox( buf, mfError | mfOKButton );
+				isValid = false;
+			}	else {
+				char *line = (char *) malloc(maxLineLength);
+				size_t lineSize = maxLineLength;
+				char c;
+				while(
+					!lowMemory() &&
+					!fileToView.eof() && 
+					fileToView.get( c )) {
+					size_t i = 0;
+					while ( !fileToView.eof() && c != '\n' && c != '\r' ) // read a whole line
+					{
+						if (i == lineSize)
+						line  = (char *) realloc(line, (lineSize *= 2));
+						line[i++] = c ? c : ' ';
+						fileToView.get( c );
+					}
+					line[i] = '\0';
+					if ( c == '\r' && fileToView.peek() == '\n')
+					fileToView.get( c ); // grab trailing newline on CRLF
+					limit.x = max( limit.x, strwidth( line ) );
+					fileLines->insert( newStr( line ) );
+				}
+				isValid = True;
+				::free(line);
+			}
+			limit.y = fileLines->getCount();
+		}
+		
+		void setState( ushort aState, Boolean enable ) {
+			TScroller::setState( aState, enable );
+			if ( enable && (aState & sfExposed) )
+			setLimit( limit.x, limit.y );
+		}
+
+		void scrollDraw() {
+			TScroller::scrollDraw();
+			draw();
+		}
+		
+		Boolean valid( ushort command ) { return isValid; }
+		
+	private:
+		virtual const char *streamableName() const
+        { return name; }
+
+	protected:
+	
+		virtual void write( opstream& os) {
+			TScroller::write(os);
+			os.writeString(fileName);
+		}
+		
+		virtual void *read( ipstream& is) {
+			char *fName;
+
+			TScroller::read(is);
+			fName = is.readString();
+			fileName = 0;
+			readFile(fName);
+			delete[] fName;
+			return this;
+		}
+
+	public:
+		        const char * const name;
+		static TStreamable *build() {
+			return new TFileViewer( streamableInit );
+		}
+	};
+	
+	class TFileWindow : public TWindow {
+	public:
+		TFileWindow( const char *fileName ):
+			TWindowInit( &TFileWindow::initFrame ),
+			TWindow(
+			TProgram::deskTop->getExtent(),
+			fileName, winNumber++) {
+			
+			options |= ofTileable;
+			
+			TRect r( getExtent() );
+			r.grow(-1, -1);
+			
+			insert(new TFileViewer( r,
+			
+			standardScrollBar(sbHorizontal | sbHandleKeyboard),
+			standardScrollBar(sbVertical | sbHandleKeyboard),
+			fileName) );
+		}
+	};
+	
+	void
+	openHelpWindow() {
+		TView *w = validView( new TFileWindow( "prolog64.hlp" ));
+		if (!w)
+		deskTop->insert(w);
+	}
+
 	virtual void
 	handleEvent(TEvent& event)
 	{
+		TWindow   * w;
+		THelpFile * hFile;
+		fpstream  * helpStrm;
+		
+		static bool helpInUse = false;
+
 		TApplication::handleEvent(event);
 		if (event.what != evCommand) {
 			clearEvent(event);
@@ -500,16 +901,62 @@ public:
 
 		switch (event.message.command)
 		{
+			case cmNewProjectCancel:
+			{
+				PL_projdlg_open = false;
+				helpInUse       = false;
+				TObject::destroy(PL_projdlg);
+			}
+			break;
+
+			case cmHelp:
+			{
+				if (helpInUse == false) {
+					helpInUse = true;
+					helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+					hFile     = new THelpFile(*helpStrm);
+					if (!helpStrm) {
+						messageBox("Could not open help file", mfError | mfOKButton);
+						delete hFile;
+					}
+					else {
+						w = new THelpWindow(hFile, getHelpCtx());
+						if (validView(w) != 0) {
+							execView(w);
+							destroy( w);
+						}
+						clearEvent(event);
+					}
+					
+					helpInUse = False;
+				}
+			}
+			break;				
+				
 			case cmNewProject:
+			{
 				createNewProjectDialog();
 				clearEvent(event);
+			}
+			break;
+			
+			case cmAsciiTableCmd:
+			{
+				TAsciiChart *chart = (TAsciiChart *) validView(new TAsciiChart);
+				if(chart != 0) {
+					chart  ->helpCtx = hcAsciiTable;
+					deskTop->insert(chart);
+				}	clearEvent(event);
+			}
 			break;
 			
 			case cmAboutBox:
+			{
 				::std::string sz;
 				sz = "\x3Zwapel 0.0.1\n\n\x3(c) 2023 by Jens Kallup";
 				messageBox( sz.c_str(),mfInformation | mfOKButton);
 				clearEvent(event);
+			}
 			break;
 		}
 	}
@@ -563,15 +1010,18 @@ public:
 	void
 	createNewProjectDialog()
 	{
-		TDialog *d  = new TDialog( TRect( 0,0, 52,13), "New Project");
-		d->options |= ofCentered;
+		if (PL_projdlg_open)
+		return;
+
+		PL_projdlg  = new TDialog( TRect( 0,0, 52,13), "New Project");
+		PL_projdlg->options |= ofCentered;
 		
 		TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 80);
-		d->insert(control);
-		d->insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
-		d->insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
+		PL_projdlg->insert(control);
+		PL_projdlg->insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
+		PL_projdlg->insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
 
-		d->insert( new TRadioButtons( TRect( 3,4, 36,8),
+		PL_projdlg->insert( new TRadioButtons( TRect( 3,4, 36,8),
 			new TSItem("Pascal",
 			new TSItem("C/C++",
 			new TSItem("dBase",
@@ -579,31 +1029,34 @@ public:
 			new TSItem("Prolog",
 			new TSItem("Assembler", 0) )))))));
 			
-		d->insert( new TRadioButtons( TRect( 3,9, 23,12),
+		PL_projdlg->insert( new TRadioButtons( TRect( 3,9, 23,12),
 			new TSItem("PE-Exe  32-Bit",
 			new TSItem("DOS-Exe 16-Bit",
 			new TSItem("DOS-Com 16-Bit", 0) ))));
 			
-		d->insert( new TCheckBoxes( TRect( 24,9, 36,12 ),
+		PL_projdlg->insert( new TCheckBoxes( TRect( 24,9, 36,12 ),
 			new TSItem("gdwarf",
 			new TSItem("binary", 0) )));
 
-		d->insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,     bfDefault ));
-		d->insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmOK,     bfDefault ));
-		d->insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel, bfNormal  ));
-		d->insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,   bfNormal  ));
+		PL_projdlg->insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,     bfDefault ));
+		PL_projdlg->insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmHelp,     bfNormal  ));
+		PL_projdlg->insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmNewProjectCancel, bfNormal  ));
+		PL_projdlg->insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,   bfNormal  ));
 		
-		d->selectNext(false);
+		PL_projdlg->selectNext(true);
 		
-		TView *p = TProgram::application->validView(d);
+		TView *p = TProgram::application->validView(PL_projdlg);
 		if (!p) {
 			::std::string sz;
 			sz = "Error:\nCould not create view.";
 			messageBox( sz.c_str(),mfInformation | mfOKButton);
 		}
+
+		TProgram::deskTop->insert(PL_projdlg);
+		PL_projdlg_open = true;
 		
-		TProgram::deskTop->execView(p);
-		TObject::destroy(p);
+		//TProgram::deskTop->execView(p);
+		//TObject::destroy(p);
 	}
 	
 	static Boolean isTileable(TView *p, void*)
@@ -640,6 +1093,9 @@ public:
 		clock = new TClockView(r);
 		clock->growMode = gfGrowLoX | gfGrowHiX;
 		insert(clock);
+		
+		PL_projdlg_open = false;
+		PL_projdlg = nullptr;
 	}
 	
 	~Application() {
@@ -660,7 +1116,28 @@ public:
 private:
 	TClockView *clock;
 	int curMenu;
+
+	bool     PL_projdlg_open;
+	TDialog *PL_projdlg;
 };
+
+inline ipstream& operator >> ( ipstream& is, Application::TTable&  cl ) { return is >> (TStreamable&) cl; }
+inline ipstream& operator >> ( ipstream& is, Application::TTable*& cl ) { return is >> (void *&) cl; }
+
+inline opstream& operator << ( opstream& os, Application::TTable&  cl ) { return os << (TStreamable&) cl; }
+inline opstream& operator << ( opstream& os, Application::TTable*  cl ) { return os << (TStreamable*) cl; }
+
+inline ipstream& operator >> ( ipstream& is, Application::TReport&  cl ) { return is >> (TStreamable&) cl; }
+inline ipstream& operator >> ( ipstream& is, Application::TReport*& cl ) { return is >> (void *&) cl; }
+
+inline opstream& operator << ( opstream& os, Application::TReport&  cl ) { return os << (TStreamable&) cl; }
+inline opstream& operator << ( opstream& os, Application::TReport*  cl ) { return os << (TStreamable*) cl; }
+
+inline ipstream& operator >> ( ipstream& is, Application::TAsciiChart&  cl ) { return is >> (TStreamable&) cl; }
+inline ipstream& operator >> ( ipstream& is, Application::TAsciiChart*& cl ) { return is >> (void *&) cl; }
+
+inline opstream& operator << ( opstream& os, Application::TAsciiChart&  cl ) { return os << (TStreamable&) cl; }
+inline opstream& operator << ( opstream& os, Application::TAsciiChart*  cl ) { return os << (TStreamable*) cl; }
 
 // ---------------------------------------------------------------------
 //! \class  PL_helper
