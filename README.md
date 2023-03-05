@@ -1,14 +1,14 @@
-SWIPL-ZWAPEL - Prolog VCL Interface
+# SWIPL-ZWAP - Prolog VCL Interface
 2023-02-20
 
 This is version 0.0.1 of the SWI-Prolog VCL library for interfacing
 between SWIPL, and Borland VCL - Visual Component Library.
 
 Screen Shoot 1:
-![Alpha](./img/term01.png)
+![Alpha](img/term01.png)
 
 Screen Shoot 2:
-![Alpha](./img/screen01.png)
+![Alpha](img/screen01.png)
 
 Contact:
 --------
