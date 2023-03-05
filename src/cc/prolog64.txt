@@ -1,6 +1,931 @@
-.topic AsciiTable
-fsd
+; -------------------------------------------
+; help file for the Prolog-System v.0.0.1
+;
+; (c) 2023 by Jens Kallup
+; all rights reserved.
+; -------------------------------------------
+.topic noContext=0
+ A topic ▄
+  ▀▀▀▀▀▀▀▀ 
+Press ESC to put this help screen away.
 
-dsfdfs
-dsfdfs
-444
+.topic AsciiTable, NewProjectDialog_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewProjectDialog_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀
+In this Dialog-Window, you can choose the
+main-stream Project.
+
+You can add, mix, and/or delete Projects
+during the development Time.
+
+.topic NewProjectDialog_DEU
+ {ENG:NewProjectDialog_ENG} {DEU:NewProjectDialog_DEU} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+In diesen Dialog-Fenster können Sie die Art
+des zu erstellenden Haupt-Projektes festlegen.
+
+Sie können Projekte während der Entwicklung
+hinzufügen, mischen, oder löschen.
+
+.topic Content_ENG
+ {ENG:Content_ENG} {DEU:Content_DEU} - Content
+ ════════════════════════════════════════════
+ Content ▄
+  ▀▀▀▀▀▀▀▀
+The programming language PASCAL was developed in 1970 by
+Niklaus Wirth at the ETH Zurich.
+It was designed as a language that could be used for
+for the education of programmers.
+The language is simple and clearly structured and designed
+so that it can be used on "small" computers.
+The PASCAL language was named from the French mathematician
+Blaise Pascal, who invented one of the first mechanical
+calculus machine in 1652.
+
+Since 1985 was Turbo Pascal 3.0 the language standard on
+DOS-Machines, and the Developement in the following years
+over the versions 4 - 5.5 - 6 - 7 was constantly developed
+further.
+The Windows variant of PASCAL is DELPHI and it enjoys
+increasing popularity today.
+
+The goal in developing was to invent a language,
+that:
+ » based on a few fundamental concepts,
+ » simple and clear language constructions,
+ » has simple language rules (syntax),
+ » generates efficient code with a simple compiler
+
+The simplest programs essentially consist of
+an input part, a processing part and an 
+output part (IPO principle).
+The individual parts are executed in sequence.
+Such a string of instructions is called a sequence.
+
+
+{Pascal-keywords:keywords_ENG}
+
+
+; ---------------------------------------------------------------
+; german - content
+; ---------------------------------------------------------------
+.topic Content_DEU
+ {ENG:Content_ENG} {DEU:Content_DEU} - Inhalt
+ ════════════════════════════════════════════
+ Inhalt ▄
+  ▀▀▀▀▀▀▀
+Die Programmiersprache PASCAL wurde 1970 durch
+Niklaus Wirth an der ETH Zürich entwickelt.
+Sie wurde als eine Sprache entworfen, die zur
+Ausbildung von Programmiererinnen und Programmiererinnen
+geeignet ist. Die Sprache ist einfach und klar
+strukturiert und so konzipiert, dass sie auf
+"kleinen" Computern eingesetzt werden kann.
+Namensgeber für die Sprache PASCAL war der französische
+Mathematiker Blaise Pascal, der im Jahr 1652 einen
+der ersten mechanischen Rechenautomaten erfunden hat.
+
+Seit 1985 gab es auf DOS-Rechnern den Sprachstandard
+Turbo-Pascal 3.0, der in den Folgejahren über die Versionen
+4 - 5.5 - 6 - 7 ständig weiter entwickelt wurde.
+Die Windows-Variante von PASCAL ist DELPHI und sie erfreut
+sich heute zunehmender Beliebtheit.
+
+Das Ziel bei der Entwicklung war es, eine Sprache zu erfinden,
+die:
+ » auf wenigen, grundlegenden Konzepten aufbauend
+ » einfache, übersichtliche Sprachkonstruktionen und
+ » einfache sprachliche Regeln (Syntax) aufweist und
+ » mit einem einfachen Compiler effizienten Code erzeugt
+
+Die einfachsten Programme bestehen im wesentlichen aus
+einem  Eingabeteil, einem Verarbeitungsteil und einem 
+Ausgabeteil (EVA-Prinzip).
+Die einzelnen Teile werden der Reihe nach ausgeführt.
+Eine solche Aneinanderreihung von Anweisungen heißt Sequenz.
+
+{Pascal-Schlüßelwörter (keywords):keywords_DEU}
+
+; ---------------------------------------------------------------
+; german - keywords
+; ---------------------------------------------------------------
+.topic keywords_DEU
+ {ENG:keywords_ENG} {DEU:keywords_DEU} - Schlüßelwörter
+ ════════════════════════════════════════════
+ Reservierte Codewörter ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+reservierte Pascal-Codewörter:
+
+{array:keywords_array_DEU},
+{begin:keywords_begin_DEU},
+{boolean:keywords_boolean_DEU},
+{break:keywords_break_DEU},
+{byte:keywords_byte_DEU},
+{case:keywords_case_DEU},
+{char:keywords_char_DEU},
+{default:keywords_default_DEU},
+{do:keywords_do_DEU},
+{else:keywords_else_DEU},
+{end:keywords_end_DEU},
+{for:keywords_for_DEU},
+{function:keywords_function_DEU},
+{if:keywords_if_DEU},
+{integer:keywords_integer_DEU},
+{library:keywords_library_DEU},
+{of:keywords_of_DEU},
+{procedure:keywords_procedure_DEU},
+{program:keywords_program_DEU},
+{real:keywords_real_DEU},
+{repeat:keywords_repeat_DEU},
+{sizeof:keywords_sizeof_DEU},
+{string:keywords_string_DEU},
+{to:keywords_to_DEU},
+{unit:keywords_unit_DEU},
+{until:keywords_until_DEU},
+{var:keywords_var_DEU},
+{while:keywords_while_DEU},
+{word:keywords_word_DEU}
+
+.topic keywords_array_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - array
+ ════════════════════════════════════════════
+ array ▄
+  ▀▀▀▀▀▀
+Ein Array ist vereinfacht gesagt, eine Liste von Werten des
+gleichen Datentyps. 
+
+Die genaue Struktur der Array-Deklaration ist:
+
+array [<startindex> .. <endindex>] of <Datentyp>; 
+
+startindex..endindex ist dabei eine so genannte Bereichsstruktur
+mit dem man den Bereich zwischen Startwert und Endwert angeben kann
+(Randwerte werden mit eingeschlossen).
+Es ist auch möglich, einen Bereich wie -3..5 anzugeben
+
+Der Name einer Array-Variablen sollte immer ein Substantiv sein
+und in der Mehrzahl stehen.
+
+Auf Arrays zugreifen:
+Um nun auf die einzelnen Elemente zuzugreifen, verwendet
+man folgende Syntax:
+
+ array_name[1] := 'Axel Folloy';
+ array_name[2] := 'Arnold Terminator';
+ 
+Die Zahl in den eckigen Klammern ist der so genannte Index.
+Er gibt an, auf welches Element des Arrays wir zugreifen
+wollen.
+Gültige Werte sind hier die Zahlen 1 bis 2.
+Ein weiterer Vorteil von Arrays ist, dass man anstatt eines
+festen Indexes auch einen ordinalen Datentyp angeben kann.
+Das heißt z.B. eine Integer-Variable.
+
+Die Abfrage der Namen von 10 Gästen ließe sich also sehr so
+einfach implementieren: 
+
+ {var:keywords_var_DEU}
+   index: {Integer:keywords_integer_DEU};
+   gaeste: array[1..10] {of:keywords_of_DEU} {Integer:keywords_string_DEU};
+ {begin:keywords_begin_DEU}
+   {for:keywords_for_DEU} index := 1 {to:keywords_to_DEU} 10 {do:keywords_do_DEU}
+   {begin:keywords_begin_DEU}
+     Writeln('Bitte geben Sie den Namen des ', index, '. Gastes ein:');
+     Readln(gaeste[index]);
+   {end:keywords_end_DEU};
+ {end:keywords_end_DEU}.
+
+Dynamische Arrays
+
+Ändern wir unser Szenario so ab, dass wir eine Gästeliste erstellen wollen,
+aber nicht wissen, wieviele Gäste diese beinhalten soll.
+
+Nun könnten wir zwar ein Array erzeugen, das auf jeden Fall groß genug
+ist um alle Gäste der Welt aufzunehmen.
+
+Allerdings wäre dies eine Verschwendung von Speicher und nicht gerade
+effektiv.
+
+Hier kommen uns die dynamischen Arrays zu Hilfe.
+Dabei handelt es sich, wie man vielleicht vermuten kann, um Arrays,
+deren Länge man zur Laufzeit verändern kann.
+
+Erstellt werden sie praktisch genauso wie normale Arrays,
+nur geben wir diesmal keinen Indexbereich an:
+
+ {var:keywords_var_DEU}
+   gaeste: array {of:keywords_of_DEU} {string:keywords_string_DEU};
+   
+Der Indexbereich eines dynamischen Arrays ist zwar dynamisch,
+aber er beginnt zwingend immer mit 0.
+Zu Beginn hat dieser Array die Länge 0, d.h. er beinhaltet momentan
+keine Werte.
+
+Länge des Arrays verändern
+
+Nun verändern wir die Länge des Arrays auf 10: 
+
+ SetLength(gaeste, 10);
+
+Unser Array hat nun eine Länge von 10.
+Das bedeutet, wir können 10 Zeichenketten (String's) in ihm
+verstauen.
+Allerdings hat das höchste Element im Array den Index 9.
+Das liegt daran, dass das erste Element den Index 0 hat
+und wir daher mit dem Index 9 schon 10 Elemente zusammen
+haben.
+
+Nun könnten wir zum Einlesen unserer Gästeliste so vorgehen:
+
+ {var:keywords_var_DEU}
+   index, anzahlgaeste: {Integer:keywords_integer_DEU};
+   gaeste: array {of:keywords_of_DEU} {string:keywords_string_DEU};
+ {begin:keywords_begin_DEU}
+   Writeln('Bitte geben Sie die Anzahl der Gäste ein:');
+   Readln(anzahlgaeste);
+   SetLength(gaeste, anzahlgaeste);
+   {for:keywords_for_DEU} index := 0 {to:keywords_to_DEU} anzahlgaeste-1 {do:keywords_do_DEU}
+   {begin:keywords_begin_DEU}
+     Writeln('Bitte geben Sie den Namen des ', index + 1, '. Gastes ein:');
+     Readln(gaeste[index]);
+   {end:keywords_end_DEU};
+ {end:keywords_end_DEU};
+
+Dies würde zwar zum gewünschten Erfolg führen, allerdings benötigen
+wir so ständig eine weitere Variable, die die Länge
+unseres Arrays angibt.
+Um dies zu umgehen, bedienen wir uns der Routinen High und Low.
+
+Erster und letzter Index:
+
+Die Routine High liefert den höchsten Index des übergeben Arrays zurück:
+
+ SetLength(gaeste, 10);
+ Writeln(High(gaeste));
+
+ SetLength(gaeste, 120);
+ Writeln(High(gaeste));
+ 
+Die Routine Length gibt, wie sich vermuten lässt, die Länge des Arrays zurück:
+
+ SetLength(gaeste, 10);
+ Writeln(Length(gaeste));
+
+Mehrdimensionale Arrays
+
+Bis jetzt haben wir uns nur mit eindimensionalen Arrays beschäftigt.
+Wir haben in Pascal aber auch die Möglichkeit, mehrdimensionale Arrays
+anzulegen.
+
+Dabei kann jeder Unterbereich mit einem festen oder dynamischen
+Indexbereich versehen sein. Ein mehrdimensionales Array kann man sich
+wie eine Tabelle vorstellen, was bei zwei und drei Indexbereichen
+noch nicht schwerfallen dürfte, Pascal erlaubt aber auch weitere
+Dimensionen darüber hinaus.
+
+Bei einem zweidimensionalen Array kann zum Beispiel in Gedanken der
+erste Bereich für eine Zeile und der zweite Bereich für eine Spalte
+in dieser Zeile stehen.
+
+Das einfachste sind wiederum mehrdimensionale statische Arrays mit festen
+Indexbereichen.
+Die einzelnen Bereiche werden mit Kommata voneinander getrennt.
+
+ {var:keywords_var_DEU}
+   a1: array[1..10, 0..5] {of:keywords_of_DEU} {Byte:keywords_byte_DEU};
+   a2: array[1..10, 1..10, 1..10] {of:keywords_of_DEU} {Byte:keywords_byte_DEU};
+
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_begin_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - begin
+ ════════════════════════════════════════════
+ begin ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_boolean_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - boolean
+ ════════════════════════════════════════════
+ boolean ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_break_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - break
+ ════════════════════════════════════════════
+ break ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_byte_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - byte
+ ════════════════════════════════════════════
+ byte ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_case_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - case
+ ════════════════════════════════════════════
+ case ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_char_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - char
+ ════════════════════════════════════════════
+ char ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_default_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - default
+ ════════════════════════════════════════════
+ default ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_do_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - do
+ ════════════════════════════════════════════
+ do ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_else_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - else
+ ════════════════════════════════════════════
+ else ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_end_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - end
+ ════════════════════════════════════════════
+ end ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_for_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - for
+ ════════════════════════════════════════════
+ for ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_function_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - function
+ ════════════════════════════════════════════
+ function ▄
+  ▀▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_if_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - if
+ ════════════════════════════════════════════
+ if ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_integer_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - integer
+ ════════════════════════════════════════════
+ integer ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_library_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - library
+ ════════════════════════════════════════════
+ library ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_of_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - of
+ ════════════════════════════════════════════
+ of ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_procedure_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - procedure
+ ════════════════════════════════════════════
+ procedure ▄
+  ▀▀▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_program_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - program
+ ════════════════════════════════════════════
+ program ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_real_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - real
+ ════════════════════════════════════════════
+ real ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_repeat_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - repeat
+ ════════════════════════════════════════════
+ repeat ▄
+  ▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_sizeof_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - sizeof
+ ════════════════════════════════════════════
+ sizeof ▄
+  ▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_string_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - string
+ ════════════════════════════════════════════
+ string ▄
+  ▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_to_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - to
+ ════════════════════════════════════════════
+ to ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_unit_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - unit
+ ════════════════════════════════════════════
+ unit ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_until_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - until
+ ════════════════════════════════════════════
+ until ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_var_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - var
+ ════════════════════════════════════════════
+ var ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_while_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - while
+ ════════════════════════════════════════════
+ while ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+.topic keywords_word_DEU
+ {Content:Content_ENG} {Schlüßelwörter:keywords_DEU} - word
+ ════════════════════════════════════════════
+ word ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:keywords_ENG} {Inhalt:Content_DEU}
+
+; ---------------------------------------------------------------
+; english - keywords
+; ---------------------------------------------------------------
+.topic keywords_ENG
+ {Content:Content_ENG} {DEU:keywords_DEU} - keywords
+ ════════════════════════════════════════════
+ Reserved keywords ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+reserved Pascal-keywords:
+
+{array:keywords_array_ENG},
+{begin:keywords_begin_ENG},
+{boolean:keywords_boolean_ENG},
+{break:keywords_break_ENG},
+{byte:keywords_byte_ENG},
+{case:keywords_case_ENG},
+{char:keywords_char_ENG},
+{default:keywords_default_ENG},
+{do:keywords_do_ENG},
+{else:keywords_else_ENG},
+{end:keywords_end_ENG},
+{for:keywords_for_ENG},
+{function:keywords_function_ENG},
+{if:keywords_if_ENG},
+{integer:keywords_integer_ENG},
+{library:keywords_library_ENG},
+{of:keywords_of_ENG},
+{procedure:keywords_procedure_ENG},
+{program:keywords_program_ENG},
+{real:keywords_real_ENG},
+{repeat:keywords_repeat_ENG},
+{sizeof:keywords_sizeof_ENG},
+{string:keywords_string_ENG},
+{to:keywords_to_ENG},
+{unit:keywords_unit_ENG},
+{until:keywords_until_ENG},
+{var:keywords_var_ENG},
+{while:keywords_while_ENG},
+{word:keywords_word_ENG}
+
+.topic keywords_array_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - array
+ ════════════════════════════════════════════
+ array ▄
+  ▀▀▀▀▀▀
+In simple terms, an array is a list of values of the same
+data type.
+
+The exact structure of the array declaration is:
+
+array [<startindex> .. <endindex>] of <Datatype>; 
+
+startindex..endindex is a so called range structure
+which we can specify the range between startindex and endindex
+(boundary values are allowed).
+
+The name of an array variable should always be a noun and should
+be in plural.
+
+Accessing arrays:
+To access the individual elements, use the following syntax:
+
+ array_name[1] := 'Axel Folloy';
+ array_name[2] := 'Arnold Terminator';
+
+The number in the square brackets is the so-called index.
+It indicates which element of the array we want to access.
+Valid values here are the numbers 1 to 2.
+Another advantage of arrays is that you can specify an ordinal data type
+with fixed index. That is, for example, an integer variable.
+
+To query the names of 10 guests could be simply implemented as follows
+
+ {var:keywords_var_ENG}
+   index: {Integer:keywords_integer_ENG};
+   guests: array[1..10] {of:keywords_of_ENG} {Integer:keywords_string_ENG};
+ {begin:keywords_begin_ENG}
+   {for:keywords_for_ENG} index := 1 {to:keywords_to_ENG} 10 {do:keywords_do_ENG}
+   {begin:keywords_begin_ENG}
+     Writeln('please type-in the guest name of index: ', index);
+     Readln(guests[index]);
+   {end:keywords_end_ENG};
+ {end:keywords_end_ENG}.
+
+Dynamic arrays
+
+Let's change our scenario so that we want to create a guest list,
+but we don't know how many guests it should contain.
+
+Now we could create an array that is big enough to hold all the
+Guests on the Planet Earth.
+
+But, this would be a waste of memory and not very effective.
+
+In this context, dynamic arrays come to our aid.
+These are, as you might guess, arrays, which can be changed
+in length at runtime.
+
+They are created practically in the same way as normal arrays,
+except at this time we do not specify an index range:
+
+ {var:keywords_var_ENG}
+   gaeste: array {of:keywords_of_ENG} {string:keywords_string_ENG};
+
+The index range of a dynamic array is dynamic,
+but it always starts at index value 0.
+At the start of the array, it has the length 0, i.e. it currently contains
+no values.
+
+
+Change the length of the array
+
+Now we change the length of the array to 10 elements
+
+ SetLength(gaeste, 10);
+
+Now, our array has a space enough for 10 elements.
+That means we can store 10 strings in it.
+
+The highest element in the array has index 9.
+This is, because the first element has the index 0 and therefore
+with index 9 we already have 10 elements together.
+
+To read in our guest list we could proceed like this, now:
+
+ {var:keywords_var_ENG}
+   index, numberguests: {Integer:keywords_integer_ENG};
+   guests: array {of:keywords_of_ENG} {string:keywords_string_ENG};
+ {begin:keywords_begin_ENG}
+   Writeln('please enter the number of guests:');
+   Readln(numberguests);
+   SetLength(gaeste, numberguests);
+   {for:keywords_for_ENG} index := 0 {to:keywords_to_ENG} numberguests-1 {do:keywords_do_ENG}
+   {begin:keywords_begin_ENG}
+     Writeln('please enter the name of guest: ', index + 1, ':');
+     Readln(guests[index]);
+   {end:keywords_end_ENG};
+ {end:keywords_end_ENG};
+
+This would lead to the desired success, but this way we constantly need
+another variable that specifies the length of our array.
+To get around this, we use the High and Low routines.
+
+First and last index
+
+The routine High returns the highest index of the passed array:
+
+ SetLength(gaeste, 10);
+ Writeln(High(gaeste));
+
+ SetLength(gaeste, 120);
+ Writeln(High(gaeste));
+ 
+The Length routine returns, as you might guess, the length of the array
+
+Multi-dimensional arrays
+
+Until now we have only dealt with one-dimensional arrays.
+But in Pascal we also have the possibility to create multidimensional arrays.
+
+Each subarea can be provided with a fixed or dynamic index range.
+A multidimensional array can be think as a table, which should not be
+difficult by two or three index areas.
+Pascal also allows further dimensions beyond.
+
+For a two-dimensional array, the first range stands for a row, and the second
+range for a column in this row.
+
+The simplest variant of multidimensional arrays are static arrays with fixed
+index ranges.
+The individual areas are separated from each other with commas.
+
+ {var:keywords_var_DEU}
+   a1: array[1..10, 0..5] {of:keywords_of_DEU} {Byte:keywords_byte_DEU};
+   a2: array[1..10, 1..10, 1..10] {of:keywords_of_DEU} {Byte:keywords_byte_DEU};
+
+
+ ════════════════════════════════════════════
+ {DEU:keywords_array_DEU} {Content:Content_ENG}
+
+.topic keywords_begin_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - begin
+ ════════════════════════════════════════════
+ begin ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_begin_DEU} {Content:Content_ENG}
+
+.topic keywords_boolean_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - boolean
+ ════════════════════════════════════════════
+ boolean ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_boolean_DEU} {Content:Content_ENG}
+
+.topic keywords_break_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - break
+ ════════════════════════════════════════════
+ break ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_break_DEU} {Content:Content_ENG}
+
+.topic keywords_byte_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - byte
+ ════════════════════════════════════════════
+ byte ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_byte_DEU} {Content:Content_ENG}
+
+.topic keywords_case_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - case
+ ════════════════════════════════════════════
+ case ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_case_DEU} {Content:Content_ENG}
+
+.topic keywords_char_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - char
+ ════════════════════════════════════════════
+ char ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_char_DEU} {Content:Content_ENG}
+
+.topic keywords_default_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - default
+ ════════════════════════════════════════════
+ default ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_default_DEU} {Content:Content_ENG}
+
+.topic keywords_do_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - do
+ ════════════════════════════════════════════
+ do ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_do_DEU} {Content:Content_ENG}
+
+.topic keywords_else_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - else
+ ════════════════════════════════════════════
+ else ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_else_DEU} {Content:Content_ENG}
+
+.topic keywords_end_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - end
+ ════════════════════════════════════════════
+ end ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_end_DEU} {Content:Content_ENG}
+
+.topic keywords_for_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - for
+ ════════════════════════════════════════════
+ for ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_for_DEU} {Content:Content_ENG}
+
+.topic keywords_function_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - function
+ ════════════════════════════════════════════
+ function ▄
+  ▀▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_function_DEU} {Content:Content_ENG}
+
+.topic keywords_if_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - if
+ ════════════════════════════════════════════
+ if ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_if_DEU} {Content:Content_ENG}
+
+.topic keywords_integer_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - integer
+ ════════════════════════════════════════════
+ integer ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_integer_DEU} {Content:Content_ENG}
+
+.topic keywords_library_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - library
+ ════════════════════════════════════════════
+ library ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_library_DEU} {Content:Content_ENG}
+
+.topic keywords_of_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - of
+ ════════════════════════════════════════════
+ of ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_of_DEU} {Content:Content_ENG}
+
+.topic keywords_procedure_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - procedure
+ ════════════════════════════════════════════
+ procedure ▄
+  ▀▀▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_procedure_DEU} {Content:Content_ENG}
+
+.topic keywords_program_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - program
+ ════════════════════════════════════════════
+ program ▄
+  ▀▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_program_DEU} {Content:Content_ENG}
+
+.topic keywords_real_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - real
+ ════════════════════════════════════════════
+ real ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_real_DEU} {Content:Content_ENG}
+
+.topic keywords_repeat_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - repeat
+ ════════════════════════════════════════════
+ repeat ▄
+  ▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_repeat_DEU} {Content:Content_ENG}
+ 
+.topic keywords_sizeof_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - sizeof
+ ════════════════════════════════════════════
+ sizeof ▄
+  ▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_sizeof_DEU} {Content:Content_ENG}
+
+.topic keywords_string_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - string
+ ════════════════════════════════════════════
+ string ▄
+  ▀▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_string_DEU} {Content:Content_ENG}
+
+.topic keywords_to_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - to
+ ════════════════════════════════════════════
+ to ▄
+  ▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_to_DEU} {Content:Content_ENG}
+
+.topic keywords_unit_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - unit
+ ════════════════════════════════════════════
+ unit ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_unit_DEU} {Content:Content_ENG}
+
+.topic keywords_until_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - until
+ ════════════════════════════════════════════
+ until ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_until_DEU} {Content:Content_ENG}
+
+.topic keywords_var_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - var
+ ════════════════════════════════════════════
+ var ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_var_DEU} {Content:Content_ENG}
+
+.topic keywords_while_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - while
+ ════════════════════════════════════════════
+ while ▄
+  ▀▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_while_DEU} {Content:Content_ENG}
+
+.topic keywords_word_ENG
+ {Content:Content_ENG} {keywords:keywords_ENG} - word
+ ════════════════════════════════════════════
+ word ▄
+  ▀▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:keywords_word_DEU} {Content:Content_ENG}

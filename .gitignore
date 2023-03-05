@@ -11,8 +11,10 @@ src/pp/Win64/**
 src/pp/*.~*
 src/cc/doxydoc/**
 src/cc/locale/**
+src/cc/pack/**
 src/cc/po/**
 src/cc/*.o
+src/cc/prolog64.hlp
 src/cc/warnings.txt
 src/cc/*.exe
 src/pl/*.dll

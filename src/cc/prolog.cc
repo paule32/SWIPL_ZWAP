@@ -676,14 +676,16 @@ public:
 			TRect r = getExtent();
 			r.grow(-1, -1);
 			r.a.y = r.b.y - 1;
+			
 			control = new TReport( r );
-			control->options |= ofFramed;
+			control->options   |= ofFramed;
 			control->eventMask |= evBroadcast;
 			insert(control);
 
 			r = getExtent();
 			r.grow(-1, -1);
 			r.b.y = r.b.y - 2;
+			
 			control = new TTable( r );
 			control->options |= ofFramed;
 			control->options |= ofSelectable;
@@ -876,6 +878,161 @@ public:
 			fileName) );
 		}
 	};
+
+	class TNewProjectDialog: public TDialog {
+	private:
+		// ---------------------------------------------
+		// this structure set/get the components values
+		// of new project dialog items ...
+		// ---------------------------------------------
+		struct DialogData {
+			char inputLineData[80];
+			ushort radioButtons1Data;
+			ushort radioButtons2Data;
+			ushort checkButtons1Data;
+		} *newData;
+
+	public:
+		TNewProjectDialog():
+			TWindowInit( &TNewProjectDialog::initFrame ),
+			//TWindow( TRect( 0,0, 52,13), "New Project", wnNoNumber),
+			TDialog( TRect( 0,0, 52,13), "New Project"),
+			name("TNewProjectDialog") {
+
+			flags &= ~(wfGrow | wfZoom);
+			growMode = 0;
+			//palette  = cpwpGrayWindow;
+			
+			options |= ofCentered;
+			options |= ofSelectable;
+			
+			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 80);
+			insert(control);
+			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
+			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
+
+			insert( new TRadioButtons( TRect( 3,4, 36,8),
+				new TSItem("Pascal",
+				new TSItem("C/C++",
+				new TSItem("dBase",
+				new TSItem("Fortran",
+				new TSItem("Prolog",
+				new TSItem("Assembler", 0) )))))));
+
+			insert( new TRadioButtons( TRect( 3,9, 23,12),
+				new TSItem("PE-Exe  32-Bit",
+				new TSItem("DOS-Exe 16-Bit",
+				new TSItem("DOS-Com 16-Bit", 0) ))));
+				
+			insert( new TCheckBoxes( TRect( 24,9, 36,12 ),
+				new TSItem("gdwarf",
+				new TSItem("binary", 0) )));
+
+			insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,     bfDefault ));
+			insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmHelp,   bfNormal  ));
+			insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel, bfNormal  ));
+			insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,   bfNormal  ));
+			
+			selectNext(true);
+			
+			// ------------------------------
+			// set dialog data for later use
+			// ------------------------------
+			newData = new DialogData;
+			
+			strcpy(
+			newData->inputLineData,"C:\\");
+			newData->radioButtons1Data = 2;
+			newData->radioButtons2Data = 1;
+			newData->checkButtons1Data = 1;
+			
+			setData(newData);
+		}
+
+		TNewProjectDialog(StreamableInit):
+			TWindowInit(0),
+			TDialog(streamableInit),
+			name("TNewProjectDialog")
+			{}
+			
+		virtual void
+		handleEvent( TEvent &event )
+		{
+			TWindow   * w;
+			THelpFile * hFile;
+			fpstream  * helpStrm;
+			
+			static bool helpInUse = false;
+			
+			TWindow::handleEvent( event );
+			if (event.what != evCommand) {
+				clearEvent(event);
+				return;
+			}
+
+			switch (event.message.command)
+			{
+				case cmHelp:
+				{
+					if (helpInUse == false) {
+						helpInUse = true;
+						helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+						hFile     = new THelpFile(*helpStrm);
+						if (!helpStrm) {
+							messageBox("Could not open help file", mfError | mfOKButton);
+							delete hFile;
+						}
+						else {
+							w = new THelpWindow(hFile, hcAsciiTable); //getHelpCtx());
+							TProgram::deskTop->insert(w);
+							/*if (validView(w) != 0) {
+								execView(w);
+								destroy( w);
+							}*/
+							clearEvent(event);
+						}
+						helpInUse = False;
+					}
+				}
+				break;
+				
+				case cmCancel:
+				{
+					messageBox( "ssssss", mfInformation | mfOKButton);
+					
+					// ---------------------------------
+					// get dialog data for current use:
+					// ---------------------------------
+					char buffer[128];
+					getData(newData);
+
+					sprintf(buffer,"btn1: %d, btn2: %d, chk1: %d\n%s",
+					newData->radioButtons1Data,
+					newData->radioButtons2Data,
+					newData->checkButtons1Data,newData->inputLineData);
+					messageBox( buffer, mfInformation | mfOKButton);
+
+					clearEvent(event);
+
+					delete newData;
+					TObject::destroy(this);
+				}
+				break;
+			}
+		}
+		
+	private:
+		virtual const char *streamableName() const
+		{ return name; }
+	protected:
+		virtual void write( opstream& os) { TWindow::write(os); }
+		virtual void* read( ipstream& is) { TWindow::read (is); return this; }
+	public:
+		       const char  * const name;
+		static TStreamable * build() {
+			return new TNewProjectDialog( streamableInit );
+		}
+	};
 	
 	void
 	openHelpWindow() {
@@ -887,12 +1044,6 @@ public:
 	virtual void
 	handleEvent(TEvent& event)
 	{
-		TWindow   * w;
-		THelpFile * hFile;
-		fpstream  * helpStrm;
-		
-		static bool helpInUse = false;
-
 		TApplication::handleEvent(event);
 		if (event.what != evCommand) {
 			clearEvent(event);
@@ -901,38 +1052,6 @@ public:
 
 		switch (event.message.command)
 		{
-			case cmNewProjectCancel:
-			{
-				PL_projdlg_open = false;
-				helpInUse       = false;
-				TObject::destroy(PL_projdlg);
-			}
-			break;
-
-			case cmHelp:
-			{
-				if (helpInUse == false) {
-					helpInUse = true;
-					helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
-					hFile     = new THelpFile(*helpStrm);
-					if (!helpStrm) {
-						messageBox("Could not open help file", mfError | mfOKButton);
-						delete hFile;
-					}
-					else {
-						w = new THelpWindow(hFile, getHelpCtx());
-						if (validView(w) != 0) {
-							execView(w);
-							destroy( w);
-						}
-						clearEvent(event);
-					}
-					
-					helpInUse = False;
-				}
-			}
-			break;				
-				
 			case cmNewProject:
 			{
 				createNewProjectDialog();
@@ -969,7 +1088,7 @@ public:
 		//{
 			return new ::TMenuBar(r,
 			*new ::TSubMenu( "~F~ile", hcNoContext) +
-				*new TMenuItem( "~O~pen...", cmNewProject, kbF3, hcNoContext, "F3" ) +
+				*new TMenuItem( "~O~pen...", cmNewProject, kbF3, hcAsciiTable, "F3" ) +
 				*new TMenuItem( "~S~ave", 101, kbF2, hcNoContext, "F2" ) +
 				newLine() +
 				*new TMenuItem( "~C~hange directory...", 102, kbNoKey, hcNoContext ) +
@@ -1010,53 +1129,14 @@ public:
 	void
 	createNewProjectDialog()
 	{
-		if (PL_projdlg_open)
-		return;
-
-		PL_projdlg  = new TDialog( TRect( 0,0, 52,13), "New Project");
-		PL_projdlg->options |= ofCentered;
-		
-		TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 80);
-		PL_projdlg->insert(control);
-		PL_projdlg->insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
-		PL_projdlg->insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
-
-		PL_projdlg->insert( new TRadioButtons( TRect( 3,4, 36,8),
-			new TSItem("Pascal",
-			new TSItem("C/C++",
-			new TSItem("dBase",
-			new TSItem("Fortran",
-			new TSItem("Prolog",
-			new TSItem("Assembler", 0) )))))));
-			
-		PL_projdlg->insert( new TRadioButtons( TRect( 3,9, 23,12),
-			new TSItem("PE-Exe  32-Bit",
-			new TSItem("DOS-Exe 16-Bit",
-			new TSItem("DOS-Com 16-Bit", 0) ))));
-			
-		PL_projdlg->insert( new TCheckBoxes( TRect( 24,9, 36,12 ),
-			new TSItem("gdwarf",
-			new TSItem("binary", 0) )));
-
-		PL_projdlg->insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,     bfDefault ));
-		PL_projdlg->insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmHelp,     bfNormal  ));
-		PL_projdlg->insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmNewProjectCancel, bfNormal  ));
-		PL_projdlg->insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,   bfNormal  ));
-		
-		PL_projdlg->selectNext(true);
-		
-		TView *p = TProgram::application->validView(PL_projdlg);
+		auto  * d = new TNewProjectDialog();
+		TView * p = TProgram::application->validView(d);
 		if (!p) {
 			::std::string sz;
 			sz = "Error:\nCould not create view.";
 			messageBox( sz.c_str(),mfInformation | mfOKButton);
 		}
-
-		TProgram::deskTop->insert(PL_projdlg);
-		PL_projdlg_open = true;
-		
-		//TProgram::deskTop->execView(p);
-		//TObject::destroy(p);
+		TProgram::deskTop->insert(d);
 	}
 	
 	static Boolean isTileable(TView *p, void*)
@@ -1090,12 +1170,10 @@ public:
 		TRect r = getExtent();
 		r.a.x = r.b.x - 9;
 		r.b.y = r.a.y + 1;
+		
 		clock = new TClockView(r);
 		clock->growMode = gfGrowLoX | gfGrowHiX;
 		insert(clock);
-		
-		PL_projdlg_open = false;
-		PL_projdlg = nullptr;
 	}
 	
 	~Application() {
@@ -1116,9 +1194,6 @@ public:
 private:
 	TClockView *clock;
 	int curMenu;
-
-	bool     PL_projdlg_open;
-	TDialog *PL_projdlg;
 };
 
 inline ipstream& operator >> ( ipstream& is, Application::TTable&  cl ) { return is >> (TStreamable&) cl; }
