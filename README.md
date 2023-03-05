@@ -4,9 +4,8 @@
 This is version 0.0.1 of the SWI-Prolog VCL library for interfacing
 between SWIPL, and Borland VCL - Visual Component Library.
 
-Screen Shoot 1:
+Screen Shot's:
 ![Alpha](img/term01.png)
-Screen Shoot 2:
 ![Alpha](img/screen01.png)
 
 Contact:
