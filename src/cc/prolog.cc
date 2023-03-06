@@ -232,7 +232,7 @@
 # include <tvision/tv.h>
 # include <tvision/help.h>
 
-# include "prolog64.hlp.h"
+# include "help.h"
 
 class TApplication;
 class TMenuBar;
