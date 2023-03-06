@@ -140,7 +140,6 @@
 # include <ctype.h>
 # include <wchar.h>
 # include <limits.h>
-# include <unistd.h>
 # include <getopt.h>
 # include <limits.h>
 # include <sys/types.h>
@@ -151,6 +150,20 @@
 // ---------------------------------------------------------------------
 # include <libintl.h>
 # include <locale.h>
+
+// ---------------------------------------------------------------------
+// debug information's by dwarf ...
+// ---------------------------------------------------------------------
+#include <dwarf.h>
+
+#ifdef _WIN32
+# include <io.h>
+# define O_RDONLY _O_RDONLY
+# define O_BINARY _O_BINARY
+#else
+# include <unistd.h>
+# define O_BINARY 0
+#endif
 
 // ---------------------------------------------------------------------
 // c++ header
@@ -218,10 +231,20 @@
 
 # include <tvision/tv.h>
 # include <tvision/help.h>
-
 # include "prolog64.hlp.h"
 
 class TApplication;
+
+// ---------------------------------------------------------------------
+// error handling
+// ---------------------------------------------------------------------
+#ifdef _WIN32
+# define NULL_DEVICE_NAME "NUL"
+#else
+# define NULL_DEVICE_NAME "/dev/null"
+#endif
+
+static ::std::stringstream error_buffer;
 
 // ---------------------------------------------------------------------
 // namespace placeholder.
@@ -229,6 +252,9 @@ class TApplication;
 using namespace asmjit;
 using namespace x86;
 using namespace std;
+
+extern "C" int test_dwarf(void);
+extern "C" int test_dwarf2(void);
 
 // ---------------------------------------------------------------------
 // name space for the PL library:
@@ -408,6 +434,69 @@ using PL_Exception::PL_Exception;
 };
 
 // ---------------------------------------------------------------------
+// DWARF debugging class ...
+// ---------------------------------------------------------------------
+class DWARF {
+public:
+	DWARF(::std::string file_name)
+	{
+		unsigned            ftype = 0;
+		unsigned           endian = 0;
+		unsigned       offsetsize = 0;
+		int               errcode = 0;
+		int                   res = 0;
+		Dwarf_Unsigned   filesize = 0;
+		unsigned char path_source = DW_PATHSOURCE_unspecified;
+
+res = test_dwarf();
+
+		if (res == DW_DLV_NO_ENTRY) {
+			messageBox("FAIL Cannot dwarf_object_init_b() NO ENTRY.", mfError | mfOKButton );
+		} else if (res == DW_DLV_ERROR) {
+			messageBox("FAIL CannoNTRY.", mfError | mfOKButton );
+		}
+res = test_dwarf2();
+if (res == DW_DLV_NO_ENTRY) {
+			messageBox("FAIL Cannot dwarf_object_init_b() NO ENTRY.", mfError | mfOKButton );
+		} else if (res == DW_DLV_ERROR) {
+			messageBox("FAIL CannoNTRY.", mfError | mfOKButton );
+		}
+
+#if 0
+		res = dwarf_object_detector_path_b(
+			file_name.c_str(),
+			0,0,
+			0,0,
+			&ftype,&endian,&offsetsize,&filesize,
+			&path_source,&errcode);
+
+		if (res != DW_DLV_OK) {
+			error_buffer.str("");
+			if (res == DW_DLV_ERROR) {
+				error_buffer
+				<< ::std::string("Can not open: ")
+				<< ::std::string(file_name)
+				<< ::std::endl
+				<< ::std::string("Error: ")
+				<< dwarf_errmsg_by_number(errcode);
+			}	else {
+				error_buffer
+				<< ::std::string("There is no file: ")
+				<< ::std::string(file_name);
+			}
+			messageBox( error_buffer.str().c_str(),
+			mfError | mfOKButton );
+		}
+#endif
+	}
+
+	DWARF() {}
+	~DWARF()
+	{
+	}
+};
+
+// ---------------------------------------------------------------------
 // Application object for Console Projects ...
 // ---------------------------------------------------------------------
 const unsigned cmMMChangeMenu      = 0x1600;
@@ -417,6 +506,7 @@ const unsigned cmAboutBox          = 201;
 const unsigned cmNewProject        = 202;
 const unsigned cmNewProjectCancel  = 203;
 const unsigned cmHelp              = 204;
+const unsigned cmLoadData          = 205;
 
 const unsigned cmAsciiTableCmdBase = 910;
 const unsigned cmAsciiTableCmd     = 911;
@@ -928,10 +1018,10 @@ public:
 				new TSItem("gdwarf",
 				new TSItem("binary", 0) )));
 
-			insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,     bfDefault ));
-			insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmHelp,   bfNormal  ));
-			insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel, bfNormal  ));
-			insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,   bfNormal  ));
+			insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,       bfDefault ));
+			insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmLoadData, bfNormal  ));
+			insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel,   bfNormal  ));
+			insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,     bfNormal  ));
 			
 			selectNext(true);
 			
@@ -998,8 +1088,18 @@ public:
 				
 				case cmCancel:
 				{
-					messageBox( "ssssss", mfInformation | mfOKButton);
+					messageBox( "No option given.", mfInformation | mfOKButton);
+					clearEvent(event);
 					
+					delete newData;
+					TObject::destroy(this);
+				}
+				break;
+				
+				case cmLoadData:
+				{
+					clearEvent(event);
+
 					// ---------------------------------
 					// get dialog data for current use:
 					// ---------------------------------
@@ -1011,11 +1111,13 @@ public:
 					newData->radioButtons2Data,
 					newData->checkButtons1Data,newData->inputLineData);
 					messageBox( buffer, mfInformation | mfOKButton);
+					
+					DWARF app_debug(newData->inputLineData);
 
-					clearEvent(event);
-
-					delete newData;
-					TObject::destroy(this);
+					//delete newData;
+					//delete app_debug;
+					
+					//TObject::destroy(this);
 				}
 				break;
 			}
