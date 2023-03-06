@@ -14,7 +14,6 @@ src/cc/locale/**
 src/cc/pack/**
 src/cc/po/**
 src/cc/*.o
-src/cc/prolog64.hlp
 src/cc/warnings.txt
 src/cc/*.exe
 src/pl/*.dll

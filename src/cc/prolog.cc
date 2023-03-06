@@ -231,9 +231,14 @@
 
 # include <tvision/tv.h>
 # include <tvision/help.h>
+
 # include "prolog64.hlp.h"
 
 class TApplication;
+class TMenuBar;
+class TStatusLine;
+class TEditWindow;
+class TDialog;
 
 // ---------------------------------------------------------------------
 // error handling
@@ -507,14 +512,16 @@ const unsigned cmNewProject        = 202;
 const unsigned cmNewProjectCancel  = 203;
 const unsigned cmHelp              = 204;
 const unsigned cmLoadData          = 205;
+const unsigned cmNewData           = 206;
 
 const unsigned cmAsciiTableCmdBase = 910;
 const unsigned cmAsciiTableCmd     = 911;
 const unsigned cmCharFocused       =   0;
 
-const unsigned maxLineLength = 256;
+const unsigned hlChangeDir         = cmChangeDir;
+const unsigned maxLineLength       = 256;
 
-static short winNumber = 0;
+static short winNumber             = 0;
 
 class Application: public TApplication {
 public:
@@ -961,11 +968,11 @@ public:
 			TRect r( getExtent() );
 			r.grow(-1, -1);
 			
-			insert(new TFileViewer( r,
-			
-			standardScrollBar(sbHorizontal | sbHandleKeyboard),
-			standardScrollBar(sbVertical | sbHandleKeyboard),
-			fileName) );
+			insert(new TFileViewer(
+				r,
+				standardScrollBar(sbHorizontal | sbHandleKeyboard),
+				standardScrollBar(sbVertical | sbHandleKeyboard),
+				fileName) );
 		}
 	};
 
@@ -976,11 +983,30 @@ public:
 		// of new project dialog items ...
 		// ---------------------------------------------
 		struct DialogData {
-			char inputLineData[80];
+			char inputLineData[128];
 			ushort radioButtons1Data;
 			ushort radioButtons2Data;
 			ushort checkButtons1Data;
 		} *newData;
+
+		ushort execDialog( TDialog *d, void *data )
+		{
+			TView *p = TProgram::application->validView( d );
+			if( p == 0 )
+			return cmCancel; else
+			{
+				if( data != 0 )
+					p->setData( data );
+				
+				ushort result = TProgram::deskTop->execView( p );
+				
+				if( result != cmCancel && data != 0 )
+					p->getData( data );
+				
+				TObject::destroy( p );
+				return result;
+			}
+		}
 
 	public:
 		TNewProjectDialog():
@@ -1018,7 +1044,7 @@ public:
 				new TSItem("gdwarf",
 				new TSItem("binary", 0) )));
 
-			insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmOK,       bfDefault ));
+			insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmNewData,  bfDefault ));
 			insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmLoadData, bfNormal  ));
 			insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel,   bfNormal  ));
 			insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,     bfNormal  ));
@@ -1097,6 +1123,26 @@ public:
 				break;
 				
 				case cmLoadData:
+				{
+					char* file_name = new char[MAXPATH];
+					strcpy(file_name, "*.pas");
+					
+					if (execDialog( new TFileDialog(
+						"*.pas",
+						"Open File",
+						"~N~ame",
+						fdOpenButton,
+						100),
+						file_name) != cmCancel)
+						
+					strcpy (newData->inputLineData, file_name);
+					setData(newData);
+					
+					//messageBox( file_name, mfInformation | mfOKButton);
+				}
+				break;
+
+				case cmNewData:
 				{
 					clearEvent(event);
 
