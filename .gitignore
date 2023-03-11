@@ -25,3 +25,5 @@ src/cc/DEU_data.pas
 src/cc/DEU_data.ppu
 src/cc/ENG_data.ppu
 src/cc/neuro.pas
+src/cc/libxbase.a
+src/cc/prolog64.hlp

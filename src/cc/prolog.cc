@@ -242,6 +242,11 @@ class TEditWindow;
 class TDialog;
 
 // ---------------------------------------------------------------------
+// xBASE 4.6.0 database stuff ...
+// ---------------------------------------------------------------------
+# include "xbase.h"
+
+// ---------------------------------------------------------------------
 // error handling
 // ---------------------------------------------------------------------
 #ifdef _WIN32
@@ -258,6 +263,7 @@ static ::std::stringstream error_buffer;
 using namespace asmjit;
 using namespace x86;
 using namespace std;
+using namespace xb;
 
 extern "C" int test_dwarf(void);
 extern "C" int test_dwarf2(void);
@@ -722,39 +728,37 @@ public:
 				} while (mouseEvent(event, evMouseMove));
 		
 				clearEvent(event);
-			}	else
+			}
+			else if (event.what == evKeyboard)
 			{
-				if (event.what == evKeyboard)
+				switch (event.keyDown.keyCode)
 				{
-					switch (event.keyDown.keyCode)
-					{
-						case kbHome: setCursor(0,0); break;
-						case kbEnd: setCursor(size.x-1, size.y-1); break;
-						case kbUp:
-							if (cursor.y > 0)
-							setCursor(cursor.x, cursor.y-1);
-						break;
-						case kbDown:
-							if (cursor.y < size.y-1)
-							setCursor(cursor.x, cursor.y+1);
-						break;
-						case kbLeft:
-							if (cursor.x > 0)
-							setCursor(cursor.x-1, cursor.y);
-						break;
-						case kbRight:
-							if (cursor.x < size.x-1)
-							setCursor(cursor.x+1, cursor.y);
-						break;
-						default:
-							setCursor(event.keyDown.charScan.charCode % 32,
-							event.keyDown.charScan.charCode / 32);
-						break;
-					}
-					
-					charFocused();
-					clearEvent(event);
+					case kbHome: setCursor(0,0); break;
+					case kbEnd: setCursor(size.x-1, size.y-1); break;
+					case kbUp:
+						if (cursor.y > 0)
+						setCursor(cursor.x, cursor.y-1);
+					break;
+					case kbDown:
+						if (cursor.y < size.y-1)
+						setCursor(cursor.x, cursor.y+1);
+					break;
+					case kbLeft:
+						if (cursor.x > 0)
+						setCursor(cursor.x-1, cursor.y);
+					break;
+					case kbRight:
+						if (cursor.x < size.x-1)
+						setCursor(cursor.x+1, cursor.y);
+					break;
+					default:
+						setCursor(event.keyDown.charScan.charCode % 32,
+						event.keyDown.charScan.charCode / 32);
+					break;
 				}
+				
+				charFocused();
+				clearEvent(event);
 			}
 		}
 		
@@ -1187,6 +1191,13 @@ public:
 
 	class PL_dBaseCatalog: public TDialog {
 	private:
+		TListBox * lb_1 = nullptr;
+		TListBox * lb_2 = nullptr;
+		TListBox * lb_3 = nullptr;
+		TListBox * lb_4 = nullptr;
+		TListBox * lb_5 = nullptr;
+		TListBox * lb_6 = nullptr;
+		
 		class LB_Collection: public TCollection {
 		public:
 			LB_Collection(short lim, short delta):
@@ -1203,7 +1214,9 @@ public:
 		{
 			flags &= ~(wfGrow | wfZoom);
 			growMode = 0;
-				
+			
+			eventMask = evMouseDown | evKeyboard | evCommand | evBroadcast;
+			
 			options |= ofCentered;
 			options |= ofSelectable;
 			
@@ -1259,12 +1272,14 @@ public:
 			lbc_6->insert( newStr("######") );
 			lbc_6->insert( newStr("qwerty") );
 			
-			auto * lb_1 = new TListBox( TRect(x,6,   19, 16), 1, sb_1 ); x += 17;
-			auto * lb_2 = new TListBox( TRect(x,6, x+16, 16), 1, sb_2 ); x += 17;
-			auto * lb_3 = new TListBox( TRect(x,6, x+16, 16), 1, sb_3 ); x += 17;
-			auto * lb_4 = new TListBox( TRect(x,6, x+16, 16), 1, sb_4 ); x += 17;
-			auto * lb_5 = new TListBox( TRect(x,6, x+16, 16), 1, sb_5 ); x += 17;
-			auto * lb_6 = new TListBox( TRect(x,6, x+16, 16), 1, sb_6 );
+			lb_1 = new TListBox( TRect(x,6,   19, 16), 1, sb_1 ); x += 17;
+			lb_2 = new TListBox( TRect(x,6, x+16, 16), 1, sb_2 ); x += 17;
+			lb_3 = new TListBox( TRect(x,6, x+16, 16), 1, sb_3 ); x += 17;
+			lb_4 = new TListBox( TRect(x,6, x+16, 16), 1, sb_4 ); x += 17;
+			lb_5 = new TListBox( TRect(x,6, x+16, 16), 1, sb_5 ); x += 17;
+			lb_6 = new TListBox( TRect(x,6, x+16, 16), 1, sb_6 );
+			
+			lb_1->eventMask = evMouseDown | evKeyDown | evCommand;
 
 			lb_1->newList(lbc_1); lb_2->newList(lbc_2);
 			lb_3->newList(lbc_3); lb_4->newList(lbc_4);
@@ -1296,7 +1311,91 @@ public:
 			init();
 		}
 		
-		~PL_dBaseCatalog() {
+		~PL_dBaseCatalog()
+		{
+		}
+		
+		void
+		handle_helpView(int flag = 0)
+		{
+			TWindow   * w;
+			THelpFile * hFile;
+			fpstream  * helpStrm;
+				
+			static bool helpInUse = false;
+			int helpCtx = hcNewProjectDialog_ENG;
+				
+			if (helpInUse == false) {
+				helpInUse = true;
+				helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+				hFile     = new THelpFile(*helpStrm);
+				if (!helpStrm) {
+					delete hFile;
+					throw PL_Exception_Application(
+					"Could not open help file" );
+				}
+				if (PL_globalHolder.PL_language == PL_appLang_ENG) {
+					if (flag == 1) helpCtx = hcDBASE_list_data_ENG; else
+					if (flag == 2) helpCtx = hcDBASE_list_queries_ENG; else
+					if (flag == 3) helpCtx = hcDBASE_list_forms_ENG; else
+					if (flag == 4) helpCtx = hcDBASE_list_reports_ENG; else
+					if (flag == 5) helpCtx = hcDBASE_list_labels_ENG; else
+					if (flag == 6) helpCtx = hcDBASE_list_applications_ENG;
+				}
+				else if (PL_globalHolder.PL_language == PL_appLang_DEU) {
+					if (flag == 1) helpCtx = hcDBASE_list_data_DEU; else
+					if (flag == 2) helpCtx = hcDBASE_list_queries_DEU; else
+					if (flag == 3) helpCtx = hcDBASE_list_forms_DEU; else
+					if (flag == 4) helpCtx = hcDBASE_list_reports_DEU; else
+					if (flag == 5) helpCtx = hcDBASE_list_labels_DEU; else
+					if (flag == 6) helpCtx = hcDBASE_list_applications_DEU;
+				}
+				
+				w = new THelpWindow(hFile, helpCtx); //getHelpCtx());
+				TProgram::deskTop->insert(w);
+				
+				helpInUse = False;
+			}
+		}
+
+		virtual void
+		handleEvent( TEvent &event )
+		{
+			TWindow::handleEvent( event );
+			#define MAX_LEN 64
+			if (event.what == evKeyboard)
+			{
+				if (event.keyDown.keyCode == 283)     // #27 - Escape
+				{
+					clearEvent(event);
+					TObject::destroy(this);
+				}
+				if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
+				{
+					clearEvent(event);
+					char buffer[MAX_LEN];
+					
+					if ((lb_1->state & sfFocused) != 0) { lb_1->getText(buffer, lb_1->focused, MAX_LEN); } else
+					if ((lb_2->state & sfFocused) != 0) { lb_2->getText(buffer, lb_2->focused, MAX_LEN); } else
+					if ((lb_3->state & sfFocused) != 0) { lb_3->getText(buffer, lb_3->focused, MAX_LEN); } else
+					if ((lb_4->state & sfFocused) != 0) { lb_4->getText(buffer, lb_4->focused, MAX_LEN); } else
+					if ((lb_5->state & sfFocused) != 0) { lb_5->getText(buffer, lb_5->focused, MAX_LEN); } else
+					if ((lb_6->state & sfFocused) != 0) { lb_6->getText(buffer, lb_6->focused, MAX_LEN); }
+					
+					messageBox(buffer,mfInformation|mfOKButton);
+				}
+			}
+			if (event.message.command == cmHelp)
+			{
+				clearEvent(event);
+				
+				if ((lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); } else
+				if ((lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); } else
+				if ((lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); } else
+				if ((lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); } else
+				if ((lb_5->state & sfFocused) != 0) { handle_helpView( 5 ); } else
+				if ((lb_6->state & sfFocused) != 0) { handle_helpView( 6 ); }
+			}
 		}
 	private:
 		virtual const char *streamableName() const
@@ -1323,7 +1422,7 @@ public:
 			ushort radioButtons2Data;
 			ushort checkButtons1Data;
 		} *newData;
-
+		
 		ushort execDialog( TDialog *d )
 		{
 			TView *p = TProgram::application->validView( d );
@@ -1424,6 +1523,57 @@ public:
 				delete newData;
 			}
 		}
+		
+		void
+		handle_helpView(int flag = 0)
+		{
+			TWindow   * w;
+			THelpFile * hFile;
+			fpstream  * helpStrm;
+				
+			static bool helpInUse = false;
+			int helpCtx = hcNewProjectDialog_ENG;
+				
+			if (helpInUse == false) {
+				helpInUse = true;
+				helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+				hFile     = new THelpFile(*helpStrm);
+				if (!helpStrm) {
+					delete hFile;
+					throw PL_Exception_Application(
+					"Could not open help file" );
+				}
+				if (PL_globalHolder.PL_language == PL_appLang_ENG)
+				{
+					getData(newData);
+					ushort radid = newData->radioButtons1Data;
+								
+					if (radid == 0) helpCtx = hcNewPascal_ENG;  else
+					if (radid == 1) helpCtx = hcNewCPP_ENG;     else
+					if (radid == 2) helpCtx = hcNewDBASE_ENG;   else
+					if (radid == 3) helpCtx = hcNewFortran_ENG; else
+					if (radid == 4) helpCtx = hcNewProlog_ENG;  else
+					if (radid == 5) helpCtx = hcNewAssembler_ENG;
+				}
+				else if (PL_globalHolder.PL_language == PL_appLang_DEU)
+				{
+					getData(newData);
+					ushort radid = newData->radioButtons1Data;
+
+					if (radid == 0) helpCtx = hcNewPascal_DEU;  else
+					if (radid == 1) helpCtx = hcNewCPP_DEU;     else
+					if (radid == 2) helpCtx = hcNewDBASE_DEU;   else
+					if (radid == 3) helpCtx = hcNewFortran_DEU; else
+					if (radid == 4) helpCtx = hcNewProlog_DEU;  else
+					if (radid == 5) helpCtx = hcNewAssembler_DEU;
+				}
+				
+				w = new THelpWindow(hFile, helpCtx); //getHelpCtx());
+				TProgram::deskTop->insert(w);
+				
+				helpInUse = False;
+			}
+		}
 
 		virtual void
 		handleEvent( TEvent &event )
@@ -1442,48 +1592,7 @@ public:
 
 			switch (event.message.command)
 			{
-				case cmHelp:
-				{
-					if (helpInUse == false) {
-						helpInUse = true;
-						helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
-						hFile     = new THelpFile(*helpStrm);
-						if (!helpStrm) {
-							delete hFile;
-							throw PL_Exception_Application(
-							"Could not open help file" );
-						}
-						else {
-							int helpCtx = hcNewProjectDialog_ENG;
-							getData(newData);
-							ushort radid = newData->radioButtons1Data;
-							
-							if (PL_globalHolder.PL_language == PL_appLang_ENG) {
-								if (radid == 0) helpCtx = hcNewPascal_ENG;  else
-								if (radid == 1) helpCtx = hcNewCPP_ENG;     else
-								if (radid == 2) helpCtx = hcNewDBASE_ENG;   else
-								if (radid == 3) helpCtx = hcNewFortran_ENG; else
-								if (radid == 4) helpCtx = hcNewProlog_ENG;  else
-								if (radid == 5) helpCtx = hcNewAssembler_ENG;
-							}	else
-							if (PL_globalHolder.PL_language == PL_appLang_DEU) {
-								if (radid == 0) helpCtx = hcNewPascal_DEU;  else
-								if (radid == 1) helpCtx = hcNewCPP_DEU;     else
-								if (radid == 2) helpCtx = hcNewDBASE_DEU;   else
-								if (radid == 3) helpCtx = hcNewFortran_DEU; else
-								if (radid == 4) helpCtx = hcNewProlog_DEU;  else
-								if (radid == 5) helpCtx = hcNewAssembler_DEU;
-							}
-							
-							w = new THelpWindow(hFile, helpCtx); //getHelpCtx());
-							TProgram::deskTop->insert(w);
-							clearEvent(event);
-						}
-						helpInUse = False;
-					}
-				}
-				break;
-				
+				case cmHelp: { handle_helpView(0); clearEvent(event); } break;
 				case cmCancel:
 				{
 					clearEvent(event);
@@ -1560,7 +1669,7 @@ public:
 			return new TNewProjectDialog( streamableInit );
 		}
 	};
-	
+
 	ushort
 	MessageBox(::std::string txt, ushort aOptions) {
 		return messageBox(txt.c_str(), aOptions);
@@ -3817,7 +3926,44 @@ public:
 class Console {
 public:
 	Console(Win32API& w32) {
-		DEBUGSTR("ctor: PL_Console ()")
+		xbString s1;
+		s1 = "Test String 1";
+		fprintf( stdout, "s1 = [%s]\n", s1.Str());
+		
+		xbSchema MyRecord[] = {
+			{ "FIRSTNAME", XB_CHAR_FLD,     15, 0 },
+			{ "LASTNAME",  XB_CHAR_FLD,     20, 0 },
+			{ "BIRTHDATE", XB_DATE_FLD,      8, 0 },
+			{ "AMOUNT",    XB_NUMERIC_FLD,   9, 2 },
+			{ "RETIRED" ,  XB_LOGICAL_FLD,   1, 0 },
+			{ "ZIPCODE",   XB_NUMERIC_FLD,   5, 0 },
+			{ "MEMO1",     XB_MEMO_FLD,     10, 0 },
+			{ "",0,0,0 }
+		};
+
+		// define the classes
+		xbXBase x;                                       /* initialize xbase             */
+		x.SetDataDirectory( PROJECT_DATA_DIR );          /* where all the tables live    */
+
+		xbDbf *MyDbfFile;                                /* Pointer to dbf class         */
+		MyDbfFile = new xbDbf4(&x);                      /* Create Version 5 instance    */
+
+		//  Create Dbase3  NDX style indices if support compiled in
+		xbIxNdx MyIndex1( MyDbfFile );    /* class for index 1 */
+		xbIxNdx MyIndex2( MyDbfFile );    /* class for index 2 */
+		xbIxNdx MyIndex3( MyDbfFile );    /* class for index 3 */
+
+		xbInt16 rc;
+
+		if (( rc = MyDbfFile->CreateTable(
+		"MyV3Table1",
+		"MyV3ExampleTableAlias",
+		MyRecord,
+		XB_OVERLAY,
+		XB_MULTI_USER )) != XB_NO_ERROR )
+		x.DisplayError( rc );
+
+		MyDbfFile->Close();
 	}
 	Console() {
 		DEBUGSTR("ctor: PL_Console ()")

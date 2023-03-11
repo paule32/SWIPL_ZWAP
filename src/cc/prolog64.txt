@@ -1041,6 +1041,177 @@ The individual areas are separated from each other with commas.
  {DEU:keywords_word_DEU} {Content:Content_ENG}
 
 
+; ---------------------------------------------------
+; dBase help contexts - english
+; ---------------------------------------------------
+.topic DBASE_Content_ENG
+ {DEU:DBASE_Content_DEU} - Content
+ ════════════════════════════════════════════
+ {Data:DBASE_list_data_ENG},
+ {Queries:DBASE_list_queries_ENG},
+ {Forms:DBASE_list_forms_ENG},
+ {Reports:DBASE_list_reports_ENG},
+ {Labels:DBASE_list_labels_ENG},
+ {Applications:DBASE_list_applications_ENG}
+
+.topic DBASE_list_data_ENG
+ {DEU:DBASE_list_data_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+ <create: Data>
+
+Here, you have a list of available Data Tables in the current
+dBase-Catalog.
+To modified the table file, press: Enter / Return.
+
+You can use the UP-, and DOWN-Key to scroll up or down.
+Press Tabulator-Key to change the input type list.
+
+
+.topic DBASE_list_queries_ENG
+ {DEU:DBASE_list_queries_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+ <create: Queries>
+ 
+Here, you have a list of available Queries in the current
+dBase-Catalog.
+To modified the query file, press: Enter / Return.
+
+You can use the UP-, and DOWN-Key to scroll up or down.
+Press Tabulator-Key to change the input type list.
+
+.topic DBASE_list_forms_ENG
+ {DEU:DBASE_list_forms_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+ <create: Forms>
+
+Here, you have a list of available Form's in the current
+dBase-Catalog.
+To modified the form file, press: Enter / Return.
+
+You can use the UP-, and DOWN-Key to scroll up or down.
+Press Tabulator-Key to change the input type list.
+
+.topic DBASE_list_reports_ENG
+ {DEU:DBASE_list_reports_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+ <create: Reports>
+ 
+Here, you have a list of available Report's in the current
+dBase-Catalog.
+To modified the report file, press: Enter / Return.
+
+You can use the UP-, and DOWN-Key to scroll up or down.
+Press Tabulator-Key to change the input type list.
+
+.topic DBASE_list_labels_ENG
+ {DEU:DBASE_list_labels_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+ <create: Labels>
+
+Here, you have a list of available Label's in the current
+dBase-Catalog.
+To modified the label file, press: Enter / Return.
+
+You can use the UP-, and DOWN-Key to scroll up or down.
+Press Tabulator-Key to change the input type list.
+
+.topic DBASE_list_applications_ENG
+ {DEU:DBASE_list_applications_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+ <create: Applications>
+ 
+Here, you have a list of available Application's in the current
+dBase-Catalog.
+To modified the application file, press: Enter / Return.
+
+You can use the UP-, and DOWN-Key to scroll up or down.
+Press Tabulator-Key to change the input type list.
+
+; ---------------------------------------------------
+; dBase help contexts - german
+; ---------------------------------------------------
+.topic DBASE_Content_DEU
+ {ENG:DBASE_Content_ENG} - Inhalt
+ ════════════════════════════════════════════
+ {Tabellen:DBASE_list_data_DEU},
+ {Abfragen:DBASE_list_queries_DEU},
+ {Formulare:DBASE_list_forms_DEU},
+ {Reporte:DBASE_list_reports_DEU},
+ {Ettiketten:DBASE_list_labels_DEU},
+ {Applications:DBASE_list_applications_DEU}
+
+.topic DBASE_list_data_DEU
+ {ENG:DBASE_list_data_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+ <create: Tabellen>
+ 
+Hier können sie die Tabellen sehen, die im aktuellen
+Catalog zur verfügung stehen.
+Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
+
+Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
+Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
+.topic DBASE_list_queries_DEU
+ {ENG:DBASE_list_queries_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+ <create: Abfragen>
+
+Hier können sie die Abfragen sehen, die im aktuellen
+Catalog zur verfügung stehen.
+Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
+
+Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
+Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
+.topic DBASE_list_forms_DEU
+ {ENG:DBASE_list_forms_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+ <create: Formulare>
+ 
+Hier können sie die Formulare sehen, die im aktuellen
+Catalog zur verfügung stehen.
+Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
+
+Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
+Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
+.topic DBASE_list_reports_DEU
+ {ENG:DBASE_list_reports_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+ <create: Reporte>
+
+Hier können sie die Reporte sehen, die im aktuellen
+Catalog zur verfügung stehen.
+Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
+
+Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
+Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
+.topic DBASE_list_labels_DEU
+ {ENG:DBASE_list_labels_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+ <create: Ettiketten>
+
+Hier können sie die Ettiketen sehen, die im aktuellen
+Catalog zur verfügung stehen.
+Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
+
+Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
+Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
+.topic DBASE_list_applications_DEU
+ {ENG:DBASE_list_applications_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+ <create: Programme>
+
+Hier können sie die Programme sehen, die im aktuellen
+Catalog zur verfügung stehen.
+Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
+
+Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
+Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
 ; Assembler keywords - english
 .topic ASM_Content_ENG
  {DEU:ASM_Content_DEU} - Assembler Content
