@@ -208,6 +208,7 @@
 # define Uses_TScroller
 # define Uses_TStaticText
 # define Uses_TButton
+# define Uses_TSortedListBox
 # define Uses_TStatusLine
 # define Uses_TStatusItem
 # define Uses_TStatusDef
@@ -392,6 +393,11 @@ public:
 		_line_row(line),
 		_line_col(PL_line_col)
 		{}
+	PL_Exception( ::std::string& msg):
+		_message( msg ),
+		_line_row(1),
+		_line_col(1)
+		{}
 	PL_Exception(const char* msg, uint32_t line):
 		_message( ::std::string( msg ) ),
 		_line_row(line),
@@ -431,17 +437,15 @@ public:
 //!         Ausnahmen bei Anwendungen in der Console/Terminal zum Einsatz
 //! \~endGerman
 // ---------------------------------------------------------------------
-class PL_Exception_CommandLine: public PL_Exception {
-using PL_Exception::PL_Exception;
-};
-class PL_Exception_ParserError: public PL_Exception {
-using PL_Exception::PL_Exception;
-};
+class PL_Exception_CommandLine: public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_ParserError: public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_Application: public PL_Exception { using PL_Exception::PL_Exception; };
 
 // ---------------------------------------------------------------------
 // DWARF debugging class ...
 // ---------------------------------------------------------------------
 class DWARF {
+	::std::ifstream ifile;
 public:
 	DWARF(::std::string file_name)
 	{
@@ -453,19 +457,19 @@ public:
 		Dwarf_Unsigned   filesize = 0;
 		unsigned char path_source = DW_PATHSOURCE_unspecified;
 
-res = test_dwarf();
+		res = test_dwarf();
 
-		if (res == DW_DLV_NO_ENTRY) {
-			messageBox("FAIL Cannot dwarf_object_init_b() NO ENTRY.", mfError | mfOKButton );
-		} else if (res == DW_DLV_ERROR) {
-			messageBox("FAIL CannoNTRY.", mfError | mfOKButton );
-		}
-res = test_dwarf2();
-if (res == DW_DLV_NO_ENTRY) {
-			messageBox("FAIL Cannot dwarf_object_init_b() NO ENTRY.", mfError | mfOKButton );
-		} else if (res == DW_DLV_ERROR) {
-			messageBox("FAIL CannoNTRY.", mfError | mfOKButton );
-		}
+		if (res == DW_DLV_NO_ENTRY)
+		throw PL_Exception_Application("FAIL Cannot dwarf_object_init_b() NO ENTRY."); else
+		if (res == DW_DLV_ERROR)
+		throw PL_Exception_Application("FAIL CannoNTRY.");
+
+		res = test_dwarf2();
+		
+		if (res == DW_DLV_NO_ENTRY)
+		throw PL_Exception_Application("FAIL Cannot dwarf_object_init_b() NO ENTRY."); else
+		if (res == DW_DLV_ERROR)
+		throw PL_Exception_Application("FAIL CannoNTRY.");
 
 #if 0
 		res = dwarf_object_detector_path_b(
@@ -489,8 +493,8 @@ if (res == DW_DLV_NO_ENTRY) {
 				<< ::std::string("There is no file: ")
 				<< ::std::string(file_name);
 			}
-			messageBox( error_buffer.str().c_str(),
-			mfError | mfOKButton );
+			throw PL_Exception_Application(
+			error_buffer.str().c_str() );
 		}
 #endif
 	}
@@ -502,27 +506,50 @@ if (res == DW_DLV_NO_ENTRY) {
 };
 
 // ---------------------------------------------------------------------
-// Application object for Console Projects ...
+// Application event numbers for Console Project's ...
 // ---------------------------------------------------------------------
 const unsigned cmMMChangeMenu      = 0x1600;
 
-const unsigned cmNothing           = 200;
-const unsigned cmAboutBox          = 201;
-const unsigned cmNewProject        = 202;
-const unsigned cmNewProjectCancel  = 203;
-const unsigned cmHelp              = 204;
-const unsigned cmLoadData          = 205;
-const unsigned cmNewData           = 206;
+const unsigned cmNothing            = 200;
+const unsigned cmAboutBox           = 201;
 
-const unsigned cmAsciiTableCmdBase = 910;
-const unsigned cmAsciiTableCmd     = 911;
-const unsigned cmCharFocused       =   0;
+const unsigned cmNewProject         = 202;
+const unsigned cmNewProjectCancel   = 203;
 
-const unsigned hlChangeDir         = cmChangeDir;
-const unsigned maxLineLength       = 256;
+const unsigned cmHelp               = 204;
+const unsigned cmHelpIndex          = 205;
+const unsigned cmHelpOnline         = 206;
 
-static short winNumber             = 0;
+const unsigned cmAppQuit            = 300;
 
+const unsigned cmLoadData           = 401;
+const unsigned cmNewData            = 402;
+
+const unsigned cmAsciiTableCmdBase  = 910;
+const unsigned cmAsciiTableCmd      = 911;
+const unsigned cmCharFocused        =   0;
+
+const unsigned hlChangeDir          = cmChangeDir;
+const unsigned maxLineLength        = 255;
+
+static short winNumber              = 0;
+
+// ---------------------------------------------------------------------
+// common global settings structure, to minimize global variable.
+// so, this structure is a container for variables that may be use
+// multiple time.
+// ---------------------------------------------------------------------
+# define PL_appLang_ENG 1
+# define PL_appLang_DEU 2
+
+struct PL_globalHolderValues {
+	uint8_t PL_language;		// application language: ENG:1 / DEU:2
+};
+PL_globalHolderValues PL_globalHolder;
+
+// ---------------------------------------------------------------------
+// the main console application class ...
+// ---------------------------------------------------------------------
 class Application: public TApplication {
 public:
 	class TMultiMenu : public ::TMenuBar {
@@ -599,6 +626,56 @@ public:
 				drawView();
 				strcpy(lastTime, curTime);
 			}
+		}
+	};
+
+	// ---------------------------------------------------------------------
+	// PE file reader (Windows format):
+	// ---------------------------------------------------------------------
+	class peExeReader: public TDialog {
+	public:
+		peExeReader(::std::string filename):
+			TWindowInit( &peExeReader::initFrame ),
+			TDialog( TRect( 0,0, 52,13), "Windows PE-Exe"),
+			name("peExeReader") {
+
+			flags &= ~(wfGrow | wfZoom);
+			growMode = 0;
+				
+			options |= ofCentered;
+			options |= ofSelectable;
+			
+			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 80);
+			insert(control);
+			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
+			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
+		}
+	
+		peExeReader(StreamableInit):
+				TWindowInit(0),
+				TDialog(streamableInit),
+				name("peExeReader")
+		{}
+				
+		peExeReader():
+			TWindowInit(0),
+			TDialog(streamableInit),
+			name("peExeReader")
+		{}
+		
+		~peExeReader() {
+		}
+		
+	private:
+		virtual const char *streamableName() const
+		{ return name; }
+	protected:
+		virtual void write( opstream& os) { TWindow::write(os); }
+		virtual void* read( ipstream& is) { TWindow::read (is); return this; }
+	public:
+			   const char  * const name;
+		static TStreamable * build() {
+			return new peExeReader( streamableInit );
 		}
 	};
 
@@ -852,7 +929,8 @@ public:
 			name("TFileViewer")
 			{}
 		
-		void draw()
+		virtual void
+		draw()
 		{
 			char *p;
 
@@ -883,7 +961,7 @@ public:
 				char buf[256] = {0};
 				ostrstream os( buf, sizeof( buf )-1 );
 				os << "Failed to open file '" << fName << "'." << ends;
-				messageBox( buf, mfError | mfOKButton );
+				throw PL_Exception_Application( buf );
 				isValid = false;
 			}	else {
 				char *line = (char *) malloc(maxLineLength);
@@ -976,6 +1054,263 @@ public:
 		}
 	};
 
+	// ---------------------------------------------------------------------
+	// dBase Project window:
+	// ---------------------------------------------------------------------
+	class PL_dBaseFrame: public TView {
+	private:
+		void check_control(TView *src, ::std::string ctrl)
+		{
+			if (!src) {
+				::std::stringstream ss;
+				ss  << "dBase: "
+					<< ctrl
+					<< " insert error at line: "
+					<< __LINE__;
+				throw PL_Exception_Application(ss.str().c_str());
+			}
+		}
+	public:
+		PL_dBaseFrame(const TRect& bounds):
+			TView(bounds) {
+			options |= ofFramed;
+		}
+		void _writeStr(int x, int y, const char* txt, ushort color)
+		{
+			TDrawBuffer b;
+			ushort c=getColor(color);
+			b.moveStr(0, txt, color);
+			writeLine(x, y, strlen(txt), 1, b);
+		}
+		void _writeChar(int x, int y, char chr, ushort color, ushort count = 1, bool flag = false)
+		{
+			char* buffer = new char[count];
+			char* tmp    = new char[count];
+			
+			if (flag == false) {
+				sprintf(buffer,"%c", chr);
+				strcpy (tmp,buffer);
+
+				if (count > 1) {
+					for (ushort i = 1; i < count; ++i) {
+						sprintf(buffer,"%c", chr);
+						strcat(tmp,buffer);
+					}
+				}
+				_writeStr(x, y, tmp, color);
+			}	else {
+				sprintf(buffer, "%c", chr);
+				
+				for (ushort i = 0; i < count; ++i)
+				_writeStr(x, y+i, buffer, color);
+			}
+
+			delete tmp;
+			delete buffer;
+		}
+		void _writeInit(int x, int y, ushort color)
+		{
+			::std::string ini = "    <create>    ";
+			_writeStr(x,y,ini.c_str(),color);
+		}
+		virtual void
+		draw()
+		{
+			TView::draw();
+			ushort c = 0x0370;
+			ushort x = 8;
+			ushort y = 12;
+				
+			_writeStr(x, 1, "Data",         c); x += 16;
+			_writeStr(x, 1, "Queries",      c); x += 17;
+			_writeStr(x, 1, "Forms",        c); x += 16;
+			_writeStr(x, 1, "Reports",      c); x += 17;
+			_writeStr(x, 1, "Labels",       c); x += 15;
+			_writeStr(x, 1, "Applications", c);
+			
+			c = getColor(0x0310);
+			x = 1;
+
+			_writeChar(1,  2, 0xc9, c, 1);
+			_writeChar(2,  2, 0xcd, c, (17*6) );
+			_writeChar(2,  4, 0xcd, c, (17*6) );
+			_writeChar(2, 15, 0xcd, c, (17*6) );
+			
+			// data
+			_writeChar(x,  15, 0xc8, c, 1);
+			_writeChar(x,   2, 0xcb, c, 1);
+			_writeChar(x,   3, 0xba, c, y, true);
+			_writeInit(x+1, 3, c);
+			_writeChar(x,   4, 0xcc, c, 1); x += 17;
+
+			// queries
+			_writeChar(x,  15, 0xca, c, 1);
+			_writeChar(x,   2, 0xcb, c, 1);
+			_writeChar(x,   3, 0xba, c, y, true);
+			_writeInit(x+1, 3, c);
+			_writeChar(x,   4, 0xce, c, 1); x += 17;
+
+			// forms
+			_writeChar(x,  15, 0xca, c, 1);
+			_writeChar(x,   2, 0xcb, c, 1);
+			_writeChar(x,   3, 0xba, c, y, true);
+			_writeInit(x+1, 3, c);
+			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			
+			// reports
+			_writeChar(x,  15, 0xca, c, 1);
+			_writeChar(x,   2, 0xcb, c, 1);
+			_writeChar(x,   3, 0xba, c, y, true);
+			_writeInit(x+1, 3, c);
+			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			
+			// labels
+			_writeChar(x,  15, 0xca, c, 1);
+			_writeChar(x,   2, 0xcb, c, 1);
+			_writeChar(x,   3, 0xba, c, y, true);
+			_writeInit(x+1, 3, c);
+			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			
+			// applications
+			_writeChar(x,  15, 0xca, c, 1);
+			_writeChar(x,   2, 0xcb, c, 1);
+			_writeChar(x,   3, 0xba, c, y, true);
+			_writeInit(x+1, 3, c);
+			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			
+			_writeChar(x, 15, 0xbc, c, 1);
+			_writeChar(x,  2, 0xcb, c, 1);
+			_writeChar(x,  3, 0xba, c, y, true);
+			_writeChar(x,  4, 0xb9, c, 1);
+		}
+	};
+
+	class PL_dBaseCatalog: public TDialog {
+	private:
+		class LB_Collection: public TCollection {
+		public:
+			LB_Collection(short lim, short delta):
+				TCollection(lim, delta)
+				{}
+			virtual void  freeItem(void *p) {
+				delete[] (char *) p;
+			}
+		private:
+			virtual void *readItem( ipstream& ) { return 0; }
+			virtual void writeItem( void *, opstream& ) {}
+		};
+		void init()
+		{
+			flags &= ~(wfGrow | wfZoom);
+			growMode = 0;
+				
+			options |= ofCentered;
+			options |= ofSelectable;
+			
+			TRect r = getClipRect();
+			r.grow(-1,-1);
+			insert(new PL_dBaseFrame(r));
+
+			TScrollBar * sb_1 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_2 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_3 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_4 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_5 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_6 = standardScrollBar( sbVertical | sbHandleKeyboard );
+
+			int x = 3;
+
+			auto * lbc_1 = new LB_Collection(5,5);
+			auto * lbc_2 = new LB_Collection(5,5);
+			auto * lbc_3 = new LB_Collection(5,5);
+			auto * lbc_4 = new LB_Collection(5,5);
+			auto * lbc_5 = new LB_Collection(5,5);
+			auto * lbc_6 = new LB_Collection(5,5);
+			
+			lbc_1->insert( newStr("Hello") );
+			lbc_1->insert( newStr("World") );
+			
+			lbc_2->insert( newStr("Hello") );
+			lbc_2->insert( newStr("World") );
+			lbc_2->insert( newStr("foo") );
+			lbc_2->insert( newStr("bar") );
+			lbc_2->insert( newStr("fuz") );
+			
+			lbc_3->insert( newStr("Hello") );
+			lbc_3->insert( newStr("World") );
+			lbc_2->insert( newStr("smell") );
+			
+			lbc_4->insert( newStr("Hello") );
+			lbc_4->insert( newStr("World") );
+			
+			lbc_5->insert( newStr("Hello") );
+			
+			lbc_6->insert( newStr("A1") );
+			lbc_6->insert( newStr("B-1") );
+			lbc_6->insert( newStr("CCC") );
+			lbc_6->insert( newStr("dd") );
+			lbc_6->insert( newStr("ee") );
+			lbc_6->insert( newStr("gg") );
+			lbc_6->insert( newStr("hhhho") );
+			lbc_6->insert( newStr("mmmmm") );
+			lbc_6->insert( newStr("oooo") );
+			lbc_6->insert( newStr("232323") );
+			lbc_6->insert( newStr("ההההüüüü") );
+			lbc_6->insert( newStr("######") );
+			lbc_6->insert( newStr("qwerty") );
+			
+			auto * lb_1 = new TListBox( TRect(x,6,   19, 16), 1, sb_1 ); x += 17;
+			auto * lb_2 = new TListBox( TRect(x,6, x+16, 16), 1, sb_2 ); x += 17;
+			auto * lb_3 = new TListBox( TRect(x,6, x+16, 16), 1, sb_3 ); x += 17;
+			auto * lb_4 = new TListBox( TRect(x,6, x+16, 16), 1, sb_4 ); x += 17;
+			auto * lb_5 = new TListBox( TRect(x,6, x+16, 16), 1, sb_5 ); x += 17;
+			auto * lb_6 = new TListBox( TRect(x,6, x+16, 16), 1, sb_6 );
+
+			lb_1->newList(lbc_1); lb_2->newList(lbc_2);
+			lb_3->newList(lbc_3); lb_4->newList(lbc_4);
+			lb_5->newList(lbc_5); lb_6->newList(lbc_6);
+			
+			insert(lb_1); insert(lb_2);
+			insert(lb_3); insert(lb_4);
+			insert(lb_5); insert(lb_6);
+		}
+	public:
+		PL_dBaseCatalog(::std::string file_name):
+			TWindowInit( &PL_dBaseCatalog::initFrame ),
+			TDialog( TRect( 0,0, 108,18), "dBASE Catalog:"),
+			name("PL_dBaseCatalog") {
+			init();
+		}
+	
+		PL_dBaseCatalog(StreamableInit):
+			TWindowInit(0),
+			TDialog(streamableInit),
+			name("PL_dBaseCatalog") {
+			init();
+		}
+				
+		PL_dBaseCatalog():
+			TWindowInit(0),
+			TDialog(streamableInit),
+			name("PL_dBaseCatalog") {
+			init();
+		}
+		
+		~PL_dBaseCatalog() {
+		}
+	private:
+		virtual const char *streamableName() const
+		{ return name; }
+	protected:
+		virtual void write( opstream& os) { TWindow::write(os); }
+		virtual void* read( ipstream& is) { TWindow::read (is); return this; }
+	public:
+			   const char  * const name;
+		static TStreamable * build() {
+			return new PL_dBaseCatalog( streamableInit );
+		}
+	};
+
 	class TNewProjectDialog: public TDialog {
 	private:
 		// ---------------------------------------------
@@ -983,35 +1318,47 @@ public:
 		// of new project dialog items ...
 		// ---------------------------------------------
 		struct DialogData {
-			char inputLineData[128];
+			char   inputLineData[128];
 			ushort radioButtons1Data;
 			ushort radioButtons2Data;
 			ushort checkButtons1Data;
 		} *newData;
 
-		ushort execDialog( TDialog *d, void *data )
+		ushort execDialog( TDialog *d )
 		{
 			TView *p = TProgram::application->validView( d );
-			if( p == 0 )
+			if (!p)
 			return cmCancel; else
 			{
-				if( data != 0 )
-					p->setData( data );
-				
-				ushort result = TProgram::deskTop->execView( p );
-				
-				if( result != cmCancel && data != 0 )
-					p->getData( data );
-				
+				ushort res  = TProgram::deskTop->execView( p );
+				if  (  res == cmCancel)
 				TObject::destroy( p );
-				return result;
+				return res;
 			}
+		}
+		
+		ushort execDialog(const char* pattern)
+		{
+			//char* file_name = (char*)malloc(maxLineLength);
+			//strcpy(file_name, pattern);
+			
+			ushort res = 0;
+			if ((res = execDialog( new TFileDialog(
+				pattern,
+				"Open File",
+				"~N~ame",
+				fdOpenButton,
+				100)) != cmCancel))
+			{
+				// todo
+				messageBox("test",mfInformation | mfOKButton);
+			}
+			return res;
 		}
 
 	public:
 		TNewProjectDialog():
 			TWindowInit( &TNewProjectDialog::initFrame ),
-			//TWindow( TRect( 0,0, 52,13), "New Project", wnNoNumber),
 			TDialog( TRect( 0,0, 52,13), "New Project"),
 			name("TNewProjectDialog") {
 
@@ -1022,7 +1369,12 @@ public:
 			options |= ofCentered;
 			options |= ofSelectable;
 			
-			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 80);
+			// ------------------------------
+			// set dialog data for later use
+			// ------------------------------
+			newData = new DialogData;
+			
+			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 128);
 			insert(control);
 			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
 			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
@@ -1051,11 +1403,6 @@ public:
 			
 			selectNext(true);
 			
-			// ------------------------------
-			// set dialog data for later use
-			// ------------------------------
-			newData = new DialogData;
-			
 			strcpy(
 			newData->inputLineData,"C:\\");
 			newData->radioButtons1Data = 2;
@@ -1070,7 +1417,14 @@ public:
 			TDialog(streamableInit),
 			name("TNewProjectDialog")
 			{}
-			
+
+		~TNewProjectDialog()
+		{
+			if (newData != nullptr) {
+				delete newData;
+			}
+		}
+
 		virtual void
 		handleEvent( TEvent &event )
 		{
@@ -1095,16 +1449,34 @@ public:
 						helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
 						hFile     = new THelpFile(*helpStrm);
 						if (!helpStrm) {
-							messageBox("Could not open help file", mfError | mfOKButton);
 							delete hFile;
+							throw PL_Exception_Application(
+							"Could not open help file" );
 						}
 						else {
-							w = new THelpWindow(hFile, hcAsciiTable); //getHelpCtx());
+							int helpCtx = hcNewProjectDialog_ENG;
+							getData(newData);
+							ushort radid = newData->radioButtons1Data;
+							
+							if (PL_globalHolder.PL_language == PL_appLang_ENG) {
+								if (radid == 0) helpCtx = hcNewPascal_ENG;  else
+								if (radid == 1) helpCtx = hcNewCPP_ENG;     else
+								if (radid == 2) helpCtx = hcNewDBASE_ENG;   else
+								if (radid == 3) helpCtx = hcNewFortran_ENG; else
+								if (radid == 4) helpCtx = hcNewProlog_ENG;  else
+								if (radid == 5) helpCtx = hcNewAssembler_ENG;
+							}	else
+							if (PL_globalHolder.PL_language == PL_appLang_DEU) {
+								if (radid == 0) helpCtx = hcNewPascal_DEU;  else
+								if (radid == 1) helpCtx = hcNewCPP_DEU;     else
+								if (radid == 2) helpCtx = hcNewDBASE_DEU;   else
+								if (radid == 3) helpCtx = hcNewFortran_DEU; else
+								if (radid == 4) helpCtx = hcNewProlog_DEU;  else
+								if (radid == 5) helpCtx = hcNewAssembler_DEU;
+							}
+							
+							w = new THelpWindow(hFile, helpCtx); //getHelpCtx());
 							TProgram::deskTop->insert(w);
-							/*if (validView(w) != 0) {
-								execView(w);
-								destroy( w);
-							}*/
 							clearEvent(event);
 						}
 						helpInUse = False;
@@ -1114,31 +1486,22 @@ public:
 				
 				case cmCancel:
 				{
-					messageBox( "No option given.", mfInformation | mfOKButton);
 					clearEvent(event);
-					
-					delete newData;
 					TObject::destroy(this);
 				}
 				break;
 				
 				case cmLoadData:
 				{
-					char* file_name = new char[MAXPATH];
-					strcpy(file_name, "*.pas");
-					
-					if (execDialog( new TFileDialog(
-						"*.pas",
-						"Open File",
-						"~N~ame",
-						fdOpenButton,
-						100),
-						file_name) != cmCancel)
-						
-					strcpy (newData->inputLineData, file_name);
-					setData(newData);
-					
-					//messageBox( file_name, mfInformation | mfOKButton);
+					getData(newData);
+					ushort radid = newData->radioButtons1Data;
+
+					if (radid == 0) helpCtx = execDialog("*.pas"); else
+					if (radid == 1) helpCtx = execDialog("*.cpp"); else
+					if (radid == 2) helpCtx = execDialog("*.prg"); else
+					if (radid == 3) helpCtx = execDialog("*.for"); else
+					if (radid == 4) helpCtx = execDialog("*.pro"); else
+					if (radid == 5) helpCtx = execDialog("*.asm");
 				}
 				break;
 
@@ -1149,21 +1512,37 @@ public:
 					// ---------------------------------
 					// get dialog data for current use:
 					// ---------------------------------
-					char buffer[128];
+//					char* buffer = new char[255];
 					getData(newData);
-
+					ushort resid     = newData->radioButtons1Data;
+					::std::string sz = "Error:\nCould not create view.";
+					
+					if (resid == 2) {	// dBase
+						auto  * d = new PL_dBaseCatalog( newData->inputLineData );
+						TView * p = TProgram::application->validView( d );
+						if (!p) {
+							delete d;
+							throw PL_Exception_Application( sz );
+						}
+						TProgram::deskTop->insert(d);
+					}	else {
+						auto  * d = new peExeReader( newData->inputLineData );
+						TView * p = TProgram::application->validView( d );
+						if (!p) {
+							delete d;
+							throw PL_Exception_Application( sz );
+						}
+						TProgram::deskTop->insert(d);
+					}
+					
+/*
 					sprintf(buffer,"btn1: %d, btn2: %d, chk1: %d\n%s",
 					newData->radioButtons1Data,
 					newData->radioButtons2Data,
 					newData->checkButtons1Data,newData->inputLineData);
 					messageBox( buffer, mfInformation | mfOKButton);
-					
-					DWARF app_debug(newData->inputLineData);
-
-					//delete newData;
-					//delete app_debug;
-					
-					//TObject::destroy(this);
+					delete buffer;
+*/
 				}
 				break;
 			}
@@ -1182,6 +1561,18 @@ public:
 		}
 	};
 	
+	ushort
+	MessageBox(::std::string txt, ushort aOptions) {
+		return messageBox(txt.c_str(), aOptions);
+	}
+	ushort
+	MessageBoxRect(
+		const TRect   &r,
+		::std::string txt,
+		ushort        aOptions) {
+		return messageBoxRect(r,txt.c_str(),aOptions);
+	}
+	
 	void
 	openHelpWindow() {
 		TView *w = validView( new TFileWindow( "prolog64.hlp" ));
@@ -1192,6 +1583,11 @@ public:
 	virtual void
 	handleEvent(TEvent& event)
 	{
+		TWindow   * w;
+		THelpFile * hFile;
+		fpstream  * helpStrm;
+		static bool helpInUse = false;
+			
 		TApplication::handleEvent(event);
 		if (event.what != evCommand) {
 			clearEvent(event);
@@ -1200,6 +1596,36 @@ public:
 
 		switch (event.message.command)
 		{
+			case cmHelp:
+			{
+				if (helpInUse == false) {
+					helpInUse = true;
+					helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+					hFile     = new THelpFile(*helpStrm);
+					if (!helpStrm) {
+						delete hFile;
+						throw PL_Exception_Application(
+						"Could not open help file" );
+					}
+					else {
+						w = new THelpWindow(hFile, hcNoContext);
+						TProgram::deskTop->insert(w);
+						clearEvent(event);
+					}
+					helpInUse = False;
+				}
+			}
+			break;
+
+			case cmAppQuit:
+			{
+				if (messageBox(
+				"Did you would really like exit the Application ?\n"
+				"This can take awhile ...",	mfYesButton | mfNoButton ) == 12)
+				TObject::destroy(this);
+			}
+			break;
+
 			case cmNewProject:
 			{
 				createNewProjectDialog();
@@ -1221,7 +1647,7 @@ public:
 			{
 				::std::string sz;
 				sz = "\x3Zwapel 0.0.1\n\n\x3(c) 2023 by Jens Kallup";
-				messageBox( sz.c_str(),mfInformation | mfOKButton);
+				messageBox( sz.c_str(), mfInformation | mfOKButton );
 				clearEvent(event);
 			}
 			break;
@@ -1235,12 +1661,15 @@ public:
 		//::TMenu *M[] =
 		//{
 			return new ::TMenuBar(r,
+			*new ::TSubMenu( "=", hcNoContext) +
+				*new TMenuItem( "ASCII Chart", cmAsciiTableCmd, kbNoKey, hcNoContext ) +
+
 			*new ::TSubMenu( "~F~ile", hcNoContext) +
 				*new TMenuItem( "~O~pen...", cmNewProject, kbF3, hcAsciiTable, "F3" ) +
 				*new TMenuItem( "~S~ave", 101, kbF2, hcNoContext, "F2" ) +
 				newLine() +
 				*new TMenuItem( "~C~hange directory...", 102, kbNoKey, hcNoContext ) +
-				*new TMenuItem( "E~x~it", cmQuit, kbAltX, hcNoContext, "Alt-X" ) +
+				*new TMenuItem( "E~x~it", cmAppQuit, kbAltX, hcNoContext, "Alt-X" ) +
 				
 			*new TSubMenu( "~W~indow", hcNoContext ) +
 				*new TMenuItem( "~M~ove", cmResize, kbCtrlF5, hcNoContext, "Cntl-F5") +
@@ -1249,10 +1678,10 @@ public:
 				*new TMenuItem( "~C~lose", cmClose, kbAltF3, hcNoContext, "Alt-F3") +
 				
 			*new TSubMenu( "~H~elp", hcNoContext ) +
-				*new TMenuItem( "~I~ndex", cmResize, kbCtrlF5, hcNoContext, "Cntl-F5") +
-				*new TMenuItem( "~O~nline Help", cmNext, kbF6, hcNoContext, "F6") +
+				*new TMenuItem( "~I~ndex", cmHelpIndex, kbCtrlF5, hcNoContext, "Cntl-F5") +
+				*new TMenuItem( "~O~nline Help", cmHelpOnline, kbF6, hcNoContext, "F6") +
 				newLine() +
-				*new TMenuItem( "~A~bout...", cmAboutBox, kbF1, hcNoContext, "F1" ));
+				*new TMenuItem( "~A~bout...", cmAboutBox, kbAltF1, hcNoContext, "F1" ));
 		//	0
 		//};
 		//return new TMultiMenu( r, M );
@@ -1264,14 +1693,28 @@ public:
 		r.a.y = r.b.y - 1;
 		return new ::TStatusLine( r,
 			*new ::TStatusDef( 0, 0xFFFF ) +
-			*new ::TStatusItem( "~F3~ Open", kbF3, cmNewProject ) +
-			*new ::TStatusItem( "~F10~ Menu", kbF10, cmMenu) +
+			*new ::TStatusItem( "~F1~ Help",  kbF1,  cmHelp       ) +
+			*new ::TStatusItem( "~F3~ Open",  kbF3,  cmNewProject ) +
+			*new ::TStatusItem( "~F10~ Menu", kbF10, cmMenu       ) +
 
-			*new ::TStatusItem( 0, kbShiftDel, cmCut ) +
-			*new ::TStatusItem( 0, kbCtrlIns, cmCopy ) +
-			*new ::TStatusItem( 0, kbShiftIns, cmPaste ) +
-			*new ::TStatusItem( "", kbCtrlF5, cmResize )
+			*new ::TStatusItem( 0,  kbAltX,     cmAppQuit) +
+			*new ::TStatusItem( 0,  kbShiftDel, cmCut    ) +
+			*new ::TStatusItem( 0,  kbCtrlIns,  cmCopy   ) +
+			*new ::TStatusItem( 0,  kbShiftIns, cmPaste  ) +
+			*new ::TStatusItem( "", kbCtrlF5,   cmResize )
 		);
+	}
+	
+	void
+	createPEviewer(::std::string filename) {
+		auto  * d = new peExeReader(filename.c_str());
+		TView * p = TProgram::application->validView(d);
+		if (!p) {
+			::std::string sz;
+			sz = "Error:\nCould not create view.";
+			throw PL_Exception_Application( sz.c_str() );
+		}
+		TProgram::deskTop->insert(d);
 	}
 	
 	void
@@ -1282,7 +1725,7 @@ public:
 		if (!p) {
 			::std::string sz;
 			sz = "Error:\nCould not create view.";
-			messageBox( sz.c_str(),mfInformation | mfOKButton);
+			throw PL_Exception_Application( sz.c_str() );
 		}
 		TProgram::deskTop->insert(d);
 	}
@@ -2307,6 +2750,10 @@ public:
 		DEBUGSTR("ctor: PL_Fortran Application")
 	//	init();
 	}
+	PL_Fortran(Application*) {
+		DEBUGSTR("ctor: PL_Fortran Application")
+	//	init();
+	}
 	
 	PL_Fortran() { }
 	
@@ -2385,6 +2832,10 @@ public:
 		DEBUGSTR("ctor: PL_Assembler Application")
 		init();
 	}
+	PL_Assembler(Application*) {
+		DEBUGSTR("ctor: PL_Assembler Application")
+		init();
+	}
 	PL_Assembler() { }
 	
 	//-- FUNCTION DEFINITIONS ---------------------------------
@@ -2457,6 +2908,10 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Prolog(Application&) {
+		DEBUGSTR("ctor: PL_Prolog Application")
+		init();
+	}
+	PL_Prolog(Application*) {
 		DEBUGSTR("ctor: PL_Prolog Application")
 		init();
 	}
@@ -2671,6 +3126,10 @@ public:
 		DEBUGSTR("ctor: PL_dBase Application")
 		init();
 	}
+	PL_dBase(Application*) {
+		DEBUGSTR("ctor: PL_dBase Application")
+		init();
+	}
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
@@ -2833,6 +3292,10 @@ public:
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
 	PL_Pascal(Application&) {
+		DEBUGSTR("ctor: PL_Pascal Application")
+		init();
+	}
+	PL_Pascal(Application*) {
 		DEBUGSTR("ctor: PL_Pascal Application")
 		init();
 	}
@@ -3074,6 +3537,10 @@ public:
 		DEBUGSTR("ctor: PL_Pascal Application")
 		init();
 	}
+	PL_cLang(Application*) {
+		DEBUGSTR("ctor: PL_Pascal Application")
+		init();
+	}
 
 	PL_cLang(std::string&) {
 		DEBUGSTR("ctor: PL_cLang std::string&")
@@ -3164,7 +3631,11 @@ public:
 		DEBUGSTR("ctor: PL_Executable Application")
 		init();
 	}
-	
+	PL_Executable(Application*) {
+		DEBUGSTR("ctor: PL_Executable Application")
+		init();
+	}
+
 	//! \since  Version 0.0.1
 	//! \author paule32
 	//! \see    PL_Executable::PL_Executable(std::string&)
@@ -3398,6 +3869,65 @@ public:
 
 }	// namespace: prolog
 
+using namespace prolog;
+static uint8_t app_lang = 1;
+void
+init_con_app( Console& con, ::std::string item, int flag)
+{
+	Application *app = new Application( con );
+	while (true) {
+		try {
+			switch (flag) {
+			case 1: {
+				PL_globalHolder.PL_language = app_lang;
+				app->run();
+			}
+			break;
+			case 2: { PL_Executable prg ( app ); prg.PL_parseFile ( item ); } break;
+			case 3: { PL_Assembler  prg ( app ); prg.PL_parseFile ( item ); } break;
+			case 4: { PL_Fortran    prg ( app ); prg.PL_parseFile ( item ); } break;
+			case 5: { PL_Prolog     prg ( app ); prg.PL_parseFile ( item ); } break;
+			case 6: { PL_Pascal     prg ( app ); prg.PL_parseFile ( item ); } break;
+			case 7: { PL_cLang      prg ( app ); prg.PL_parseFile ( item ); } break;
+			case 8: { PL_dBase      prg ( app ); prg.PL_parseFile ( item );	} break;
+			}
+		}
+		catch (PL_Exception_Application& e) {
+			::std::stringstream txt;
+			txt << "Error:" << ::std::endl
+				<< e.what() << ::std::endl << ::std::endl
+				<< "Would You Exit the Application ?";
+
+			ushort res = app->MessageBoxRect(
+			TRect(10,7,60,19),
+			txt.str().c_str(),
+			mfError | mfYesButton | mfNoButton );
+			
+			if (res == 12) {
+				delete app;
+				break;
+			}
+		}
+		catch (...) {
+			::std::stringstream txt;
+			txt << "Error:" << ::std::endl
+				<< "common exception occured."
+				<< ::std::endl
+				<< "Would You Exit the Application ?";
+
+			ushort res = app->MessageBoxRect(
+			TRect(10,7,60,19),
+			txt.str().c_str(),
+			mfError | mfYesButton | mfNoButton );
+
+			if (res == 12) {
+				delete app;
+				break;
+			}
+		}
+	}
+}
+
 // ---------------------------------------------------------------------
 // test case entry point ...
 // ---------------------------------------------------------------------
@@ -3409,7 +3939,8 @@ main(int argc, char** argv)
 	::std::string                  oput_file;
 	::std::string                  s0;
 	
-	int output= 0;
+	int output   = 0;
+	int app_lang = 1;
 
 	try {
 		setlocale(LC_ALL,"");
@@ -3421,11 +3952,10 @@ main(int argc, char** argv)
 		// -i<input file> -o<output file>
 		// ----------------------------------------
 		if (argc < 2) {
-			Win32API      win ;
-			Console       con ( win );
-			Application   app ( con );
+			Win32API win ;
+			Console  con ( win );
+			init_con_app ( con, "", 1 );
 			
-			app.run();
 			return SUCCESS;
 		}
 
@@ -3435,32 +3965,43 @@ main(int argc, char** argv)
 			s0.append(argv[arg]);
 
 			switch (s0.at(0)) {
-				case '-':
-					switch (s0.at(1)) {
-						case 'i':
-							s0.erase(0,2);
-							iput_file.push_back( s0 );
-						break;
-						case 'o':
-							if (output > 0)
-							throw PL_Exception_CommandLine(
-							"only one output supported.");
-						
-							s0.erase(0,2);
-
-							oput_file.append(s0);
-							output += 1;
-						break;
-						default:
-							throw PL_Exception_CommandLine(
-							"unknown option.");
-						break;
+			case '-':
+				switch (s0.at(1)) {
+				case 'l': {  						// lang
+					switch (s0.at(2)) {
+					case 'e': app_lang = 1; break;  // english
+					case 'd': app_lang = 2; break;  // german
+					default :
+						throw PL_Exception_CommandLine(
+						"can not get app language");
+					break;
 					}
+				}
+				break;
+				case 'i':
+					s0.erase(0,2);
+					iput_file.push_back( s0 );
+				break;
+				case 'o':
+					if (output > 0)
+					throw PL_Exception_CommandLine(
+					"only one output supported.");
+						
+					s0.erase(0,2);
+
+					oput_file.append(s0);
+					output += 1;
 				break;
 				default:
 					throw PL_Exception_CommandLine(
 					"unknown option.");
 				break;
+			}
+			break;
+			default:
+				throw PL_Exception_CommandLine(
+				"unknown option.");
+			break;
 			}
 		}
 
@@ -3488,12 +4029,9 @@ main(int argc, char** argv)
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "exe")
 			{
-				Win32API      win ;
-				Console       con ( win );
-				Application   app ( con );
-				PL_Executable prg ( app );
-				
-				prg.PL_parseFile  ( item );
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 2 );
 				
 				return 0;
 			}
@@ -3502,12 +4040,9 @@ main(int argc, char** argv)
 			// -------------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "asm")
 			{
-				Win32API     win ;
-				Console      con ( win );
-				Application  app ( con );
-				PL_Assembler prg ( app );
-				
-				prg.PL_parseFile ( item );
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 3 );
 				
 				return 0;
 			}
@@ -3516,13 +4051,10 @@ main(int argc, char** argv)
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "for")
 			{
-				Win32API    win ;
-				Console     con ( win );
-				Application app ( con );
-				PL_Fortran  prg ( app );
-				
-				prg.PL_parseFile( item );
-				
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 4 );
+
 				return 0;
 			}
 			// -----------------------------------------------------
@@ -3530,12 +4062,9 @@ main(int argc, char** argv)
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pl")
 			{
-				Win32API    win ;
-				Console     con ( win );
-				Application app ( con );
-				PL_Prolog   prg ( app );
-				
-				prg.PL_parseFile( item );
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 5 );
 				
 				return 0;
 			}
@@ -3544,13 +4073,10 @@ main(int argc, char** argv)
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pas")
 			{
-				Win32API    win ;
-				Console     con ( win );
-				Application app ( con );
-				PL_Pascal   prg ( app );
-				
-				prg.PL_parseFile( item );
-				
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 6 );
+
 				return 0;
 			}
 			// -----------------------------------------------------
@@ -3558,13 +4084,10 @@ main(int argc, char** argv)
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "cc")
 			{
-				Win32API    win ;
-				Console     con ( win );
-				Application app ( con );
-				PL_cLang    prg ( app );
-				
-				prg.PL_parseFile( item );
-				
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 7 );
+
 				return 0;
 			}
 			// -------------------------------------------------------
@@ -3572,11 +4095,9 @@ main(int argc, char** argv)
 			// -------------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "prg")
 			{
-				Win32API    win ;
-				Console     con ( win );
-				Application app ( con );
-				PL_dBase    prg ( app );
-				prg.PL_parseFile( item );
+				Win32API win ;
+				Console  con ( win );
+				init_con_app ( con, item, 8 );
 				
 				return 0;
 			}

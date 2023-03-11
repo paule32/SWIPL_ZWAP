@@ -18,3 +18,10 @@ src/cc/warnings.txt
 src/cc/*.exe
 src/pl/*.dll
 src/pl/*.exe
+src/cc/ENG_data.pas
+src/cc/Common_data.pas
+src/cc/Common_data.ppu
+src/cc/DEU_data.pas
+src/cc/DEU_data.ppu
+src/cc/ENG_data.ppu
+src/cc/neuro.pas

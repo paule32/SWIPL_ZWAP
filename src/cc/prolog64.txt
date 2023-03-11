@@ -5,11 +5,121 @@
 ; all rights reserved.
 ; -------------------------------------------
 .topic noContext=0
- A topic ▄
-  ▀▀▀▀▀▀▀▀ 
-Press ESC to put this help screen away.
+ Index ▄
+  ▀▀▀▀▀▀
+This is the default Help page.
+You can Press ESC-Key to close this screen.
 
-.topic AsciiTable, NewProjectDialog_ENG
+.topic AsciiTable
+zuzu
+
+.topic NewPascal_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewPascal_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New Pascal Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Here, you can create a new Pascal Project or load an existing one.
+It is possible, to mix the Project's.
+
+.topic NewCPP_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewCPP_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New C/C++ Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Here, you can create a new C++ Project or load an existing one.
+It is possible, to mix the Project's.
+
+.topic NewDBASE_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewDBASE_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New dBASE Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Here, you can create a new dBASE Project or load an existing one.
+It is possible, to mix the Project's.
+
+.topic NewFortran_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewFortran_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New Fortran Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Here, you can create a new Fortran Project or load an existing one.
+It is possible, to mix the Project's.
+
+.topic NewProlog_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewProlog_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New Prolog Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Here, you can create a new Prolog Project or load an existing one.
+It is possible, to mix the Project's.
+
+.topic NewAssembler_ENG
+ {ENG:NewProjectDialog_ENG} {DEU:NewAssembler_DEU} {Content:Content_ENG}
+ ════════════════════════════════════════════
+ New Assembler Project ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Here, you can create a new Assembler Project or load an existing one.
+It is possible, to mix the Project's.
+
+{supported keywords:ASM_Content_ENG}
+
+.topic NewPascal_DEU
+ {DEU:NewProjectDialog_DEU} {ENG:NewPascal_ENG} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues Pascal Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Hier können Sie ein neues Pascal Projekt beginnen, oder ein existierendes
+Projekt auf einen Datenträger zu öffnen.
+Es ist möglich, unterschiedliche Projekte zu mischen.
+
+.topic NewCPP_DEU
+ {DEU:NewProjectDialog_DEU} {ENG:NewCPP_ENG} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues C/C++ Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Hier können Sie ein neues C++ Projekt beginnen, oder ein existierendes
+Projekt auf einen Datenträger zu öffnen.
+Es ist möglich, unterschiedliche Projekte zu mischen.
+
+.topic NewDBASE_DEU
+ {DEU:NewProjectDialog_DEU} {ENG:NewDBASE_ENG} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues dBASE Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Hier können Sie ein neues dBASE Projekt beginnen, oder ein existierendes
+Projekt auf einen Datenträger zu öffnen.
+Es ist möglich, unterschiedliche Projekte zu mischen.
+
+.topic NewFortran_DEU
+ {DEU:NewProjectDialog_DEU} {ENG:NewFortran_ENG} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues Fortran Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Hier können Sie ein neues Fortran Projekt beginnen, oder ein existierendes
+Projekt auf einen Datenträger zu öffnen.
+Es ist möglich, unterschiedliche Projekte zu mischen.
+
+.topic NewProlog_DEU
+ {DEU:NewProjectDialog_DEU} {ENG:NewProlog_ENG} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues Prolog Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Hier können Sie ein neues Prolog Projekt beginnen, oder ein existierendes
+Projekt auf einen Datenträger zu öffnen.
+Es ist möglich, unterschiedliche Projekte zu mischen.
+
+.topic NewAssembler_DEU
+ {DEU:NewProjectDialog_DEU} {ENG:NewAssembler_ENG} {Inhalt:Content_DEU}
+ ════════════════════════════════════════════
+ Neues Assembler Projekt ▄
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+Hier können Sie ein neues Assembler Projekt beginnen, oder ein existierendes
+Projekt auf einen Datenträger zu öffnen.
+Es ist möglich, unterschiedliche Projekte zu mischen.
+
+{unterstützte Anweisungen:ASM_Content_ENG}
+
+.topic NewProjectDialog_ENG
  {ENG:NewProjectDialog_ENG} {DEU:NewProjectDialog_DEU} {Content:Content_ENG}
  ════════════════════════════════════════════
  New Project ▄
@@ -929,3 +1039,247 @@ The individual areas are separated from each other with commas.
   ▀▀▀▀▀
  ════════════════════════════════════════════
  {DEU:keywords_word_DEU} {Content:Content_ENG}
+
+
+; Assembler keywords - english
+.topic ASM_Content_ENG
+ {DEU:ASM_Content_DEU} - Assembler Content
+ ════════════════════════════════════════════
+Here, you can find the supported assembler keywords for
+assembler Project's:
+
+{aaa:ASM_Content_aaa_ENG},
+{aad:ASM_Content_aad_ENG},
+{aam:ASM_Content_aam_ENG},
+{aas:ASM_Content_aas_ENG},
+{aac:ASM_Content_aac_ENG},
+{add:ASM_Content_aad_ENG},
+{and:ASM_Content_and_DEU},
+
+{mov:ASM_Content_mov_ENG}
+
+.topic ASM_Content_aaa_ENG
+ {DEU:ASM_Content_aaa_DEU} {keywords:ASM_Content_ENG} - aaa
+ ════════════════════════════════════════════
+ aaa ▄
+  ▀▀▀▀
+Adjust Result for ASCII-Addition
+
+ ════════════════════════════════════════════
+ {DEU:ASM_Content_DEU} {Content:ASM_Content_ENG}
+
+.topic ASM_Content_aad_ENG
+ {ENG:ASM_Content_aad_ENG} {keywords:ASM_Content_ENG} - aad
+ ════════════════════════════════════════════
+ aad ▄
+  ▀▀▀▀
+Adjust Result for ASCII-Addition
+
+ ════════════════════════════════════════════
+ {DEU:ASM_Content_aad_DEU} {Content:ASM_Content_ENG}
+
+.topic ASM_Content_aam_ENG
+.topic ASM_Content_aas_ENG
+.topic ASM_Content_aac_ENG
+.topic ASM_Content_add_ENG
+.topic ASM_Content_and_ENG
+
+.topic ASM_Content_mov_ENG
+ {Content:ASM_Content_ENG} {keywords:ASM_Content_ENG} - mov
+ ════════════════════════════════════════════
+ mov ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {DEU:ASM_Content_DEU} {Content:ASM_Content_ENG}
+
+; ---------------------------------------------------
+; Assembler keywords - german
+; ---------------------------------------------------
+.topic ASM_Content_DEU
+ {DEU:ASM_Content_DEU} - Assembler Inhalt
+ ════════════════════════════════════════════
+Hier finden Sie eine Liste der unterstützten Assembler-Befehle:
+
+{aaa:ASM_Content_aaa_DEU},
+{aad:ASM_Content_aad_DEU},
+{aam:ASM_Content_aam_DEU},
+{aas:ASM_Content_aas_DEU},
+{aac:ASM_Content_aac_DEU},
+{add:ASM_Content_aad_DEU},
+{and:ASM_Content_and_DEU},
+
+{mov:ASM_Content_mov_DEU}
+
+.topic ASM_Content_aaa_DEU
+ {ENG:ASM_Content_aaa_ENG} {Schlüsselwörter:ASM_Content_DEU} - aaa
+ ════════════════════════════════════════════
+ aaa ▄
+  ▀▀▀▀
+Adjust Result for ASCII-Addition
+=> ASCII-Anpassung nach einer Addition
+
+Beschreibung:
+
+AAA wandelt das AL-Register in eine ungepackte BCD-Zahl um. Sofern die vier unteren Bits von AL kleiner gleich 9 sind, werden die vier
+oberen Bits auf Null gesetzt und die Flags AF und CF gelöscht. Falls die unteren vier Bits eine ungültige BCD-Zahl (Pseudotetrade)
+darstellen oder das Halfcarry-Flag (A) gesetzt ist, wird 6 zum AL-Register addiert, AH um eins erhöht, um den Überlauf anzuzeigen, und die
+vier oberen Bits von AL werden gelöscht. Damit enthält das AX-Register eine 2-stellige BCD Zahl (höherwertiger Teil in AH,
+niederwertiger Teil in AL).
+
+Beispiel:
+Aus AL = 0x0F (hex) wird AX = 0x0105 (=15 BCD)
+
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_aaa_ENG} {ASM-Inhalt:ASM_Content_DEU}
+
+.topic ASM_Content_aad_DEU
+ {ENG:ASM_Content_aad_ENG} {Schlüsselwörter:ASM_Content_DEU} - aad
+ ════════════════════════════════════════════
+ aad ▄
+  ▀▀▀▀
+Adjust Register for Division.
+=> ASCII-Anpassung für die Division.
+
+Beschreibung:
+AAD wandelt eine zweistellige ungepackte BCD-Zahl im AX-Register (höherwertiger Teil in AH, niederwertiger Teil in AL) in die
+entsprechende Dualzahl um. Dies ist z.B. zur Vorbereitung einer korrekten BCD-Division nötig.
+
+Beispiel:
+Aus AX = 0x0105 (=15 BCD) wird AX = 0x000F(hex)
+
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_aad_ENG} {ASM-Inhalt:ASM_Content_DEU}
+
+.topic ASM_Content_aam_DEU
+ {ENG:ASM_Content_aam_ENG} {Schlüsselwörter:ASM_Content_DEU} - aam
+ ════════════════════════════════════════════
+ aam ▄
+  ▀▀▀▀
+Adjust Result of BCD-Multiplication.
+=> ASCII-Anpassung für die Multiplikation.
+
+Beschreibung:
+AAM wandelt nach einer Multiplikation der Register AL und AH, sofern in beiden Registern eine ungepackte BCD-Zahl stand, das Ergebnis
+in eine gültige ungepackte BCD-Zahl im AX-Register um.
+
+ Beispiel:
+ AX = 0x0909h (=99 BCD)
+ MUL AH,AL (=51 hex)
+ AAM - > AX = 0x0801 (=81 BCD)
+
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_aad_ENG} {ASM-Inhalt:ASM_Content_DEU}
+
+.topic ASM_Content_aas_DEU
+ {ENG:ASM_Content_aas_ENG} {Schlüsselwörter:ASM_Content_DEU} - aad
+ ════════════════════════════════════════════
+ aas ▄
+  ▀▀▀▀
+ Adjust Result for ASCII-Subtraction.
+ => ASCII-Anpassung für die Subtraktion.
+
+ Beschreibung:
+ AAS wandelt die Zahl im AL-Register (z.B. das Ergebnis nach einer Subtraktion) in eine BCD-Zahl um. Sofern die Zahl in AL größer als 9
+ ist (ungültige ungepackte BCD-Zahl), wird 6 vom AL- und 1 vom AH-Register subtrahiert und die Flags C und A gesetzt, ansonsten werden
+ diese Flags gelöscht. Die höherwertigen 4 Bits im AL-Register werden in jedem Fall gelöscht. Als Ergebnis bleibt eine 4-Bit BCD-Zahl im
+ AL-Register.
+
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_aas_ENG} {ASM-Inhalt:ASM_Content_DEU}
+
+.topic ASM_Content_aac_DEU
+ {ENG:ASM_Content_aac_ENG} {Schlüsselwörter:ASM_Content_DEU} - aad
+ ════════════════════════════════════════════
+ aac ▄
+  ▀▀▀▀
+ Add with Carry-Flag
+ => Addieren mit Übertrag
+
+Syntax: ADC <Zieloperand>,<Quelloperand>
+
+ Beschreibung:
+ ADC addiert den Quelloperanden zum Zieloperanden unter Berücksichtigung des Carry-Flags, so dass ein Überlauf beachtet werden kann.
+ Das Ergebnis wird im Zieloperanden abgelegt. Es können 8- und 16-Bit Operanden verarbeitet werden.
+
+ Beispiel:
+ STC ; Carry-Flag setzen
+ MOV AL, 0x01 ; AL = 1
+ MOV AH, 0x01 ; AH = 1
+ ADC AL, AH   ; AL = AH + AL + C - > 03
+
+ Operanden                Beispiel: ADC...
+ ----------------------------------------------------------
+ <Register>, <Register>   AL, BL
+ <Register>, <Speicher>   AL, [200]        oder AL,Quelle
+ <Speicher>, <Register>   [200], AL        oder Quelle,AL
+ <Register>, <Konstante>  AL, 07
+ <Speicher>, <Konstante>  byte ptr [200],7 oder Quelle,07
+ 
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_aac_ENG} {ASM-Inhalt:ASM_Content_DEU}
+
+.topic ASM_Content_add_DEU
+ {ENG:ASM_Content_add_ENG} {Schlüsselwörter:ASM_Content_DEU} - add
+ ════════════════════════════════════════════
+ add ▄
+  ▀▀▀▀
+ Addieren (ohne Carry-Flag)
+
+ Syntax: ADD <Zieloperand>,<Quelloperand>
+ 
+ Beschreibung:
+ Addiert den Quelloperanden zum Zieloperanden. Das Ergebnis wird im Zieloperanden gespeichert. Ein eventueller Überlauf wird durch das
+ Carry-Flag signalisiert, dieses wird aber nicht wie bei ADC in die Addition einbezogen. Es können sowohl 8- als auch 16-Bit Operanden
+ verarbeitet werden.
+
+ Operanden                Beispiel: ADD...
+ ---------------------------------------------------------------
+ <Register>, <Register>   AX,    BX
+ <Register>, <Speicher>   AL,    [200]         oder AL, Quelle
+ <Speicher>, <Register>   [200], AL            oder Quelle, AL
+ <Register>, <Konstante>  AL,    0ff           oder AL, 0ffh
+ <Speicher>, <Konstante>  byte   ptr [200], 0a oder Quelle, 0ah
+ 
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_aas_ENG} {ASM-Inhalt:ASM_Content_DEU}
+
+.topic ASM_Content_and_DEU
+ {ENG:ASM_Content_and_ENG} {Schlüsselwörter:ASM_Content_DEU} - add
+ ════════════════════════════════════════════
+ and ▄
+  ▀▀▀▀
+ Und-Verknüpfung
+
+ Syntax: AND <Zieloperand>, <Quelloperand>
+ 
+ Beschreibung:
+ Der Zieloperand wird bitweise mit dem Quelloperanden nach der Und-Wahrheitstabelle verknüpft, das Ergebnis befindet sich danach im
+ Zieloperanden.
+ 
+ Wahrheitstabelle der UND-Verknüpfung:
+ 
+ Eingang 1 | Eingang 2 | Ausgang
+ ----------+-----------+---------
+      0    |     0     |    0
+      0    |     1     |    0
+      1    |     0     |    0
+      1    |     1     |    1
+	   
+ Operanden              Beispiel: AND...
+ -------------------------------------------------------------
+ <Register>, <Register>  AL,    BL
+ <Register>, <Speicher>  AL,    [300]       oder AL, Quelle
+ <Speicher>, <Register>  [300], AL          oder Quelle, AL
+ <Register>, <Konstante> AL,    07
+ <Speicher>, <Konstante> byte ptr [300], 07 oder Quelle, 07
+
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_and_ENG} {ASM-Inhalt:ASM_Content_DEU}
+ 
+.topic ASM_Content_mov_DEU
+ {ENG:ASM_Content_mov_ENG} {Schlüsselwörter:ASM_Content_DEU} - mov
+ ════════════════════════════════════════════
+ mov ▄
+  ▀▀▀▀
+ ════════════════════════════════════════════
+ {ENG:ASM_Content_mov_ENG} {ASM-Inhalt:ASM_Content_DEU}
