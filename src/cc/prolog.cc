@@ -531,6 +531,18 @@ const unsigned cmAppQuit            = 300;
 const unsigned cmLoadData           = 401;
 const unsigned cmNewData            = 402;
 
+const unsigned cmDBASE_data         = 500;
+const unsigned cmDBASE_query        = 501;
+const unsigned cmDBASE_form         = 502;
+const unsigned cmDBASE_report       = 503;
+const unsigned cmDBASE_label        = 504;
+const unsigned cmDBASE_app          = 505;
+
+const unsigned cmDBASE_add_field    = 506;
+const unsigned cmDBASE_del_field    = 507;
+const unsigned cmDBASE_sav_field    = 508;
+const unsigned cmDBASE_upd_field    = 509;
+
 const unsigned cmAsciiTableCmdBase  = 910;
 const unsigned cmAsciiTableCmd      = 911;
 const unsigned cmCharFocused        =   0;
@@ -1137,58 +1149,155 @@ public:
 
 			_writeChar(1,  2, 0xc9, c, 1);
 			_writeChar(2,  2, 0xcd, c, (17*6) );
-			_writeChar(2,  4, 0xcd, c, (17*6) );
+			_writeChar(2,  5, 0xcd, c, (17*6) );
 			_writeChar(2, 15, 0xcd, c, (17*6) );
 			
 			// data
 			_writeChar(x,  15, 0xc8, c, 1);
 			_writeChar(x,   2, 0xcb, c, 1);
 			_writeChar(x,   3, 0xba, c, y, true);
-			_writeInit(x+1, 3, c);
-			_writeChar(x,   4, 0xcc, c, 1); x += 17;
+			//_writeInit(x+1, 3, c);
+			_writeChar(x,   5, 0xcc, c, 1); x += 17;
 
 			// queries
 			_writeChar(x,  15, 0xca, c, 1);
 			_writeChar(x,   2, 0xcb, c, 1);
 			_writeChar(x,   3, 0xba, c, y, true);
-			_writeInit(x+1, 3, c);
-			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			//_writeInit(x+1, 3, c);
+			_writeChar(x,   5, 0xce, c, 1); x += 17;
 
 			// forms
 			_writeChar(x,  15, 0xca, c, 1);
 			_writeChar(x,   2, 0xcb, c, 1);
 			_writeChar(x,   3, 0xba, c, y, true);
-			_writeInit(x+1, 3, c);
-			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			//_writeInit(x+1, 3, c);
+			_writeChar(x,   5, 0xce, c, 1); x += 17;
 			
 			// reports
 			_writeChar(x,  15, 0xca, c, 1);
 			_writeChar(x,   2, 0xcb, c, 1);
 			_writeChar(x,   3, 0xba, c, y, true);
-			_writeInit(x+1, 3, c);
-			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			//_writeInit(x+1, 3, c);
+			_writeChar(x,   5, 0xce, c, 1); x += 17;
 			
 			// labels
 			_writeChar(x,  15, 0xca, c, 1);
 			_writeChar(x,   2, 0xcb, c, 1);
 			_writeChar(x,   3, 0xba, c, y, true);
-			_writeInit(x+1, 3, c);
-			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			//_writeInit(x+1, 3, c);
+			_writeChar(x,   5, 0xce, c, 1); x += 17;
 			
 			// applications
 			_writeChar(x,  15, 0xca, c, 1);
 			_writeChar(x,   2, 0xcb, c, 1);
 			_writeChar(x,   3, 0xba, c, y, true);
-			_writeInit(x+1, 3, c);
-			_writeChar(x,   4, 0xce, c, 1); x += 17;
+			//_writeInit(x+1, 3, c);
+			_writeChar(x,   5, 0xce, c, 1); x += 17;
 			
 			_writeChar(x, 15, 0xbc, c, 1);
 			_writeChar(x,  2, 0xcb, c, 1);
 			_writeChar(x,  3, 0xba, c, y, true);
-			_writeChar(x,  4, 0xb9, c, 1);
+			_writeChar(x,  5, 0xb9, c, 1);
 		}
 	};
 
+	class PL_dBaseNewFile: public TDialog {
+	private:
+		TListBox * lb_1 = nullptr;
+		TListBox * lb_2 = nullptr;
+		TListBox * lb_3 = nullptr;
+		TListBox * lb_4 = nullptr;
+		
+		void init()
+		{
+			flags &= ~(wfGrow | wfZoom);
+			growMode = 0;
+			
+			eventMask = evMouseDown | evKeyboard | evCommand | evBroadcast;
+			
+			options |= ofCentered;
+			options |= ofSelectable;
+
+			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 128);
+			insert(control);
+			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~T~able name:", control));
+			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
+			
+			TScrollBar * sb_1 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_2 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_3 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			TScrollBar * sb_4 = standardScrollBar( sbVertical | sbHandleKeyboard );
+
+			int x =  3;
+			int y = 15;
+			
+			lb_1 = new TListBox( TRect(x,5,     26, y ), 1, sb_1 ); x += 24;
+			lb_2 = new TListBox( TRect(x,5, x + 25, y ), 1, sb_2 ); x += 26;
+			lb_3 = new TListBox( TRect(x,5, x + 25, y ), 1, sb_3 ); x += 26;
+			lb_4 = new TListBox( TRect(x,5, x + 25, y ), 1, sb_4 );
+			
+			x = 3;
+			
+			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Name"  , lb_1 )); x += 24;
+			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Type"  , lb_2 )); x += 26;
+			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Length", lb_3 )); x += 26;
+			insert( new TLabel( TRect(x,4, x + 20,5 ), "Index Name"  , lb_4 ));
+
+			insert( lb_1 );
+			insert( lb_2 );
+			insert( lb_3 );
+			insert( lb_4 );
+			
+			insert( new TButton ( TRect( 40,2, 55,4 ), "Add Field" , cmDBASE_add_field, bfDefault ));
+			insert( new TButton ( TRect( 58,2, 73,4 ), "Del Field" , cmDBASE_del_field, bfNormal  ));
+			insert( new TButton ( TRect( 76,2, 91,4 ), "Save Table", cmDBASE_sav_field, bfNormal  ));
+		}
+	public:
+		PL_dBaseNewFile(::std::string file_name):
+			TWindowInit( &PL_dBaseNewFile::initFrame ),
+			TDialog( TRect( 0,0, 108,18), "dBASE new file:"),
+			name("PL_dBaseNewFile") {
+			init();
+		}
+	
+		PL_dBaseNewFile(StreamableInit):
+			TWindowInit(0),
+			TDialog(streamableInit),
+			name("PL_dBaseNewFile") {
+			init();
+		}
+				
+		PL_dBaseNewFile():
+			TWindowInit(0),
+			TDialog(streamableInit),
+			name("PL_dBaseNewFile") {
+			init();
+		}
+		
+		~PL_dBaseNewFile()
+		{
+		}
+		
+		virtual void
+		handleEvent( TEvent &event )
+		{
+			TWindow::handleEvent( event );
+			clearEvent(event);
+		}
+
+	private:
+		virtual const char *streamableName() const
+		{ return name; }
+	protected:
+		virtual void write( opstream& os) { TWindow::write(os); }
+		virtual void* read( ipstream& is) { TWindow::read (is); return this; }
+	public:
+			   const char  * const name;
+		static TStreamable * build() {
+			return new PL_dBaseNewFile( streamableInit );
+		}
+	};
+	
 	class PL_dBaseCatalog: public TDialog {
 	private:
 		TListBox * lb_1 = nullptr;
@@ -1197,6 +1306,19 @@ public:
 		TListBox * lb_4 = nullptr;
 		TListBox * lb_5 = nullptr;
 		TListBox * lb_6 = nullptr;
+		
+		template <typename T1>
+		void createNewFileDialog(::std::string s)
+		{
+			auto  * d = new T1(s);
+			TView * p = TProgram::application->validView(d);
+			if (!p) {
+				::std::string sz;
+				sz = "Error:\nCould not create view.";
+				throw PL_Exception_Application( sz.c_str() );
+			}
+			TProgram::deskTop->insert(d);
+		}
 		
 		class LB_Collection: public TCollection {
 		public:
@@ -1210,6 +1332,7 @@ public:
 			virtual void *readItem( ipstream& ) { return 0; }
 			virtual void writeItem( void *, opstream& ) {}
 		};
+		
 		void init()
 		{
 			flags &= ~(wfGrow | wfZoom);
@@ -1272,12 +1395,12 @@ public:
 			lbc_6->insert( newStr("######") );
 			lbc_6->insert( newStr("qwerty") );
 			
-			lb_1 = new TListBox( TRect(x,6,   19, 16), 1, sb_1 ); x += 17;
-			lb_2 = new TListBox( TRect(x,6, x+16, 16), 1, sb_2 ); x += 17;
-			lb_3 = new TListBox( TRect(x,6, x+16, 16), 1, sb_3 ); x += 17;
-			lb_4 = new TListBox( TRect(x,6, x+16, 16), 1, sb_4 ); x += 17;
-			lb_5 = new TListBox( TRect(x,6, x+16, 16), 1, sb_5 ); x += 17;
-			lb_6 = new TListBox( TRect(x,6, x+16, 16), 1, sb_6 );
+			lb_1 = new TListBox( TRect(x,7,   19, 16), 1, sb_1 ); x += 17;
+			lb_2 = new TListBox( TRect(x,7, x+16, 16), 1, sb_2 ); x += 17;
+			lb_3 = new TListBox( TRect(x,7, x+16, 16), 1, sb_3 ); x += 17;
+			lb_4 = new TListBox( TRect(x,7, x+16, 16), 1, sb_4 ); x += 17;
+			lb_5 = new TListBox( TRect(x,7, x+16, 16), 1, sb_5 ); x += 17;
+			lb_6 = new TListBox( TRect(x,7, x+16, 16), 1, sb_6 );
 			
 			lb_1->eventMask = evMouseDown | evKeyDown | evCommand;
 
@@ -1288,6 +1411,15 @@ public:
 			insert(lb_1); insert(lb_2);
 			insert(lb_3); insert(lb_4);
 			insert(lb_5); insert(lb_6);
+			
+			x = 3;
+			
+			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_data,   bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_query,  bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_form,   bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_report, bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_label,  bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_app,    bfNormal ));
 		}
 	public:
 		PL_dBaseCatalog(::std::string file_name):
@@ -1372,7 +1504,6 @@ public:
 				}
 				if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
 				{
-					clearEvent(event);
 					char buffer[MAX_LEN];
 					
 					if ((lb_1->state & sfFocused) != 0) { lb_1->getText(buffer, lb_1->focused, MAX_LEN); } else
@@ -1383,6 +1514,7 @@ public:
 					if ((lb_6->state & sfFocused) != 0) { lb_6->getText(buffer, lb_6->focused, MAX_LEN); }
 					
 					messageBox(buffer,mfInformation|mfOKButton);
+					clearEvent(event);
 				}
 			}
 			if (event.message.command == cmHelp)
@@ -1395,6 +1527,35 @@ public:
 				if ((lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); } else
 				if ((lb_5->state & sfFocused) != 0) { handle_helpView( 5 ); } else
 				if ((lb_6->state & sfFocused) != 0) { handle_helpView( 6 ); }
+			}
+			else if (event.message.command == cmDBASE_data) {
+				clearEvent(event);
+				createNewFileDialog< PL_dBaseNewFile >("data");
+			}
+			else if (event.message.command == cmDBASE_query) {
+				clearEvent(event);
+				messageBox("dbase query",mfInformation|mfOKButton);
+				createNewFileDialog< PL_dBaseNewFile >("query");
+			}
+			else if (event.message.command == cmDBASE_form) {
+				clearEvent(event);
+				messageBox("dbase form",mfInformation|mfOKButton);
+				createNewFileDialog< PL_dBaseNewFile >("form");
+			}
+			else if (event.message.command == cmDBASE_report) {
+				clearEvent(event);
+				messageBox("dbase report",mfInformation|mfOKButton);
+				createNewFileDialog< PL_dBaseNewFile >("report");
+			}
+			else if (event.message.command == cmDBASE_label) {
+				clearEvent(event);
+				messageBox("dbase label",mfInformation|mfOKButton);
+				createNewFileDialog< PL_dBaseNewFile >("label");
+			}
+			else if (event.message.command == cmDBASE_app) {
+				clearEvent(event);
+				messageBox("dbase app",mfInformation|mfOKButton);
+				createNewFileDialog< PL_dBaseNewFile >("application");
 			}
 		}
 	private:
