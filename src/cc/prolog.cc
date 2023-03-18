@@ -257,6 +257,8 @@ class TDialog;
 
 static ::std::stringstream error_buffer;
 
+static uint8_t app_lang = 2;
+
 // ---------------------------------------------------------------------
 // namespace placeholder.
 // ---------------------------------------------------------------------
@@ -284,6 +286,131 @@ class Client;
 class Server;
 class Html;
 class Ftp;
+
+class PL_Exception_Application;
+
+// ---------------------------------------------------------------------
+// locale string's (english):
+// ---------------------------------------------------------------------
+class locale_eng {
+private:
+	::std::vector< ::std::string > eng_locale = {
+		"prolog64",                             // 0000
+		"default exception",                    // 0001
+		"Application Exception.",               // 0002
+		"Can not open:",                        // 0003
+		"can not get app language",             // 0004
+		"only one output supported.",           // 0005
+		"unknown option.",                      // 0006
+		"no output file given.",                // 0007
+		"can not open input file: ",            // 0008
+		"could not determine parser on "        //
+		"file extension.",                      // 0009
+		"Command line Error",                   // 0010
+		"line  : ",                             // 0011
+		"reason: ",                             // 0012
+		"parser error in line: ",               // 0013
+		"compiler: FAIL.",                      // 0014
+		"Would You Exit the Application ?",     // 0015
+		"Did you would really like exit the "   //
+		"Application ?\n"                       //
+		"This can take awhile ...",             // 0016
+		"Cancel",                               // 0017
+		"Help",                                 // 0018
+		"New",                                  // 0019
+		"~L~oad",                               // 0020
+		"Could not open help file",             // 0021
+		"~P~roject name:",                      // 0022
+		"Error:\nCould not create view.",       // 0023
+		"not yet implemented",                  // 0024
+		"create",                               // 0025
+		"dBASE Catalog:",                       // 0026
+		"Open File",                            // 0027
+		"~N~ame",                               // 0028
+		"~F1~ Help",                            // 0029
+		"~F3~ Open",                            // 0030
+		"~F10~ Menu",                           // 0031
+		"input file read error",                // 0032
+		"unterminated comment",                 // 0033
+		"parser error",                         // 0034
+		"locale string"
+	};
+public:
+	::std::string
+	message(int32_t which) {
+		::std::stringstream ss;
+		ss  << eng_locale.at( which )
+			<< ::std::endl;
+		return ss.str();
+	}
+	locale_eng() {}
+};
+
+// ---------------------------------------------------------------------
+// locale string's (german):
+// ---------------------------------------------------------------------
+class locale_deu {
+private:
+	::std::vector< ::std::string > deu_locale = {
+		"prolog64",                                  // 0000
+		"Standard-Ausnahme",                         // 0001
+		"Anwendungs-Ausnahme",                       // 0002
+		"kann nicht geöffnet werden:",               // 0003
+		"kann Anwendungs-Sprache nicht ermitteln",   // 0004
+		"nur eine Ausgabe-Datei unerstützt",         // 0005
+		"nicht bekannte Option.",                    // 0006
+		"keine Ausgabe-Datei angegeben",             // 0007
+		"kann Eingabe-Datei nicht öffnen: ",         // 0008
+		"kann Parser anhand der Erweiterung "        //
+		"der Eingabe-Datei ermitteln.",              // 0009
+		"Kommandozeilen-Fehler",                     // 0010
+		"Zeile : ",                                  // 0011
+		"Grund : ",                                  // 0012
+		"Parser Fehler in Zeile: ",                  // 0013
+		"Compiler: fehlgeschlagen",                  // 0014
+		"Möchten Sie die Anwendung beenden ?",       // 0015
+		"Möchten Sie die Anwendung beenden ?\n"      //
+		"Dies kann etwas dauern...",                 // 0016
+		"Abbrechen",                                 // 0017
+		"Hilfe",                                     // 0018
+		"Neu",                                       // 0019
+		"~L~aden",                                   // 0020
+		"Hilfe-Datei konnte nicht geöffnet werden.", // 0021
+		"~P~rojekt-Name:",                           // 0022
+		"Fehler:\nAnsicht konnte nicht erstellt "    //
+		"werden",                                    // 0023
+		"noch nicht implementiert",                  // 0024
+		"Neu",                                       // 0025
+		"dBASE Katalog:",                            // 0026
+		"Öffnen",                                    // 0027
+		"~N~ame",                                    // 0028
+		"~F1~ Hilfe",                                // 0029
+		"~F3~ Öffnen",                               // 0030
+		"~F10~ Menü",                                // 0031
+		"Eingabe-Datei: Lese-Fehler.",               // 0032
+		"Kommentar wurde nicht abgeschlossen",       // 0033
+		"Parser-Fehler",                             // 0034
+		"locale zeichenkette"
+	};
+public:
+	::std::string
+	message(int32_t which) {
+		::std::stringstream ss;
+		ss  << deu_locale.at( which )
+			<< ::std::endl;
+		return ss.str();
+	}
+	locale_deu() {}
+};
+
+::std::string
+locale_str(int32_t which)
+{
+	if (app_lang == 1) { locale_eng l; return l.message( which ); } else
+	if (app_lang == 2) { locale_deu l; return l.message( which ); }
+	
+	return "";
+}
 
 // ---------------------------------------------------------------------
 // PL parser stuff:
@@ -318,6 +445,8 @@ uint32_t PL_line_col = 1;   // ...       column #
 #else
 # define DEBUGSTR(x)
 #endif
+
+# define PL_HELPFILE	"prolog64.hlp"
 
 # define SUCCESS 0
 # define FAILURE 1
@@ -415,7 +544,7 @@ public:
 		_line_col(PL_line_col)
 		{}
 	PL_Exception():
-		_message("Application Exception."),
+		_message( locale_str( 2 ) ),
 		_line_row(PL_line_row),
 		_line_col(PL_line_col)
 		{}
@@ -489,7 +618,7 @@ public:
 			error_buffer.str("");
 			if (res == DW_DLV_ERROR) {
 				error_buffer
-				<< ::std::string("Can not open: ")
+				<< ::std::string( locale_str( 3 ) )
 				<< ::std::string(file_name)
 				<< ::std::endl
 				<< ::std::string("Error: ")
@@ -564,6 +693,17 @@ struct PL_globalHolderValues {
 	uint8_t PL_language;		// application language: ENG:1 / DEU:2
 };
 PL_globalHolderValues PL_globalHolder;
+
+// ---------------------------------------------
+// this structure set/get the components values
+// of new project dialog items ...
+// ---------------------------------------------
+static struct DialogData {
+	char   inputLineData[128];
+	ushort radioButtons1Data;
+	ushort radioButtons2Data;
+	ushort checkButtons1Data;
+} *newData;
 
 // ---------------------------------------------------------------------
 // the main console application class ...
@@ -725,8 +865,7 @@ public:
 		}
 
 		virtual void
-		handleEvent( TEvent& event )
-		{
+		handleEvent( TEvent& event ) {
 		    TView::handleEvent(event);
 
 			if (event.what == evMouseDown)
@@ -921,7 +1060,7 @@ public:
 		char *fileName;
 		
 		TCollection *fileLines;
-		Boolean isValid;
+		bool isValid;
 		
 		TFileViewer( const TRect& bounds,
 			TScrollBar *aHScrollBar,
@@ -1007,7 +1146,7 @@ public:
 			limit.y = fileLines->getCount();
 		}
 		
-		void setState( ushort aState, Boolean enable ) {
+		void setState( ushort aState, bool enable ) {
 			TScroller::setState( aState, enable );
 			if ( enable && (aState & sfExposed) )
 			setLimit( limit.x, limit.y );
@@ -1018,7 +1157,7 @@ public:
 			draw();
 		}
 		
-		Boolean valid( ushort command ) { return isValid; }
+		bool valid( ushort command ) { return isValid; }
 		
 	private:
 		virtual const char *streamableName() const
@@ -1223,30 +1362,39 @@ public:
 			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~T~able name:", control));
 			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
 			
-			TScrollBar * sb_1 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_2 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_3 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_4 = standardScrollBar( sbVertical | sbHandleKeyboard );
-
-			int x =  3;
+			int x =  2;
 			int y = 15;
 			
-			lb_1 = new TListBox( TRect(x,5,     26, y ), 1, sb_1 ); x += 24;
-			lb_2 = new TListBox( TRect(x,5, x + 25, y ), 1, sb_2 ); x += 26;
-			lb_3 = new TListBox( TRect(x,5, x + 25, y ), 1, sb_3 ); x += 26;
-			lb_4 = new TListBox( TRect(x,5, x + 25, y ), 1, sb_4 );
+			TScrollBar * sb_1 = new TScrollBar( TRect( x,5, x+1,y ) ); x += 24;
+			TScrollBar * sb_2 = new TScrollBar( TRect( x,5, x+1,y ) ); x += 26;
+			TScrollBar * sb_3 = new TScrollBar( TRect( x,5, x+1,y ) ); x += 26;
+			TScrollBar * sb_4 = new TScrollBar( TRect( x,5, x+1,y ) );
 			
-			x = 3;
+			insert( sb_1 );
+			insert( sb_2 );
+			insert( sb_3 );
+			insert( sb_4 );
+
+			x =  3;
+			y = 15;
+
+			lb_1 = new TListBox( TRect(x,5,     24, y ), 1, sb_1 ); x += 24;
+			lb_2 = new TListBox( TRect(x,5, x + 23, y ), 1, sb_2 ); x += 26;
+			lb_3 = new TListBox( TRect(x,5, x + 23, y ), 1, sb_3 ); x += 26;
+			lb_4 = new TListBox( TRect(x,5, x + 23, y ), 1, sb_4 );
+
+			insert( lb_1 );
+			insert( lb_2 );
+			insert( lb_3 );
+			insert( lb_4 );
+			
+			x = 4;
 			
 			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Name"  , lb_1 )); x += 24;
 			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Type"  , lb_2 )); x += 26;
 			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Length", lb_3 )); x += 26;
 			insert( new TLabel( TRect(x,4, x + 20,5 ), "Index Name"  , lb_4 ));
 
-			insert( lb_1 );
-			insert( lb_2 );
-			insert( lb_3 );
-			insert( lb_4 );
 			
 			insert( new TButton ( TRect( 40,2, 55,4 ), "Add Field" , cmDBASE_add_field, bfDefault ));
 			insert( new TButton ( TRect( 58,2, 73,4 ), "Del Field" , cmDBASE_del_field, bfNormal  ));
@@ -1278,11 +1426,103 @@ public:
 		{
 		}
 		
+		void
+		handle_helpView(int flag = 0)
+		{
+			TWindow   * w;
+			THelpFile * hFile;
+			fpstream  * helpStrm;
+				
+			static bool helpInUse = false;
+			int helpCtx = 0;
+				
+			if (helpInUse == false) {
+				helpInUse = true;
+				helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
+				hFile     = new THelpFile(*helpStrm);
+				if (!helpStrm) {
+					delete hFile;
+					throw PL_Exception_Application(
+					locale_str( 21 ).c_str());
+				}
+				if (PL_globalHolder.PL_language == PL_appLang_ENG) {
+					if (flag == 1) helpCtx = hcDBASE_data_field_name_ENG; else
+					if (flag == 2) helpCtx = hcDBASE_data_field_type_ENG; else
+					if (flag == 3) helpCtx = hcDBASE_data_field_leng_ENG; else
+					if (flag == 4) helpCtx = hcDBASE_data_field_prec_ENG; else
+					if (flag == 5) helpCtx = hcDBASE_data_field_wind_ENG;
+				}
+				else if (PL_globalHolder.PL_language == PL_appLang_DEU) {
+					if (flag == 1) helpCtx = hcDBASE_data_field_name_DEU; else
+					if (flag == 2) helpCtx = hcDBASE_data_field_type_DEU; else
+					if (flag == 3) helpCtx = hcDBASE_data_field_leng_DEU; else
+					if (flag == 4) helpCtx = hcDBASE_data_field_prec_DEU; else
+					if (flag == 5) helpCtx = hcDBASE_data_field_wind_DEU;
+				}
+				
+				w = new THelpWindow(hFile, helpCtx);
+				TProgram::deskTop->insert(w);
+				
+				helpInUse = False;
+			}
+		}
+
 		virtual void
 		handleEvent( TEvent &event )
 		{
 			TWindow::handleEvent( event );
-			clearEvent(event);
+			#define MAX_LEN 64
+			if (event.what == evKeyboard)
+			{
+				if (event.keyDown.keyCode == 283)     // #27 - Escape
+				{
+					clearEvent(event);
+					TObject::destroy(this);
+				}
+				if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
+				{
+					char buffer[MAX_LEN];
+					
+					if ((lb_1->state & sfFocused) != 0) { lb_1->getText(buffer, lb_1->focused, MAX_LEN); } else
+					if ((lb_2->state & sfFocused) != 0) { lb_2->getText(buffer, lb_2->focused, MAX_LEN); } else
+					if ((lb_3->state & sfFocused) != 0) { lb_3->getText(buffer, lb_3->focused, MAX_LEN); } else
+					if ((lb_4->state & sfFocused) != 0) { lb_4->getText(buffer, lb_4->focused, MAX_LEN); }
+					
+					messageBox(buffer,mfInformation|mfOKButton);
+					clearEvent(event);
+					return;
+				}
+			}
+			if (event.message.command == cmHelp)
+			{
+				clearEvent(event);
+				
+				if ((lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); return; } else
+				if ((lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); return; } else
+				if ((lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); return; } else
+				if ((lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); return; }
+				
+				handle_helpView(5);
+				return;
+			}
+			else if (event.message.command == cmDBASE_add_field)
+			{
+				clearEvent(event);
+				messageBox("add field",mfInformation|mfOKButton);
+				return;
+			}
+			else if (event.message.command == cmDBASE_del_field)
+			{
+				clearEvent(event);
+				messageBox("delete field",mfInformation|mfOKButton);
+				return;
+			}
+			else if (event.message.command == cmDBASE_sav_field)
+			{
+				clearEvent(event);
+				messageBox("save table data",mfInformation|mfOKButton);
+				return;
+			}
 		}
 
 	private:
@@ -1307,14 +1547,18 @@ public:
 		TListBox * lb_5 = nullptr;
 		TListBox * lb_6 = nullptr;
 		
+		::std::string fileName;
+		
 		template <typename T1>
 		void createNewFileDialog(::std::string s)
 		{
+			messageBox( newData->inputLineData, mfInformation | mfOKButton );
+			
 			auto  * d = new T1(s);
 			TView * p = TProgram::application->validView(d);
 			if (!p) {
 				::std::string sz;
-				sz = "Error:\nCould not create view.";
+				sz = locale_str( 23 ).c_str();
 				throw PL_Exception_Application( sz.c_str() );
 			}
 			TProgram::deskTop->insert(d);
@@ -1347,14 +1591,23 @@ public:
 			r.grow(-1,-1);
 			insert(new PL_dBaseFrame(r));
 
-			TScrollBar * sb_1 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_2 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_3 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_4 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_5 = standardScrollBar( sbVertical | sbHandleKeyboard );
-			TScrollBar * sb_6 = standardScrollBar( sbVertical | sbHandleKeyboard );
+			int x = 18;
+			
+			TScrollBar * sb_1 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
+			TScrollBar * sb_2 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
+			TScrollBar * sb_3 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
+			TScrollBar * sb_4 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
+			TScrollBar * sb_5 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
+			TScrollBar * sb_6 = new TScrollBar( TRect( x,7, x+1,16 ) );
 
-			int x = 3;
+			insert(sb_1);
+			insert(sb_2);
+			insert(sb_3);
+			insert(sb_4);
+			insert(sb_5);
+			insert(sb_6);
+
+			x = 3;
 
 			auto * lbc_1 = new LB_Collection(5,5);
 			auto * lbc_2 = new LB_Collection(5,5);
@@ -1394,13 +1647,13 @@ public:
 			lbc_6->insert( newStr("ääääüüüü") );
 			lbc_6->insert( newStr("######") );
 			lbc_6->insert( newStr("qwerty") );
-			
-			lb_1 = new TListBox( TRect(x,7,   19, 16), 1, sb_1 ); x += 17;
-			lb_2 = new TListBox( TRect(x,7, x+16, 16), 1, sb_2 ); x += 17;
-			lb_3 = new TListBox( TRect(x,7, x+16, 16), 1, sb_3 ); x += 17;
-			lb_4 = new TListBox( TRect(x,7, x+16, 16), 1, sb_4 ); x += 17;
-			lb_5 = new TListBox( TRect(x,7, x+16, 16), 1, sb_5 ); x += 17;
-			lb_6 = new TListBox( TRect(x,7, x+16, 16), 1, sb_6 );
+
+			lb_1 = new TListBox( TRect(x,7,   18, 16), 1, sb_1 ); x += 17;
+			lb_2 = new TListBox( TRect(x,7, x+15, 16), 1, sb_2 ); x += 17;
+			lb_3 = new TListBox( TRect(x,7, x+15, 16), 1, sb_3 ); x += 17;
+			lb_4 = new TListBox( TRect(x,7, x+15, 16), 1, sb_4 ); x += 17;
+			lb_5 = new TListBox( TRect(x,7, x+15, 16), 1, sb_5 ); x += 17;
+			lb_6 = new TListBox( TRect(x,7, x+15, 16), 1, sb_6 );
 			
 			lb_1->eventMask = evMouseDown | evKeyDown | evCommand;
 
@@ -1414,18 +1667,19 @@ public:
 			
 			x = 3;
 			
-			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_data,   bfNormal )); x += 17;
-			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_query,  bfNormal )); x += 17;
-			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_form,   bfNormal )); x += 17;
-			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_report, bfNormal )); x += 17;
-			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_label,  bfNormal )); x += 17;
-			insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_app,    bfNormal ));
+			insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_data,   bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_query,  bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_form,   bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_report, bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_label,  bfNormal )); x += 17;
+			insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_app,    bfNormal ));
 		}
 	public:
 		PL_dBaseCatalog(::std::string file_name):
 			TWindowInit( &PL_dBaseCatalog::initFrame ),
-			TDialog( TRect( 0,0, 108,18), "dBASE Catalog:"),
-			name("PL_dBaseCatalog") {
+			TDialog( TRect( 0,0, 108,18), locale_str( 26 ).c_str()),
+			name( "PL_dBaseCatalog" ),
+			fileName(file_name) {
 			init();
 		}
 	
@@ -1459,12 +1713,12 @@ public:
 				
 			if (helpInUse == false) {
 				helpInUse = true;
-				helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+				helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
 				hFile     = new THelpFile(*helpStrm);
 				if (!helpStrm) {
 					delete hFile;
 					throw PL_Exception_Application(
-					"Could not open help file" );
+					locale_str( 21 ).c_str());
 				}
 				if (PL_globalHolder.PL_language == PL_appLang_ENG) {
 					if (flag == 1) helpCtx = hcDBASE_list_data_ENG; else
@@ -1530,32 +1784,45 @@ public:
 			}
 			else if (event.message.command == cmDBASE_data) {
 				clearEvent(event);
-				createNewFileDialog< PL_dBaseNewFile >("data");
+				createNewFileDialog< PL_dBaseNewFile >(fileName);
+				return;
 			}
 			else if (event.message.command == cmDBASE_query) {
 				clearEvent(event);
-				messageBox("dbase query",mfInformation|mfOKButton);
-				createNewFileDialog< PL_dBaseNewFile >("query");
+				messageBox(
+					locale_str( 24 ).c_str(),
+					mfInformation | mfOKButton);
+				//createNewFileDialog< PL_dBaseNewFile >("query");
+				return;
 			}
 			else if (event.message.command == cmDBASE_form) {
 				clearEvent(event);
-				messageBox("dbase form",mfInformation|mfOKButton);
-				createNewFileDialog< PL_dBaseNewFile >("form");
+				messageBox(
+					locale_str( 24 ).c_str(),
+					mfInformation | mfOKButton);
+				//createNewFileDialog< PL_dBaseNewFile >("form");
+				return;
 			}
 			else if (event.message.command == cmDBASE_report) {
 				clearEvent(event);
-				messageBox("dbase report",mfInformation|mfOKButton);
-				createNewFileDialog< PL_dBaseNewFile >("report");
+				messageBox(
+					locale_str( 24 ).c_str(),
+					mfInformation | mfOKButton);
+				//createNewFileDialog< PL_dBaseNewFile >("report");
+				return;
 			}
 			else if (event.message.command == cmDBASE_label) {
 				clearEvent(event);
-				messageBox("dbase label",mfInformation|mfOKButton);
-				createNewFileDialog< PL_dBaseNewFile >("label");
+				messageBox(
+					locale_str( 24 ).c_str(),
+					mfInformation | mfOKButton);
+				//createNewFileDialog< PL_dBaseNewFile >("label");
+				return;
 			}
 			else if (event.message.command == cmDBASE_app) {
 				clearEvent(event);
-				messageBox("dbase app",mfInformation|mfOKButton);
 				createNewFileDialog< PL_dBaseNewFile >("application");
+				return;
 			}
 		}
 	private:
@@ -1572,18 +1839,7 @@ public:
 	};
 
 	class TNewProjectDialog: public TDialog {
-	private:
-		// ---------------------------------------------
-		// this structure set/get the components values
-		// of new project dialog items ...
-		// ---------------------------------------------
-		struct DialogData {
-			char   inputLineData[128];
-			ushort radioButtons1Data;
-			ushort radioButtons2Data;
-			ushort checkButtons1Data;
-		} *newData;
-		
+	private:		
 		ushort execDialog( TDialog *d )
 		{
 			TView *p = TProgram::application->validView( d );
@@ -1605,8 +1861,8 @@ public:
 			ushort res = 0;
 			if ((res = execDialog( new TFileDialog(
 				pattern,
-				"Open File",
-				"~N~ame",
+				locale_str( 27 ).c_str(),
+				locale_str( 28 ).c_str(),
 				fdOpenButton,
 				100)) != cmCancel))
 			{
@@ -1636,7 +1892,7 @@ public:
 			
 			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 128);
 			insert(control);
-			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
+			insert( new TLabel  ( TRect(  2,1, 15, 2 ), locale_str( 22 ).c_str(), control));
 			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
 
 			insert( new TRadioButtons( TRect( 3,4, 36,8),
@@ -1656,10 +1912,10 @@ public:
 				new TSItem("gdwarf",
 				new TSItem("binary", 0) )));
 
-			insert( new TButton ( TRect( 38,2, 50, 4 ), "New",    cmNewData,  bfDefault ));
-			insert( new TButton ( TRect( 38,4, 50, 6 ), "~L~oad", cmLoadData, bfNormal  ));
-			insert( new TButton ( TRect( 38,6, 50, 8 ), "Cancel", cmCancel,   bfNormal  ));
-			insert( new TButton ( TRect( 38,9, 50,11 ), "Help",   cmHelp,     bfNormal  ));
+			insert( new TButton ( TRect( 38,2, 50, 4 ), locale_str( 19 ).c_str(), cmNewData,  bfDefault ));
+			insert( new TButton ( TRect( 38,4, 50, 6 ), locale_str( 20 ).c_str(), cmLoadData, bfNormal  ));
+			insert( new TButton ( TRect( 38,6, 50, 8 ), locale_str( 17 ).c_str(), cmCancel,   bfNormal  ));
+			insert( new TButton ( TRect( 38,9, 50,11 ), locale_str( 18 ).c_str(), cmHelp,     bfNormal  ));
 			
 			selectNext(true);
 			
@@ -1680,9 +1936,6 @@ public:
 
 		~TNewProjectDialog()
 		{
-			if (newData != nullptr) {
-				delete newData;
-			}
 		}
 		
 		void
@@ -1697,12 +1950,12 @@ public:
 				
 			if (helpInUse == false) {
 				helpInUse = true;
-				helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+				helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
 				hFile     = new THelpFile(*helpStrm);
 				if (!helpStrm) {
 					delete hFile;
 					throw PL_Exception_Application(
-					"Could not open help file" );
+					locale_str( 21 ).c_str());
 				}
 				if (PL_globalHolder.PL_language == PL_appLang_ENG)
 				{
@@ -1746,9 +1999,12 @@ public:
 			static bool helpInUse = false;
 			
 			TWindow::handleEvent( event );
-			if (event.what != evCommand) {
-				clearEvent(event);
-				return;
+			if (event.what == evKeyboard)
+			{
+				if (event.keyDown.keyCode == 283)     // #27 - Escape
+				{
+					clearEvent(event); TObject::destroy(this);
+				}	clearEvent(event); return;
 			}
 
 			switch (event.message.command)
@@ -1785,7 +2041,7 @@ public:
 //					char* buffer = new char[255];
 					getData(newData);
 					ushort resid     = newData->radioButtons1Data;
-					::std::string sz = "Error:\nCould not create view.";
+					::std::string sz = locale_str( 23 ).c_str();
 					
 					if (resid == 2) {	// dBase
 						auto  * d = new PL_dBaseCatalog( newData->inputLineData );
@@ -1845,7 +2101,7 @@ public:
 	
 	void
 	openHelpWindow() {
-		TView *w = validView( new TFileWindow( "prolog64.hlp" ));
+		TView *w = validView( new TFileWindow( PL_HELPFILE ));
 		if (!w)
 		deskTop->insert(w);
 	}
@@ -1870,12 +2126,12 @@ public:
 			{
 				if (helpInUse == false) {
 					helpInUse = true;
-					helpStrm  = new fpstream("prolog64.hlp", ios::in|ios::binary);
+					helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
 					hFile     = new THelpFile(*helpStrm);
 					if (!helpStrm) {
 						delete hFile;
 						throw PL_Exception_Application(
-						"Could not open help file" );
+						locale_str( 21 ).c_str());
 					}
 					else {
 						w = new THelpWindow(hFile, hcNoContext);
@@ -1889,9 +2145,7 @@ public:
 
 			case cmAppQuit:
 			{
-				if (messageBox(
-				"Did you would really like exit the Application ?\n"
-				"This can take awhile ...",	mfYesButton | mfNoButton ) == 12)
+				if (messageBox( locale_str( 16 ).c_str(), mfYesButton | mfNoButton ) == 12)
 				TObject::destroy(this);
 			}
 			break;
@@ -1963,9 +2217,9 @@ public:
 		r.a.y = r.b.y - 1;
 		return new ::TStatusLine( r,
 			*new ::TStatusDef( 0, 0xFFFF ) +
-			*new ::TStatusItem( "~F1~ Help",  kbF1,  cmHelp       ) +
-			*new ::TStatusItem( "~F3~ Open",  kbF3,  cmNewProject ) +
-			*new ::TStatusItem( "~F10~ Menu", kbF10, cmMenu       ) +
+			*new ::TStatusItem( locale_str( 29 ).c_str(), kbF1,  cmHelp       ) +
+			*new ::TStatusItem( locale_str( 30 ).c_str(), kbF3,  cmNewProject ) +
+			*new ::TStatusItem( locale_str( 31 ).c_str(), kbF10, cmMenu       ) +
 
 			*new ::TStatusItem( 0,  kbAltX,     cmAppQuit) +
 			*new ::TStatusItem( 0,  kbShiftDel, cmCut    ) +
@@ -1981,7 +2235,7 @@ public:
 		TView * p = TProgram::application->validView(d);
 		if (!p) {
 			::std::string sz;
-			sz = "Error:\nCould not create view.";
+			sz = locale_str( 23 ).c_str();
 			throw PL_Exception_Application( sz.c_str() );
 		}
 		TProgram::deskTop->insert(d);
@@ -1994,13 +2248,13 @@ public:
 		TView * p = TProgram::application->validView(d);
 		if (!p) {
 			::std::string sz;
-			sz = "Error:\nCould not create view.";
+			sz = locale_str( 23 ).c_str();
 			throw PL_Exception_Application( sz.c_str() );
 		}
 		TProgram::deskTop->insert(d);
 	}
 	
-	static Boolean isTileable(TView *p, void*)
+	static bool isTileable(TView *p, void*)
 	{
 		if ((p->options & ofTileable) != 0)
 		return true;
@@ -2018,7 +2272,7 @@ public:
 			disableCommand(cmCascade);
 		}
 	}
-	
+
 public:
 	Application(Console& con):
 		::TProgInit(
@@ -2035,10 +2289,14 @@ public:
 		clock = new TClockView(r);
 		clock->growMode = gfGrowLoX | gfGrowHiX;
 		insert(clock);
+		
+		newData = new DialogData;
 	}
 	
 	~Application() {
-		DEBUGSTR("dtor: ~PL_Application ()")
+		if (newData != nullptr) {
+			delete newData;
+		}
 	}
 	
 	void exit(int returnCode = 0)
@@ -2605,7 +2863,8 @@ public:
 			PL_source.seekp(0, ::std::ios::beg );
 			
 		}	else {
-			throw PL_Exception("input file read error",PL_line_row);
+			throw PL_Exception(
+			locale_str( 32 ).c_str(), PL_line_row);
 		}
 		
 		PL_ident = ::std::string("");
@@ -2711,7 +2970,8 @@ public:
 						}
 					END_WHILE
 				}	else {
-					throw PL_Exception_ParserError("nit yet implemented");
+					throw PL_Exception_ParserError(
+					locale_str( 24 ).c_str());
 				}
 			}
 			else if (PL_check_white_spaces())
@@ -2743,7 +3003,9 @@ public:
 		if (PL_lookaheadChar == '/')
 		{
 			if (!(PL_lookaheadChar = PL_getch()))
-			throw PL_Exception("not yet implemented.",PL_line_row);
+				throw PL_Exception(
+				locale_str( 24 ).c_str(),
+				PL_line_row);
 			
 			if (PL_lookaheadChar == '*')
 			{	PL_nestedComment += 1;
@@ -2752,7 +3014,8 @@ public:
 					label_comment2:
 					
 					if (!(PL_lookaheadChar = PL_getch()))
-					throw PL_Exception("unterminated comment",PL_line_row);
+					throw PL_Exception(
+					locale_str( 33 ).c_str(),PL_line_row);
 				
 					if (PL_lookaheadChar == '\n') {
 						PL_line_row += 1;
@@ -2763,7 +3026,8 @@ public:
 					if (PL_lookaheadChar == '/')
 					{
 						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception("unterminated comment",PL_line_row);
+						throw PL_Exception(
+						locale_str( 33 ).c_str(),PL_line_row);
 						
 						if (PL_lookaheadChar == '*') {
 							PL_nestedComment += 1;
@@ -2774,7 +3038,8 @@ public:
 					if (PL_lookaheadChar == '*')
 					{
 						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception("unterminated comment",PL_line_row);
+						throw PL_Exception(
+						locale_str( 33 ).c_str(),PL_line_row);
 					
 						if (  PL_lookaheadChar == '/') {
 						if (++PL_nestedComment < 1)
@@ -2784,7 +3049,9 @@ public:
 				END_WHILE
 			}	else {
 				// todo
-				throw PL_Exception("not yets implemented.",PL_line_row);
+				throw PL_Exception(
+				locale_str( 24 ).c_str(),
+				PL_line_row);
 			}
 		}
 	}
@@ -2900,7 +3167,8 @@ public:
 						}
 					END_WHILE
 				}	else {
-					throw PL_Exception_ParserError("parens error");
+					throw PL_Exception_ParserError(
+					locale_str( 34 ).c_str());
 				}
 			}	else {
 				PL_lookaheadChar =
@@ -2944,7 +3212,7 @@ public:
 			if (PL_nestedComment  > 0)
 				PL_nestedComment -= 1; else
 				throw PL_Exception_ParserError(
-				"comment not terminated.");
+				locale_str( 33 ).c_str());
 			}	else
 			if (PL_lookaheadChar == ';') {
 				result = ';';
@@ -3329,7 +3597,7 @@ public:
 		
 		if (PL_nestedComment > 0) {
 			throw PL_Exception_ParserError(
-			"comment not terminated.",
+			locale_str( 24 ).c_str(),
 			PL_line_row);
 		}	else {
 			STDCOUT
@@ -4177,7 +4445,6 @@ public:
 }	// namespace: prolog
 
 using namespace prolog;
-static uint8_t app_lang = 1;
 void
 init_con_app( Console& con, ::std::string item, int flag)
 {
@@ -4220,7 +4487,7 @@ init_con_app( Console& con, ::std::string item, int flag)
 			txt << "Error:" << ::std::endl
 				<< "common exception occured."
 				<< ::std::endl
-				<< "Would You Exit the Application ?";
+				<< locale_str( 15 );
 
 			ushort res = app->MessageBoxRect(
 			TRect(10,7,60,19),
@@ -4238,27 +4505,28 @@ init_con_app( Console& con, ::std::string item, int flag)
 // ---------------------------------------------------------------------
 // test case entry point ...
 // ---------------------------------------------------------------------
-using namespace prolog;
 int
 main(int argc, char** argv)
 {
+	using namespace prolog;
+
 	::std::vector< ::std::string > iput_file;
 	::std::string                  oput_file;
 	::std::string                  s0;
 	
 	int output   = 0;
-	int app_lang = 1;
 
 	try {
 		setlocale(LC_ALL,"");
-		bindtextdomain ("prolog32", getenv("PWD"));
-		textdomain     ("prolog32");
+		bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
+		textdomain     (locale_str( 0 ).c_str());
 
 		// ----------------------------------------
 		// get command arguments from console ...
 		// -i<input file> -o<output file>
 		// ----------------------------------------
 		if (argc < 2) {
+			app_lang = 2;
 			Win32API win ;
 			Console  con ( win );
 			init_con_app ( con, "", 1 );
@@ -4280,7 +4548,7 @@ main(int argc, char** argv)
 					case 'd': app_lang = 2; break;  // german
 					default :
 						throw PL_Exception_CommandLine(
-						"can not get app language");
+						locale_str( 4 ).c_str());
 					break;
 					}
 				}
@@ -4292,7 +4560,7 @@ main(int argc, char** argv)
 				case 'o':
 					if (output > 0)
 					throw PL_Exception_CommandLine(
-					"only one output supported.");
+					locale_str( 5 ).c_str());
 						
 					s0.erase(0,2);
 
@@ -4301,13 +4569,13 @@ main(int argc, char** argv)
 				break;
 				default:
 					throw PL_Exception_CommandLine(
-					"unknown option.");
+					locale_str( 6 ).c_str());
 				break;
 			}
 			break;
 			default:
 				throw PL_Exception_CommandLine(
-				"unknown option.");
+				locale_str( 6 ).c_str());
 			break;
 			}
 		}
@@ -4316,7 +4584,7 @@ main(int argc, char** argv)
 		// first, check, if user has give output file:
 		// --------------------------------------------
 		if (oput_file.size() < 1)
-		throw PL_Exception_CommandLine("no output file given.");
+		throw PL_Exception_CommandLine(locale_str( 7 ).c_str());
 
 		// --------------------------------------------
 		// then handle each argument file seperatly ...
@@ -4326,7 +4594,7 @@ main(int argc, char** argv)
 			ifstream ifile(item);
 			if (!ifile.is_open()) {
 				stringstream ss;
-				ss << "can not open input file: ";
+				ss << locale_str( 8 );
 				ss << item;
 				throw PL_Exception_CommandLine( ss.str().c_str() );
 			}
@@ -4413,20 +4681,20 @@ main(int argc, char** argv)
 			// any other file extension => fail.
 			// -----------------------------------------------------
 			throw PL_Exception_CommandLine(
-			"could not determine parser on file extension.");
+			locale_str( 9 ).c_str());
 		}
 	}
 	
-	//-- CENTRALOZED EXCEPTION HANDLING -----------------------
+	//-- CENTRALIZED EXCEPTION HANDLING -----------------------
 	
 	// -------------------------------------------
 	// exception, coming from command line error:
 	// -------------------------------------------
 	catch (PL_Exception_CommandLine& e) {
 		STDCOUT
-		<< "Command line Error"
+		<< locale_str( 10 )
 		<< std::endl
-		<< "reason: " << e.what()
+		<< locale_str( 12 ) << e.what()
 		<< std::endl;
 		
 		return 1;
@@ -4437,9 +4705,9 @@ main(int argc, char** argv)
 	catch (PL_Exception_ParserError& e)
 	{
 		STDCOUT
-		<< "parser error in line: " << e.line () << std::endl
-		<< "compiler: FAIL."        << std::endl
-		<< "reason: " << e.what()
+		<< locale_str( 13 ) << e.line () << std::endl
+		<< locale_str( 14 ) << std::endl
+		<< locale_str( 12 ) << e.what()
 		<< std::endl;
 
 		return 1;
@@ -4450,9 +4718,9 @@ main(int argc, char** argv)
 	catch (PL_Exception& e)
 	{
 		STDCOUT
-		<< "line  : " << e.line()
+		<< locale_str( 11 ) << e.line()
 		<< std::endl
-		<< "reason: " << e.what()
+		<< locale_str( 12 ) << e.what()
 		<< std::endl;
 
 		return 1;
@@ -4463,7 +4731,7 @@ main(int argc, char** argv)
 	catch (...)
 	{
 		STDCOUT
-		<< "default exception"
+		<< locale_str( 1 )
 		<< std::endl;
 
 		return 1;

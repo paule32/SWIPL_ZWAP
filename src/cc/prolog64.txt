@@ -1127,6 +1127,31 @@ To modified the application file, press: Enter / Return.
 You can use the UP-, and DOWN-Key to scroll up or down.
 Press Tabulator-Key to change the input type list.
 
+.topic DBASE_data_field_wind_ENG
+ {DEU:DBASE_data_field_wind_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+Table-Field-Editor Window
+
+.topic DBASE_data_field_name_ENG
+ {DEU:DBASE_data_field_name_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+Field-name
+
+.topic DBASE_data_field_type_ENG
+ {DEU:DBASE_data_field_type_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+Field-type
+
+.topic DBASE_data_field_leng_ENG
+ {DEU:DBASE_data_field_leng_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+Field-length
+
+.topic DBASE_data_field_prec_ENG
+ {DEU:DBASE_data_field_prec_DEU} {Content:DBASE_Content_ENG}
+ ════════════════════════════════════════════
+field-precission
+
 ; ---------------------------------------------------
 ; dBase help contexts - german
 ; ---------------------------------------------------
@@ -1211,6 +1236,34 @@ Zum bearbeiten, drücken Sie die Eingabe-Taste (Return / Enter).
 
 Sie können die Auf-, und Ab-Cursor Taste zum navigieren nutzen.
 Drücken Sie die Tabulator-Taste, um in den nächsten Listen-Inhalt zu wechseln.
+
+; ---------------------------------------------------
+; dBase help contexts for new table data - german
+; ---------------------------------------------------
+.topic DBASE_data_field_wind_DEU
+ {DEU:DBASE_data_field_wind_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+Tabellen-Feld-Editor Fenster
+
+.topic DBASE_data_field_name_DEU
+ {ENG:DBASE_data_field_name_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+Feld-Name
+
+.topic DBASE_data_field_type_DEU
+ {ENG:DBASE_data_field_type_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+Feld-Typ
+
+.topic DBASE_data_field_leng_DEU
+ {ENG:DBASE_data_field_leng_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+Feld- Länge
+
+.topic DBASE_data_field_prec_DEU
+ {ENG:DBASE_data_field_prec_ENG} {Inhalt:DBASE_Content_DEU}
+ ════════════════════════════════════════════
+Feld-Präzission
 
 ; Assembler keywords - english
 .topic ASM_Content_ENG

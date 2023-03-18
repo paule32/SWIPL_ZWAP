@@ -9,6 +9,7 @@ g++ -std=c++17 -m64 -mconsole -O2 -DDEBUG			\
 	-I/e/projekte/xbase64-4.1.0/src/include 		\
 	-I/e/projekte/xbase64-4.1.0/build/linux64/include	\
 	-Wno-deprecated 					\
+	-Wno-write-strings					\
 	-o prolog.o -c prolog.cc
 
 g++ -std=c++17 -m64 -mconsole -o prolog64.exe prolog.o dwarf.o -static \
