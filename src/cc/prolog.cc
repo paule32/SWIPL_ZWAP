@@ -184,6 +184,7 @@
 # include <typeinfo>
 # include <cctype>
 # include <iomanip>
+# include <regex>
 
 // ---------------------------------------------------------------------
 // Turbo Vision for C++ ...
@@ -222,6 +223,7 @@
 # define Uses_TMemo
 # define Uses_TStreamable
 # define Uses_TStreamableClass
+# define Uses_TStringCollection
 # define Uses_TEvent
 # define Uses_TDialog
 # define Uses_TMenu
@@ -333,6 +335,53 @@ private:
 		"input file read error",                // 0032
 		"unterminated comment",                 // 0033
 		"parser error",                         // 0034
+		"Applications",                         // 0035
+		"Data",                                 // 0036
+		"Labels",                               // 0037
+		"Forms",                                // 0038
+		"Queries",                              // 0039
+		"Reports",                              // 0040
+		"ASCII Chart",                          // 0041
+		
+		"~F~ile",                               // 0042
+		"~O~pen...",                            // 0043
+		"~S~ave",                               // 0044
+		"~C~hange directory...",                // 0045
+		"E~x~it",                               // 0046
+				
+		"~W~indow",                             // 0047
+		"~M~ove",                               // 0048
+		"~N~ext",                               // 0049
+		"~P~rev",                               // 0050
+		"~C~lose",                              // 0051
+				
+		"~H~elp",                               // 0052
+		"~I~ndex",                              // 0053
+		"~O~nline Help",                        // 0054
+		
+		"~A~bout...",                           // 0055
+		
+		"dBASE new file:",                      // 0056
+		"~T~able name:",                        // 0057
+		"Field name:",                          // 0058
+		"Field type:",                          // 0059
+		"Field length:",                        // 0060
+		"Field prec.:",                         // 0061
+		
+		"Add Field",                            // 0062
+		"Del Field",                            // 0063
+		"Save Table",                           // 0064
+		"Active Focus",                         // 0065
+		"Field already exists",                 // 0066
+		"Empty fields not allowed",             // 0067
+		
+		"Empty Field name not allowed",         // 0068
+		"Empty Field type not allowed",         // 0069
+		"Empty Field length not allowed",       // 0070
+		"Empty Field prec. not allowed",        // 0071
+		
+		"data type unknown",                    // 0072
+
 		"locale string"
 	};
 public:
@@ -390,15 +439,87 @@ private:
 		"Eingabe-Datei: Lese-Fehler.",               // 0032
 		"Kommentar wurde nicht abgeschlossen",       // 0033
 		"Parser-Fehler",                             // 0034
+		"Anwendungen",                               // 0035
+		"Tabelle",                                   // 0036
+		"Etiketten",                                 // 0037
+		"Formulare",                                 // 0038
+		"Abfragen",                                  // 0039
+		"Reporte",                                   // 0040
+		"ASCII Tabelle",                             // 0041
+		
+		"~D~atei",                                   // 0042
+		"~Ö~ffnen...",                               // 0043
+		"~S~peichern",                               // 0044
+		"~V~erz. wechseln...",                       // 0045
+		"Beenden",                                   // 0046
+				
+		"~F~enster",                                 // 0047
+		"~V~erschieben",                             // 0048
+		"~N~ächstes",                                // 0049
+		"Vorhergehendes",                            // 0050
+		"~S~chließen",                               // 0051
+				
+		"~H~ilfe",                                   // 0052
+		"~I~nhalt",                                  // 0053
+		"~O~nline Hilfe",                            // 0054
+		
+		"~Ü~ber...",                                 // 0055
+		
+		"dBASE neue Tabelle:",                       // 0056
+		"~T~ablle-Name:",                            // 0057
+		"Feld-Name:",                                // 0058
+		"Feld-Typ:",                                 // 0059
+		"Feld-Länge:",                               // 0060
+		"Feld-Auflö.:",                              // 0061
+
+		"Hinzufügen",                                // 0062
+		"Löschen",                                   // 0063
+		"Speichern",                                 // 0064
+		"Liste fokusiert",                           // 0065
+		"Feld existiert bereits",                    // 0066
+		"Feld darf nicht leer sein",                 // 0067
+
+		"Field-Name darf nicht leer sein",           // 0068
+		"Field-Typ  darf nicht leer sein",           // 0069
+		"Field-Länge darf nicht leer sein",          // 0070
+		"Field-Prec. darf nicht leer sein",          // 0071
+		
+		"Datentyp unbekannt.",                       // 0072
+		
 		"locale zeichenkette"
 	};
+
 public:
 	::std::string
 	message(int32_t which) {
 		::std::stringstream ss;
+		::std::string r;
+
 		ss  << deu_locale.at( which )
 			<< ::std::endl;
-		return ss.str();
+			
+		ss.str().erase(
+		ss.str().size()-1,1);
+
+		// ----------------------------------
+		// replace german umlauts ...
+		// ----------------------------------
+		for (int i  = 0; i < ss.str().length()-1; ++i)
+		{
+			int ch  = ss.str().c_str()[i];
+			
+			if (ch == 'Ä') { r += 0x8E; } else
+			if (ch == 'Ü') { r += 0x9A; } else
+			if (ch == 'Ö') { r += 0x99; } else
+			
+			if (ch == 'ü') { r += 0x81; } else
+			if (ch == 'ä') { r += 0x84; } else
+			if (ch == 'ö') { r += 0x94; } else
+			
+			if (ch == 'ß') { r += 0xE1; } else
+			
+			r += ch;
+		}	return r;
 	}
 	locale_deu() {}
 };
@@ -428,6 +549,42 @@ uint32_t PL_line_col = 1;   // ...       column #
 
 # define TOK_IDENT 1000
 # define TOK_WHITE 1001
+
+// ---------------------------------------------------------------------
+// helper tool's:
+// ---------------------------------------------------------------------
+// trim from start (in place)
+// ---------------------------------------------------------------------
+static inline void ltrim(std::string &s) {
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	}));
+}
+
+// ---------------------------------------------------------------------
+// trim from end (in place)
+// ---------------------------------------------------------------------
+static inline void rtrim(std::string &s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	}).base(), s.end());
+}
+
+// ---------------------------------------------------------------------
+// trim from both ends (in place)
+// ---------------------------------------------------------------------
+static inline void trim(std::string &s) {
+	rtrim(s);
+	ltrim(s);
+}
+
+// ---------------------------------------------------------------------
+// trim from both ends (copying)
+// ---------------------------------------------------------------------
+static inline std::string trim_copy(std::string s) {
+	trim(s);
+	return s;
+}
 
 // ---------------------------------------------------------------------
 // some mark-up styles, and code writing shortner ...
@@ -993,7 +1150,7 @@ public:
 	public:
 		TAsciiChart():
 			TWindowInit( &TAsciiChart::initFrame ),
-			TWindow(TRect(0, 0, 34, 12), "ASCII Chart", wnNoNumber),
+			TWindow(TRect(0, 0, 34, 12), locale_str( 41 ), wnNoNumber),
 			name("TAsciiChart")
 		{
 			TView *control;
@@ -1115,11 +1272,13 @@ public:
 			if (!fileToView ) {
 				char buf[256] = {0};
 				ostrstream os( buf, sizeof( buf )-1 );
-				os << "Failed to open file '" << fName << "'." << ends;
+				os  << "Failed to open file '"
+					<< fName
+					<< "'."
+					<< ends;
 				throw PL_Exception_Application( buf );
-				isValid = false;
 			}	else {
-				char *line = (char *) malloc(maxLineLength);
+				char * line     = new char[ maxLineLength ];
 				size_t lineSize = maxLineLength;
 				char c;
 				while(
@@ -1141,7 +1300,7 @@ public:
 					fileLines->insert( newStr( line ) );
 				}
 				isValid = True;
-				::free(line);
+				delete line;
 			}
 			limit.y = fileLines->getCount();
 		}
@@ -1276,12 +1435,12 @@ public:
 			ushort x = 8;
 			ushort y = 12;
 				
-			_writeStr(x, 1, "Data",         c); x += 16;
-			_writeStr(x, 1, "Queries",      c); x += 17;
-			_writeStr(x, 1, "Forms",        c); x += 16;
-			_writeStr(x, 1, "Reports",      c); x += 17;
-			_writeStr(x, 1, "Labels",       c); x += 15;
-			_writeStr(x, 1, "Applications", c);
+			_writeStr(x, 1, locale_str( 36 ).c_str(), c); x += 16;
+			_writeStr(x, 1, locale_str( 39 ).c_str(), c); x += 17;
+			_writeStr(x, 1, locale_str( 38 ).c_str(), c); x += 16;
+			_writeStr(x, 1, locale_str( 40 ).c_str(), c); x += 17;
+			_writeStr(x, 1, locale_str( 37 ).c_str(), c); x += 15;
+			_writeStr(x, 1, locale_str( 35 ).c_str(), c);
 			
 			c = getColor(0x0310);
 			x = 1;
@@ -1340,13 +1499,38 @@ public:
 		}
 	};
 
+	class LB_Collection: public TCollection {
+	public:
+		LB_Collection(short lim, short delta):
+			TCollection(lim, delta)
+			{}
+		virtual void  freeItem(void *p) {
+			delete[] (char *) p;
+		}
+	private:
+		virtual void *readItem( ipstream& ) { return 0; }
+		virtual void writeItem( void *, opstream& ) {}
+	};
+	
 	class PL_dBaseNewFile: public TDialog {
 	private:
-		TListBox * lb_1 = nullptr;
-		TListBox * lb_2 = nullptr;
-		TListBox * lb_3 = nullptr;
-		TListBox * lb_4 = nullptr;
+		TListBox      * lb_1         = nullptr;
+		TListBox      * lb_2         = nullptr;
+		TListBox      * lb_3         = nullptr;
+		TListBox      * lb_4         = nullptr;
 		
+		TInputLine    * table_name   = nullptr;
+		
+		TInputLine    * field_name   = nullptr;
+		TInputLine    * field_type   = nullptr;
+		TInputLine    * field_length = nullptr;
+		TInputLine    * field_prec   = nullptr;
+		
+		::std::vector< ::std::string > vec_1;
+		::std::vector< ::std::string > vec_2;
+		::std::vector< ::std::string > vec_3;
+		::std::vector< ::std::string > vec_4;
+
 		void init()
 		{
 			flags &= ~(wfGrow | wfZoom);
@@ -1357,18 +1541,50 @@ public:
 			options |= ofCentered;
 			options |= ofSelectable;
 
-			TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 128);
-			insert(control);
-			insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~T~able name:", control));
-			insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
+			table_name = new TInputLine( TRect( 2,2, 34,3), 64);
+			insert(table_name);
+			insert( new TLabel  ( TRect(  2,1, 15, 2 ), locale_str( 57 ).c_str(), table_name));
+			insert( new THistory( TRect( 34,2, 37, 3 ), table_name, 10));
 			
 			int x =  2;
-			int y = 15;
+			int y = 17;
 			
-			TScrollBar * sb_1 = new TScrollBar( TRect( x,5, x+1,y ) ); x += 24;
-			TScrollBar * sb_2 = new TScrollBar( TRect( x,5, x+1,y ) ); x += 26;
-			TScrollBar * sb_3 = new TScrollBar( TRect( x,5, x+1,y ) ); x += 26;
-			TScrollBar * sb_4 = new TScrollBar( TRect( x,5, x+1,y ) );
+			// field name
+			field_name = new TInputLine( TRect( 2,5, 22,6), 64);
+			insert(field_name);
+			insert( new TLabel  ( TRect(  x,4, 15, 5 ), locale_str( 58 ).c_str(), field_name));
+			insert( new THistory( TRect( 22,5, 24, 6 ), field_name, 10));
+			
+			x += 24;
+			
+			// field type
+			field_type = new TInputLine( TRect( x, 5, x+24,6), 64);
+			insert(field_type);
+			insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), locale_str( 59 ).c_str(), field_type));
+			insert( new THistory( TRect( x+22,5, x + 24, 6 ), field_type, 10));
+			
+			x += 26;
+			
+			// field length
+			field_length = new TInputLine( TRect( x, 5, x+24,6), 64);
+			insert(field_length);
+			insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), locale_str( 60 ).c_str(), field_length));
+			insert( new THistory( TRect( x+22,5, x + 24, 6 ), field_length, 10));
+			
+			x += 26;
+			
+			// field prec.
+			field_prec = new TInputLine( TRect( x, 5, x+24,6), 64);
+			insert(field_prec);
+			insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), locale_str( 61 ).c_str(), field_prec));
+			insert( new THistory( TRect( x+22,5, x + 24, 6 ), field_prec, 10));
+
+			x = 2;
+			
+			TScrollBar * sb_1 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 24;
+			TScrollBar * sb_2 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 26;
+			TScrollBar * sb_3 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 26;
+			TScrollBar * sb_4 = new TScrollBar( TRect( x,7, x+1,y ) );
 			
 			insert( sb_1 );
 			insert( sb_2 );
@@ -1376,34 +1592,34 @@ public:
 			insert( sb_4 );
 
 			x =  3;
-			y = 15;
+			y = 17;
 
-			lb_1 = new TListBox( TRect(x,5,     24, y ), 1, sb_1 ); x += 24;
-			lb_2 = new TListBox( TRect(x,5, x + 23, y ), 1, sb_2 ); x += 26;
-			lb_3 = new TListBox( TRect(x,5, x + 23, y ), 1, sb_3 ); x += 26;
-			lb_4 = new TListBox( TRect(x,5, x + 23, y ), 1, sb_4 );
+			lb_1 = new TListBox( TRect(x,7,     24, y ), 1, sb_1 ); x += 24;
+			lb_2 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_2 ); x += 26;
+			lb_3 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_3 ); x += 26;
+			lb_4 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_4 );
 
 			insert( lb_1 );
 			insert( lb_2 );
 			insert( lb_3 );
 			insert( lb_4 );
 			
-			x = 4;
+			x = 2;
 			
-			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Name"  , lb_1 )); x += 24;
-			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Type"  , lb_2 )); x += 26;
-			insert( new TLabel( TRect(x,4, x + 20,5 ), "Field Length", lb_3 )); x += 26;
-			insert( new TLabel( TRect(x,4, x + 20,5 ), "Index Name"  , lb_4 ));
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_1 )); x += 24;
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_2 )); x += 26;
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_3 )); x += 26;
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_4 ));
 
 			
-			insert( new TButton ( TRect( 40,2, 55,4 ), "Add Field" , cmDBASE_add_field, bfDefault ));
-			insert( new TButton ( TRect( 58,2, 73,4 ), "Del Field" , cmDBASE_del_field, bfNormal  ));
-			insert( new TButton ( TRect( 76,2, 91,4 ), "Save Table", cmDBASE_sav_field, bfNormal  ));
+			insert( new TButton ( TRect( 40,2, 55,4 ), locale_str( 62 ).c_str(), cmDBASE_add_field, bfDefault ));
+			insert( new TButton ( TRect( 58,2, 73,4 ), locale_str( 63 ).c_str(), cmDBASE_del_field, bfNormal  ));
+			insert( new TButton ( TRect( 76,2, 91,4 ), locale_str( 64 ).c_str(), cmDBASE_sav_field, bfNormal  ));
 		}
 	public:
 		PL_dBaseNewFile(::std::string file_name):
 			TWindowInit( &PL_dBaseNewFile::initFrame ),
-			TDialog( TRect( 0,0, 108,18), "dBASE new file:"),
+			TDialog( TRect( 0,0, 108,18), locale_str( 56 ).c_str()),
 			name("PL_dBaseNewFile") {
 			init();
 		}
@@ -1424,6 +1640,11 @@ public:
 		
 		~PL_dBaseNewFile()
 		{
+			/*
+			TObject::destroy(field_name);
+			TObject::destroy(field_type);
+			TObject::destroy(field_length);
+			TObject::destroy(field_prec);*/
 		}
 		
 		void
@@ -1478,6 +1699,7 @@ public:
 				{
 					clearEvent(event);
 					TObject::destroy(this);
+					return;
 				}
 				if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
 				{
@@ -1508,7 +1730,69 @@ public:
 			else if (event.message.command == cmDBASE_add_field)
 			{
 				clearEvent(event);
-				messageBox("add field",mfInformation|mfOKButton);
+				
+				char buffer_tabl[64];
+				
+				char buffer_name[64];
+				char buffer_type[64];
+				char buffer_leng[64];
+				char buffer_prec[64];
+				
+				table_name  ->getData( buffer_tabl );
+				
+				field_name  ->getData( buffer_name );
+				field_type  ->getData( buffer_type );
+				field_length->getData( buffer_leng );
+				field_prec  ->getData( buffer_prec );
+
+				::std::string s1 = trim_copy( buffer_name );
+				::std::string s2 = trim_copy( buffer_type );
+				::std::string s3 = trim_copy( buffer_leng );
+				::std::string s4 = trim_copy( buffer_prec );
+				
+				if (s1.length() < 1) { messageBox( locale_str( 68 ), mfInformation | mfOKButton ); return; }
+				if (s2.length() < 1) { messageBox( locale_str( 69 ), mfInformation | mfOKButton ); return; }
+				if (s3.length() < 1) { messageBox( locale_str( 70 ), mfInformation | mfOKButton ); return; }
+				if (s4.length() < 1) { messageBox( locale_str( 71 ), mfInformation | mfOKButton ); return; }
+
+				for (auto &item : vec_1 ) {
+					if (strcmp(item.c_str(),buffer_name) == 0) {
+						messageBox( locale_str( 66 ), mfInformation | mfOKButton );
+						return;
+					}
+				}
+				
+				// ---------------------------------------------
+				// get field type value:
+				// ---------------------------------------------
+				for (int x = 0; x  < s2.size(); ++x)
+				s2.c_str()[ x ] := tolower( s2.c_str()[ x ] );
+			
+				if (strcmp(s2.c_str(), "integer") == 0) { } else
+				if (strcmp(s2.c_str(), "text"   ) == 0) { } else
+				
+				throw PL_Exception_Application( locale_str( 72 ) );
+			
+				vec_1.push_back( s1 );
+				vec_2.push_back( s2 );
+				vec_3.push_back( s3 );
+				vec_4.push_back( s4 );
+				
+				LB_Collection * sc_1 = new LB_Collection( 100, 10 );
+				LB_Collection * sc_2 = new LB_Collection( 100, 10 );
+				LB_Collection * sc_3 = new LB_Collection( 100, 10 );
+				LB_Collection * sc_4 = new LB_Collection( 100, 10 );
+				
+				for (auto &item : vec_1) sc_1->insert( newStr( item.c_str() ) );
+				for (auto &item : vec_2) sc_2->insert( newStr( item.c_str() ) );
+				for (auto &item : vec_3) sc_3->insert( newStr( item.c_str() ) );
+				for (auto &item : vec_4) sc_4->insert( newStr( item.c_str() ) );
+				
+				lb_1->newList( sc_1 );
+				lb_2->newList( sc_2 );
+				lb_3->newList( sc_3 );
+				lb_4->newList( sc_4 );
+				
 				return;
 			}
 			else if (event.message.command == cmDBASE_del_field)
@@ -1563,19 +1847,6 @@ public:
 			}
 			TProgram::deskTop->insert(d);
 		}
-		
-		class LB_Collection: public TCollection {
-		public:
-			LB_Collection(short lim, short delta):
-				TCollection(lim, delta)
-				{}
-			virtual void  freeItem(void *p) {
-				delete[] (char *) p;
-			}
-		private:
-			virtual void *readItem( ipstream& ) { return 0; }
-			virtual void writeItem( void *, opstream& ) {}
-		};
 		
 		void init()
 		{
@@ -1778,6 +2049,7 @@ public:
 				if ((lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); } else
 				if ((lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); } else
 				if ((lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); } else
+				
 				if ((lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); } else
 				if ((lb_5->state & sfFocused) != 0) { handle_helpView( 5 ); } else
 				if ((lb_6->state & sfFocused) != 0) { handle_helpView( 6 ); }
@@ -1824,6 +2096,7 @@ public:
 				createNewFileDialog< PL_dBaseNewFile >("application");
 				return;
 			}
+			clearEvent( event );
 		}
 	private:
 		virtual const char *streamableName() const
@@ -1875,7 +2148,7 @@ public:
 	public:
 		TNewProjectDialog():
 			TWindowInit( &TNewProjectDialog::initFrame ),
-			TDialog( TRect( 0,0, 52,13), "New Project"),
+			TDialog( TRect( 0,0, 55,13), "New Project"),
 			name("TNewProjectDialog") {
 
 			flags &= ~(wfGrow | wfZoom);
@@ -1911,11 +2184,11 @@ public:
 			insert( new TCheckBoxes( TRect( 24,9, 36,12 ),
 				new TSItem("gdwarf",
 				new TSItem("binary", 0) )));
-
-			insert( new TButton ( TRect( 38,2, 50, 4 ), locale_str( 19 ).c_str(), cmNewData,  bfDefault ));
-			insert( new TButton ( TRect( 38,4, 50, 6 ), locale_str( 20 ).c_str(), cmLoadData, bfNormal  ));
-			insert( new TButton ( TRect( 38,6, 50, 8 ), locale_str( 17 ).c_str(), cmCancel,   bfNormal  ));
-			insert( new TButton ( TRect( 38,9, 50,11 ), locale_str( 18 ).c_str(), cmHelp,     bfNormal  ));
+			
+			insert( new TButton ( TRect( 38,2, 52, 4 ), locale_str( 19 ).c_str(), cmNewData,  bfDefault ));
+			insert( new TButton ( TRect( 38,4, 52, 6 ), locale_str( 20 ).c_str(), cmLoadData, bfNormal  ));
+			insert( new TButton ( TRect( 38,6, 52, 8 ), locale_str( 17 ).c_str(), cmCancel,   bfNormal  ));
+			insert( new TButton ( TRect( 38,9, 52,11 ), locale_str( 18 ).c_str(), cmHelp,     bfNormal  ));
 			
 			selectNext(true);
 			
@@ -2186,26 +2459,26 @@ public:
 		//{
 			return new ::TMenuBar(r,
 			*new ::TSubMenu( "=", hcNoContext) +
-				*new TMenuItem( "ASCII Chart", cmAsciiTableCmd, kbNoKey, hcNoContext ) +
+				*new TMenuItem( locale_str( 41 ), cmAsciiTableCmd, kbNoKey, hcNoContext ) +
 
-			*new ::TSubMenu( "~F~ile", hcNoContext) +
-				*new TMenuItem( "~O~pen...", cmNewProject, kbF3, hcAsciiTable, "F3" ) +
-				*new TMenuItem( "~S~ave", 101, kbF2, hcNoContext, "F2" ) +
-				newLine() +
-				*new TMenuItem( "~C~hange directory...", 102, kbNoKey, hcNoContext ) +
-				*new TMenuItem( "E~x~it", cmAppQuit, kbAltX, hcNoContext, "Alt-X" ) +
+			*new ::TSubMenu( locale_str( 42 ), hcNoContext) +
+				*new TMenuItem( locale_str( 43 ), cmNewProject, kbF3, hcAsciiTable, "F3" )        +
+				*new TMenuItem( locale_str( 44 ), 101,          kbF2, hcNoContext,  "F2" )        +
+				newLine()                                                                         +
+				*new TMenuItem( locale_str( 45 ), 102,      kbNoKey, hcNoContext )                +
+				*new TMenuItem( locale_str( 46 ), cmAppQuit, kbAltX, hcNoContext,   "Alt-X" )     +
 				
-			*new TSubMenu( "~W~indow", hcNoContext ) +
-				*new TMenuItem( "~M~ove", cmResize, kbCtrlF5, hcNoContext, "Cntl-F5") +
-				*new TMenuItem( "~N~ext", cmNext, kbF6, hcNoContext, "F6") +
-				*new TMenuItem( "~P~rev", cmPrev, kbShiftF6, hcNoContext, "Shift-F6") +
-				*new TMenuItem( "~C~lose", cmClose, kbAltF3, hcNoContext, "Alt-F3") +
+			*new TSubMenu( locale_str( 47 ), hcNoContext )                                        +
+				*new TMenuItem( locale_str( 48 ), cmResize, kbCtrlF5,  hcNoContext, "Cntl-F5")    +
+				*new TMenuItem( locale_str( 49 ), cmNext,   kbF6,      hcNoContext, "F6")         +
+				*new TMenuItem( locale_str( 50 ), cmPrev,   kbShiftF6, hcNoContext, "Shift-F6")   +
+				*new TMenuItem( locale_str( 51 ), cmClose,  kbAltF3,   hcNoContext, "Alt-F3")     +
 				
-			*new TSubMenu( "~H~elp", hcNoContext ) +
-				*new TMenuItem( "~I~ndex", cmHelpIndex, kbCtrlF5, hcNoContext, "Cntl-F5") +
-				*new TMenuItem( "~O~nline Help", cmHelpOnline, kbF6, hcNoContext, "F6") +
-				newLine() +
-				*new TMenuItem( "~A~bout...", cmAboutBox, kbAltF1, hcNoContext, "F1" ));
+			*new TSubMenu( locale_str( 52 ), hcNoContext )                                        +
+				*new TMenuItem( locale_str( 53 ), cmHelpIndex,  kbCtrlF5, hcNoContext, "Cntl-F5") +
+				*new TMenuItem( locale_str( 54 ), cmHelpOnline, kbF6,     hcNoContext, "F6")      +
+				newLine()                                                                         +
+				*new TMenuItem( locale_str( 55 ), cmAboutBox,   kbAltF1,  hcNoContext, "F1" ));
 		//	0
 		//};
 		//return new TMultiMenu( r, M );
