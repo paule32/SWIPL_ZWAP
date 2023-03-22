@@ -179,6 +179,9 @@
 # include <vector>
 # include <algorithm>
 # include <iterator>
+# include <ctime>
+# include <cerrno>
+# include <cstring>
 # include <csignal>
 # include <type_traits>
 # include <typeinfo>
@@ -290,6 +293,7 @@ class Html;
 class Ftp;
 
 class PL_Exception_Application;
+class PL_Exception_Windows;
 
 // ---------------------------------------------------------------------
 // locale string's (english):
@@ -381,6 +385,28 @@ private:
 		"Empty Field prec. not allowed",        // 0071
 		
 		"data type unknown",                    // 0072
+		"Error: ",                              // 0073
+		"common exception occured.",            // 0074
+		"comment not terminated.",              // 0075
+		"unknown keyword found.",               // 0076
+		"identifier as keywords not allowed.",  // 0077
+		"semicolon expected",                   // 0078
+		"New Project",                          // 0079
+		"Failed to open file '",                // 0080
+		
+		" Decimal: ",                           // 0081
+		"no table name available",              // 0082
+		"can't create data base file",          // 0083
+		
+		"Windows System Error:",                // 0084
+		"Database Systen Error:",               // 0085
+		"database information writen",          // 0086
+		"can not get information for data "
+		"file",                                 // 0087
+		"given file is a directory, not a"
+		"database file",                        // 0088
+		"a file with this name already exists\n"
+		"would you override it ?",              // 0089
 
 		"locale string"
 	};
@@ -485,6 +511,29 @@ private:
 		"Field-Prec. darf nicht leer sein",          // 0071
 		
 		"Datentyp unbekannt.",                       // 0072
+		"Fehler: ",                                  // 0073
+		"Allgemeine Ausnahme aufgetretten",          // 0074
+		"Kommentar wurde nicht abgeschlossen",       // 0075
+		"Anweisung ist nicht gültig.",               // 0076
+		"Kommandozeichenfolge ist ein reserviertes "
+		"Schlüsselwort",                             // 0077
+		"Semikolon erwartet",                        // 0078
+		"Neues Projekt",                             // 0079
+		"Datei kann nicht geöffnet werden: '",       // 0080
+		
+		" Dezimal: ",                                // 0081
+		"kein Tabellen-Name vergeben",               // 0082
+		"kann Datentabelle nicht anlegen",           // 0083
+		
+		"Windows System Fehler:",                    // 0084
+		"Datenbank System Fehler:",                  // 0085
+		"Tabellen-Informationen geschrieben",        // 0086
+		"Datei-Informationen können nicht "
+		"abgerufen werden",                          // 0087
+		"Datei-Name ist ein Verzeichnis, und "
+		"keine Datenbank-Datei",                     // 0088
+		"Daten-Datei existiert bereits\n"
+		"Soll diese überschrieben werden ?",         // 0089
 		
 		"locale zeichenkette"
 	};
@@ -675,29 +724,10 @@ class PL_Exception : public std::exception
 	const uint32_t   _line_col;
 
 public:
-	PL_Exception( ::std::string& msg, uint32_t line):
+	template <typename T1>
+	PL_Exception( T1 msg, uint32_t line = 1):
 		_message( msg ),
 		_line_row(line),
-		_line_col(PL_line_col)
-		{}
-	PL_Exception( ::std::string msg, uint32_t line):
-		_message( msg ),
-		_line_row(line),
-		_line_col(PL_line_col)
-		{}
-	PL_Exception( ::std::string& msg):
-		_message( msg ),
-		_line_row(1),
-		_line_col(1)
-		{}
-	PL_Exception(const char* msg, uint32_t line):
-		_message( ::std::string( msg ) ),
-		_line_row(line),
-		_line_col(PL_line_col)
-		{}
-	PL_Exception(const char* msg):
-		_message( ::std::string( msg ) ),
-		_line_row(PL_line_row),
 		_line_col(PL_line_col)
 		{}
 	PL_Exception():
@@ -732,6 +762,8 @@ public:
 class PL_Exception_CommandLine: public PL_Exception { using PL_Exception::PL_Exception; };
 class PL_Exception_ParserError: public PL_Exception { using PL_Exception::PL_Exception; };
 class PL_Exception_Application: public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_Windows    : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_DataBase   : public PL_Exception { using PL_Exception::PL_Exception; };
 
 // ---------------------------------------------------------------------
 // DWARF debugging class ...
@@ -778,7 +810,7 @@ public:
 				<< ::std::string( locale_str( 3 ) )
 				<< ::std::string(file_name)
 				<< ::std::endl
-				<< ::std::string("Error: ")
+				<< ::std::string( locale_str( 73 ).c_str() )
 				<< dwarf_errmsg_by_number(errcode);
 			}	else {
 				error_buffer
@@ -861,6 +893,15 @@ static struct DialogData {
 	ushort radioButtons2Data;
 	ushort checkButtons1Data;
 } *newData;
+
+// ---------------------------------------------------------------------
+// database stuff ...
+// ---------------------------------------------------------------------
+::xb::xbXBase * xdbf_data_class = nullptr;
+::xb::xbDbf   * xdbf_data_file  = nullptr;
+
+::std::string   xdbf_data_table;
+::std::string   xdbf_data_directory;
 
 // ---------------------------------------------------------------------
 // the main console application class ...
@@ -1109,9 +1150,9 @@ public:
 			ostrstream  statusStr( str, sizeof str );
 
 			statusStr
-			<< "  Char: "     << (char ) ((asciiChar == 0) ? 0x20 : asciiChar)
-			<< " Decimal: "   << setw(3) << (int) asciiChar
-			<< " Hex " << hex << setiosflags(ios::uppercase)
+			<< "  Char: "       << (char ) ((asciiChar == 0) ? 0x20 : asciiChar)
+			<< locale_str( 81 ) << setw(3) << (int) asciiChar
+			<< " Hex " << hex   << setiosflags(ios::uppercase)
 			<< setw(2) << (int) asciiChar << "     " << ends;
 
 			buf.moveStr(0, str , color);
@@ -1272,7 +1313,7 @@ public:
 			if (!fileToView ) {
 				char buf[256] = {0};
 				ostrstream os( buf, sizeof( buf )-1 );
-				os  << "Failed to open file '"
+				os  << locale_str( 80 ).c_str()
 					<< fName
 					<< "'."
 					<< ends;
@@ -1434,10 +1475,11 @@ public:
 			ushort c = 0x0370;
 			ushort x = 8;
 			ushort y = 12;
-				
+
 			_writeStr(x, 1, locale_str( 36 ).c_str(), c); x += 16;
 			_writeStr(x, 1, locale_str( 39 ).c_str(), c); x += 17;
 			_writeStr(x, 1, locale_str( 38 ).c_str(), c); x += 16;
+
 			_writeStr(x, 1, locale_str( 40 ).c_str(), c); x += 17;
 			_writeStr(x, 1, locale_str( 37 ).c_str(), c); x += 15;
 			_writeStr(x, 1, locale_str( 35 ).c_str(), c);
@@ -1514,6 +1556,16 @@ public:
 	
 	class PL_dBaseNewFile: public TDialog {
 	private:
+		LB_Collection * sc_1         = nullptr;
+		LB_Collection * sc_2         = nullptr;
+		LB_Collection * sc_3         = nullptr;
+		LB_Collection * sc_4         = nullptr;
+		
+		TScrollBar    * sb_1         = nullptr;
+		TScrollBar    * sb_2         = nullptr;
+		TScrollBar    * sb_3         = nullptr;
+		TScrollBar    * sb_4         = nullptr;
+		
 		TListBox      * lb_1         = nullptr;
 		TListBox      * lb_2         = nullptr;
 		TListBox      * lb_3         = nullptr;
@@ -1530,6 +1582,8 @@ public:
 		::std::vector< ::std::string > vec_2;
 		::std::vector< ::std::string > vec_3;
 		::std::vector< ::std::string > vec_4;
+		
+		::std::string tableName;
 
 		void init()
 		{
@@ -1581,10 +1635,10 @@ public:
 
 			x = 2;
 			
-			TScrollBar * sb_1 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 24;
-			TScrollBar * sb_2 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 26;
-			TScrollBar * sb_3 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 26;
-			TScrollBar * sb_4 = new TScrollBar( TRect( x,7, x+1,y ) );
+			sb_1 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 24;
+			sb_2 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 26;
+			sb_3 = new TScrollBar( TRect( x,7, x+1,y ) ); x += 26;
+			sb_4 = new TScrollBar( TRect( x,7, x+1,y ) );
 			
 			insert( sb_1 );
 			insert( sb_2 );
@@ -1640,11 +1694,7 @@ public:
 		
 		~PL_dBaseNewFile()
 		{
-			/*
-			TObject::destroy(field_name);
-			TObject::destroy(field_type);
-			TObject::destroy(field_length);
-			TObject::destroy(field_prec);*/
+
 		}
 		
 		void
@@ -1727,19 +1777,18 @@ public:
 				handle_helpView(5);
 				return;
 			}
+			// -------------------
+			// add new field:
+			// -------------------
 			else if (event.message.command == cmDBASE_add_field)
 			{
 				clearEvent(event);
-				
-				char buffer_tabl[64];
 				
 				char buffer_name[64];
 				char buffer_type[64];
 				char buffer_leng[64];
 				char buffer_prec[64];
-				
-				table_name  ->getData( buffer_tabl );
-				
+			
 				field_name  ->getData( buffer_name );
 				field_type  ->getData( buffer_type );
 				field_length->getData( buffer_leng );
@@ -1755,33 +1804,81 @@ public:
 				if (s3.length() < 1) { messageBox( locale_str( 70 ), mfInformation | mfOKButton ); return; }
 				if (s4.length() < 1) { messageBox( locale_str( 71 ), mfInformation | mfOKButton ); return; }
 
-				for (auto &item : vec_1 ) {
-					if (strcmp(item.c_str(),buffer_name) == 0) {
-						messageBox( locale_str( 66 ), mfInformation | mfOKButton );
-						return;
-					}
-				}
-				
 				// ---------------------------------------------
 				// get field type value:
 				// ---------------------------------------------
-				for (int x = 0; x  < s2.size(); ++x)
-				s2.c_str()[ x ] := tolower( s2.c_str()[ x ] );
-			
-				if (strcmp(s2.c_str(), "integer") == 0) { } else
-				if (strcmp(s2.c_str(), "text"   ) == 0) { } else
+				try {
+					for (auto &item : vec_1 ) {
+						if (strcmp(item.c_str(),buffer_name) == 0) {
+							throw PL_Exception_Application(
+							locale_str( 66 ).c_str() );
+						}
+					}
+
+					::std::string s5;
+					s5 = "";
+					for (int x = 0; x  < s2.size(); ++x)
+					s5 += tolower( s2.at( x ) );
 				
-				throw PL_Exception_Application( locale_str( 72 ) );
+					if (strcmp( s5.c_str(), "numeric" ) == 0) { } else
+					if (strcmp( s5.c_str(), "char"    ) == 0) { } else
+					if (strcmp( s5.c_str(), "date"    ) == 0) { } else
+					if (strcmp( s5.c_str(), "logical" ) == 0) { } else
+					if (strcmp( s5.c_str(), "memo"    ) == 0) { } else
+
+					throw PL_Exception_Application( locale_str( 72 ).c_str() );
+				}
+				catch (PL_Exception_Application& e)
+				{
+					::std::stringstream txt;
+					txt << locale_str( 73 ).c_str()
+					    << ::std::endl
+						<< e.what();
+
+					messageBoxRect(
+						TRect(10,7,60,19),
+						txt.str().c_str(),
+						mfError | mfOKButton );
+					return;
+				}
+				catch (PL_Exception_Windows& e)
+				{
+					::std::stringstream txt;
+					txt << locale_str( 84 ).c_str()
+					    << ::std::endl
+						<< ::std::endl
+						<< e.what();
+						
+					messageBoxRect(
+						TRect(10,7,60,19),
+						txt.str().c_str(),
+						mfError | mfOKButton );
+					return;
+				}
+				catch (PL_Exception_DataBase& e)
+				{
+					::std::stringstream txt;
+					txt << locale_str( 85 ).c_str()
+					    << ::std::endl
+						<< ::std::endl
+						<< e.what();
+						
+					messageBoxRect(
+						TRect(10,7,60,19),
+						txt.str().c_str(),
+						mfError | mfOKButton );
+					return;
+				}
 			
 				vec_1.push_back( s1 );
 				vec_2.push_back( s2 );
 				vec_3.push_back( s3 );
 				vec_4.push_back( s4 );
 				
-				LB_Collection * sc_1 = new LB_Collection( 100, 10 );
-				LB_Collection * sc_2 = new LB_Collection( 100, 10 );
-				LB_Collection * sc_3 = new LB_Collection( 100, 10 );
-				LB_Collection * sc_4 = new LB_Collection( 100, 10 );
+				sc_1 = new LB_Collection( 100, 10 );
+				sc_2 = new LB_Collection( 100, 10 );
+				sc_3 = new LB_Collection( 100, 10 );
+				sc_4 = new LB_Collection( 100, 10 );
 				
 				for (auto &item : vec_1) sc_1->insert( newStr( item.c_str() ) );
 				for (auto &item : vec_2) sc_2->insert( newStr( item.c_str() ) );
@@ -1792,7 +1889,7 @@ public:
 				lb_2->newList( sc_2 );
 				lb_3->newList( sc_3 );
 				lb_4->newList( sc_4 );
-				
+
 				return;
 			}
 			else if (event.message.command == cmDBASE_del_field)
@@ -1804,8 +1901,133 @@ public:
 			else if (event.message.command == cmDBASE_sav_field)
 			{
 				clearEvent(event);
-				messageBox("save table data",mfInformation|mfOKButton);
-				return;
+				try {
+					char buffer_tabl[64];
+					table_name->getData  ( buffer_tabl );
+					xdbf_data_table = trim_copy( buffer_tabl );
+					
+					::std::string data_file;
+					data_file  = xdbf_data_directory;
+					data_file += "\\";
+					data_file += xdbf_data_table;
+
+					struct stat fileInfo;
+					if (stat( data_file.c_str(), &fileInfo ) != 0)
+						throw PL_Exception_DataBase(
+						locale_str( 87 ).c_str() );
+						
+					if ((fileInfo.st_mode & S_IFMT) == S_IFDIR)
+						throw PL_Exception_DataBase(
+						locale_str( 88 ).c_str() );
+						
+					if (fileInfo.st_size > 0) {
+						if (messageBoxRect(
+						TRect(10,7, 60,19),
+						locale_str( 89 ).c_str(),
+						mfError | mfYesButton | mfNoButton ) != 12)
+						return;
+					}
+					
+					if (xdbf_data_table.length() < 1)
+					throw PL_Exception_Application(
+					locale_str( 82 ).c_str() );
+					
+					::std::vector< ::xb::xbSchema > MyRecord;
+					::std::string  s5;
+					char           fld_type;
+					xbInt16        fld_len;
+					xbInt16        fld_pre;
+
+					for (int i = 0; i < vec_1.size(); ++i) {
+						s5 = vec_2.at(i);
+
+						if (strcmp( s5.c_str(), "numeric" ) == 0) fld_type = XB_NUMERIC_FLD; else
+						if (strcmp( s5.c_str(), "char"    ) == 0) fld_type = XB_CHAR_FLD;    else
+						if (strcmp( s5.c_str(), "date"    ) == 0) fld_type = XB_DATE_FLD;    else
+						if (strcmp( s5.c_str(), "logical" ) == 0) fld_type = XB_LOGICAL_FLD; else
+						if (strcmp( s5.c_str(), "memo"    ) == 0) fld_type = XB_MEMO_FLD;
+
+						fld_len = ::std::atoi( vec_3.at(i).c_str() );
+						fld_pre = ::std::atoi( vec_4.at(i).c_str() );
+
+						xbSchema record{
+							{},
+							fld_type,
+							fld_len,
+							fld_pre
+						};
+						strcpy(record.cFieldName, vec_1.at(i).c_str() );
+						MyRecord.push_back( record );
+					}
+					
+					// terminated null record:
+					xbSchema record{ "",0,0,0  };
+					MyRecord.push_back( record );
+					
+					if (xdbf_data_file != nullptr) {
+						xdbf_data_file->Close(); delete
+						xdbf_data_file;
+					}	xdbf_data_file = new ::xb::xbDbf4( xdbf_data_class );
+					
+					// dbase 3 index style
+					::xb::xbIxNdx MyIndex1( xdbf_data_file );	// class for index 1
+					::xb::xbIxNdx MyIndex2( xdbf_data_file );	// class for index 2
+					::xb::xbIxNdx MyIndex3( xdbf_data_file );	// class for index 3
+
+					if (xdbf_data_file->CreateTable(
+						xdbf_data_table.c_str(),
+						xdbf_data_table.c_str(),
+						MyRecord.data(),
+						XB_OVERLAY,	XB_MULTI_USER)
+						!= XB_NO_ERROR ) {
+						throw PL_Exception_DataBase(
+						locale_str( 83 ).c_str() );
+					}
+					messageBox(
+					locale_str( 86 ).c_str(),
+					mfOKButton);
+				}
+				catch (PL_Exception_Application& e)
+				{
+					::std::stringstream txt;
+					txt << locale_str( 73 ).c_str()
+					    << ::std::endl
+						<< e.what();
+
+					messageBoxRect(
+						TRect(10,7,60,19),
+						txt.str().c_str(),
+						mfError | mfOKButton );
+					return;
+				}
+				catch (PL_Exception_Windows& e)
+				{
+					::std::stringstream txt;
+					txt << locale_str( 84 ).c_str()
+					    << ::std::endl
+						<< ::std::endl
+						<< e.what();
+						
+					messageBoxRect(
+						TRect(10,7,60,19),
+						txt.str().c_str(),
+						mfError | mfOKButton );
+					return;
+				}
+				catch (PL_Exception_DataBase& e)
+				{
+					::std::stringstream txt;
+					txt << locale_str( 85 ).c_str()
+					    << ::std::endl
+						<< ::std::endl
+						<< e.what();
+						
+					messageBoxRect(
+						TRect(10,7,60,19),
+						txt.str().c_str(),
+						mfError | mfOKButton );
+					return;
+				}
 			}
 		}
 
@@ -2147,8 +2369,8 @@ public:
 
 	public:
 		TNewProjectDialog():
-			TWindowInit( &TNewProjectDialog::initFrame ),
-			TDialog( TRect( 0,0, 55,13), "New Project"),
+			TWindowInit( &TNewProjectDialog::initFrame  ),
+			TDialog( TRect( 0,0, 55,13), locale_str( 79 ).c_str() ),
 			name("TNewProjectDialog") {
 
 			flags &= ~(wfGrow | wfZoom);
@@ -2547,7 +2769,9 @@ public:
 	}
 
 public:
-	Application(Console& con):
+	Application(
+		Console& con,
+		::std::vector<  ::std::string > argv):
 		::TProgInit(
 			&Application::initStatusLine,
 			&Application::initMenuBar,
@@ -2564,9 +2788,32 @@ public:
 		insert(clock);
 		
 		newData = new DialogData;
+		
+		exe = argv.at(0);
+		dir = "";
+		fnd = 0;
+		
+		fnd = exe.find_last_of("/\\");
+		dir = exe.substr( 0,  fnd );
+		exe = exe.substr( fnd + 1 );
+
+		messageBox( exe.c_str(), mfOKButton );
+		messageBox( dir.c_str(), mfOKButton );
+
+		xdbf_data_class     = new xbXBase();
+		xdbf_data_directory = dir ;
+
+		xdbf_data_class->SetDataDirectory( dir.c_str() );
 	}
 	
 	~Application() {
+		xdbf_data_file->Close();
+		
+		delete xdbf_data_class;
+		delete xdbf_data_file ;
+
+		delete clock;
+
 		if (newData != nullptr) {
 			delete newData;
 		}
@@ -2582,11 +2829,16 @@ public:
 		DEBUGSTR("Application exec")
 		return 0;
 	}
-	
+
 private:
 	TClockView *clock;
 	int curMenu;
-};
+
+	::std::string exe;  // application name:   foo.exe
+	::std::string dir;  // application folder: C:\path\to
+	::std::size_t fnd;
+	
+};	// class Application
 
 inline ipstream& operator >> ( ipstream& is, Application::TTable&  cl ) { return is >> (TStreamable&) cl; }
 inline ipstream& operator >> ( ipstream& is, Application::TTable*& cl ) { return is >> (void *&) cl; }
@@ -2768,9 +3020,9 @@ public:
 		if ((pl_head == nullptr) || (pl_head->next == nullptr))
 		return;
 	
-		PL_ASTList_Node *parent = pl_head;
-		PL_ASTList_Node *me     = pl_head->next;
-		PL_ASTList_Node *child  = me     ->next;
+		PL_ASTList_Node * parent = pl_head;
+		PL_ASTList_Node * me     = pl_head->next;
+		PL_ASTList_Node * child  = me     ->next;
 		
 		// convert head to tail
 		pl_head->next = nullptr;
@@ -2814,17 +3066,17 @@ public:
 	struct PL_ASTList_Node* newnode) {
 	struct PL_ASTList_Node* temp, *prev;
 		
-		if (pl_head == nullptr) {			// uf an empty list,
-			pl_head = newnode;			// set "head" to it
+		if (pl_head == nullptr) {			   // uf an empty list,
+			pl_head = newnode;			       // set "head" to it
 			pl_tail = newnode;
-			pl_head->next = nullptr;		// set end of list to null
+			pl_head->next = nullptr;		   // set end of list to null
 			return;
 		}
-		temp = pl_head; 				// start at beginning of list
-		while (temp->name < newnode->name) {		// while current name < new name
-			temp = temp->next;			// to be inserted then
-			if (temp == nullptr)			// goto to the next node in list
-			break;					// don't go past end of list
+		temp = pl_head; 				       // start at beginning of list
+		while (temp->name < newnode->name) {   // while current name < new name
+			temp = temp->next;			       // to be inserted then
+			if (temp == nullptr)			   // goto to the next node in list
+			break;					           // don't go past end of list
 		}
 		if (temp == pl_head) {
 			newnode->next = pl_head;
@@ -4239,14 +4491,15 @@ public:
 					PL_ident.erase(0,1);
 					if (PL_check_pascal_keyword(PL_ident)) {
 						throw PL_Exception_ParserError(
-						"identifier as keywords not allowed.");
+						locale_str( 77 ).c_str() );
 					}
 					cout << "program => " << PL_ident << endl;
 					
 					PL_lookaheadChar = PL_handle_pas_white_spaces();
 					if (
 					PL_lookaheadChar != ';')
-					throw PL_Exception_ParserError("semicolon expected.");
+					throw PL_Exception_ParserError(
+					locale_str( 78 ).c_str() );
 				}	else {
 					printf(">>%c<<\n",PL_lookaheadChar);
 				}
@@ -4278,7 +4531,7 @@ public:
 			}
 		}	else {
 			throw PL_Exception_ParserError(
-			"unknown keyword found.",
+			locale_str( 76 ).c_str(),
 			PL_line_row);
 		}
 	}
@@ -4304,7 +4557,7 @@ public:
 		
 		if (PL_nestedComment > 0) {
 			throw PL_Exception_ParserError(
-			"comment not terminated.",
+			locale_str( 75 ).c_str(),
 			PL_line_row);
 		}	else {
 			STDCOUT
@@ -4631,41 +4884,6 @@ public:
 		xbString s1;
 		s1 = "Test String 1";
 		fprintf( stdout, "s1 = [%s]\n", s1.Str());
-		
-		xbSchema MyRecord[] = {
-			{ "FIRSTNAME", XB_CHAR_FLD,     15, 0 },
-			{ "LASTNAME",  XB_CHAR_FLD,     20, 0 },
-			{ "BIRTHDATE", XB_DATE_FLD,      8, 0 },
-			{ "AMOUNT",    XB_NUMERIC_FLD,   9, 2 },
-			{ "RETIRED" ,  XB_LOGICAL_FLD,   1, 0 },
-			{ "ZIPCODE",   XB_NUMERIC_FLD,   5, 0 },
-			{ "MEMO1",     XB_MEMO_FLD,     10, 0 },
-			{ "",0,0,0 }
-		};
-
-		// define the classes
-		xbXBase x;                                       /* initialize xbase             */
-		x.SetDataDirectory( PROJECT_DATA_DIR );          /* where all the tables live    */
-
-		xbDbf *MyDbfFile;                                /* Pointer to dbf class         */
-		MyDbfFile = new xbDbf4(&x);                      /* Create Version 5 instance    */
-
-		//  Create Dbase3  NDX style indices if support compiled in
-		xbIxNdx MyIndex1( MyDbfFile );    /* class for index 1 */
-		xbIxNdx MyIndex2( MyDbfFile );    /* class for index 2 */
-		xbIxNdx MyIndex3( MyDbfFile );    /* class for index 3 */
-
-		xbInt16 rc;
-
-		if (( rc = MyDbfFile->CreateTable(
-		"MyV3Table1",
-		"MyV3ExampleTableAlias",
-		MyRecord,
-		XB_OVERLAY,
-		XB_MULTI_USER )) != XB_NO_ERROR )
-		x.DisplayError( rc );
-
-		MyDbfFile->Close();
 	}
 	Console() {
 		DEBUGSTR("ctor: PL_Console ()")
@@ -4719,9 +4937,13 @@ public:
 
 using namespace prolog;
 void
-init_con_app( Console& con, ::std::string item, int flag)
+init_con_app(
+	Console& con,
+	::std::vector< ::std::string > argv,
+	::std::string item,
+	int flag)
 {
-	Application *app = new Application( con );
+	auto * app = new Application( con, argv );
 	while (true) {
 		try {
 			switch (flag) {
@@ -4741,9 +4963,11 @@ init_con_app( Console& con, ::std::string item, int flag)
 		}
 		catch (PL_Exception_Application& e) {
 			::std::stringstream txt;
-			txt << "Error:" << ::std::endl
-				<< e.what() << ::std::endl << ::std::endl
-				<< "Would You Exit the Application ?";
+			txt << locale_str( 73 ).c_str()
+				<< ::std::endl << e.what ()
+				<< ::std::endl
+				<< ::std::endl
+				<< locale_str( 15 ).c_str();
 
 			ushort res = app->MessageBoxRect(
 			TRect(10,7,60,19),
@@ -4757,8 +4981,8 @@ init_con_app( Console& con, ::std::string item, int flag)
 		}
 		catch (...) {
 			::std::stringstream txt;
-			txt << "Error:" << ::std::endl
-				<< "common exception occured."
+			txt << locale_str( 73 ).c_str() << ::std::endl
+				<< locale_str( 74 ).c_str()
 				<< ::std::endl
 				<< locale_str( 15 );
 
@@ -4786,10 +5010,13 @@ main(int argc, char** argv)
 	::std::vector< ::std::string > iput_file;
 	::std::string                  oput_file;
 	::std::string                  s0;
+	::std::vector< ::std::string > argv_vec;
 	
 	int output   = 0;
 
 	try {
+		argv_vec.push_back( argv[0] );
+
 		setlocale(LC_ALL,"");
 		bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
 		textdomain     (locale_str( 0 ).c_str());
@@ -4799,10 +5026,10 @@ main(int argc, char** argv)
 		// -i<input file> -o<output file>
 		// ----------------------------------------
 		if (argc < 2) {
-			app_lang = 2;
+			app_lang = 2;	// <-- todo
 			Win32API win ;
 			Console  con ( win );
-			init_con_app ( con, "", 1 );
+			init_con_app ( con, argv_vec, "", 1 );
 			
 			return SUCCESS;
 		}
@@ -4879,7 +5106,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 2 );
+				init_con_app ( con, argv_vec, item, 2 );
 				
 				return 0;
 			}
@@ -4890,7 +5117,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 3 );
+				init_con_app ( con, argv_vec, item, 3 );
 				
 				return 0;
 			}
@@ -4901,7 +5128,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 4 );
+				init_con_app ( con, argv_vec, item, 4 );
 
 				return 0;
 			}
@@ -4912,7 +5139,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 5 );
+				init_con_app ( con, argv_vec, item, 5 );
 				
 				return 0;
 			}
@@ -4923,7 +5150,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 6 );
+				init_con_app ( con, argv_vec, item, 6 );
 
 				return 0;
 			}
@@ -4934,7 +5161,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 7 );
+				init_con_app ( con, argv_vec, item, 7 );
 
 				return 0;
 			}
@@ -4945,7 +5172,7 @@ main(int argc, char** argv)
 			{
 				Win32API win ;
 				Console  con ( win );
-				init_con_app ( con, item, 8 );
+				init_con_app ( con, argv_vec, item, 8 );
 				
 				return 0;
 			}
@@ -4991,10 +5218,8 @@ main(int argc, char** argv)
 	catch (PL_Exception& e)
 	{
 		STDCOUT
-		<< locale_str( 11 ) << e.line()
-		<< std::endl
-		<< locale_str( 12 ) << e.what()
-		<< std::endl;
+		<< locale_str( 11 ) << e.line() << std::endl
+		<< locale_str( 12 ) << e.what() << std::endl;
 
 		return 1;
 	}
