@@ -190,6 +190,12 @@
 # include <regex>
 
 // ---------------------------------------------------------------------
+// Windows header stuff ...
+// ---------------------------------------------------------------------
+# include <windows.h>
+# include <imagehlp.h>
+
+// ---------------------------------------------------------------------
 // Turbo Vision for C++ ...
 // ---------------------------------------------------------------------
 # define Uses_TApplication
@@ -250,6 +256,59 @@ class TDialog;
 // xBASE 4.6.0 database stuff ...
 // ---------------------------------------------------------------------
 # include "xbase.h"
+
+// ---------------------------------------------------------------------
+// database stuff ...
+// ---------------------------------------------------------------------
+::xb::xbXBase * xdbf_data_class = nullptr;
+::xb::xbDbf   * xdbf_data_file  = nullptr;
+
+::std::string   xdbf_data_table;
+::std::string   xdbf_data_directory;
+
+# define MAX_LEN 64
+
+class LB_Collection: public TCollection {
+public:
+	LB_Collection(short lim, short delta):
+		TCollection(lim, delta)
+		{}
+	virtual void  freeItem(void *p) {
+		delete[] (char *) p;
+	}
+private:
+	virtual void *readItem( ipstream& ) { return 0; }
+	virtual void writeItem( void *, opstream& ) {}
+};
+
+LB_Collection * xdbf_lbc_1 = nullptr;
+LB_Collection * xdbf_lbc_2 = nullptr;
+LB_Collection * xdbf_lbc_3 = nullptr;
+LB_Collection * xdbf_lbc_4 = nullptr;
+LB_Collection * xdbf_lbc_5 = nullptr;
+LB_Collection * xdbf_lbc_6 = nullptr;
+
+TListBox * xdbf_lb_1 = nullptr;
+TListBox * xdbf_lb_2 = nullptr;
+TListBox * xdbf_lb_3 = nullptr;
+TListBox * xdbf_lb_4 = nullptr;
+TListBox * xdbf_lb_5 = nullptr;
+TListBox * xdbf_lb_6 = nullptr;
+
+TListBox * new_file_lb_1 = nullptr;
+TListBox * new_file_lb_2 = nullptr;
+TListBox * new_file_lb_3 = nullptr;
+TListBox * new_file_lb_4 = nullptr;
+
+LB_Collection * xdbf_sc_1 = nullptr;
+LB_Collection * xdbf_sc_2 = nullptr;
+LB_Collection * xdbf_sc_3 = nullptr;
+LB_Collection * xdbf_sc_4 = nullptr;
+		
+::std::vector< ::std::string > xdbf_vec_1;
+::std::vector< ::std::string > xdbf_vec_2;
+::std::vector< ::std::string > xdbf_vec_3;
+::std::vector< ::std::string > xdbf_vec_4;
 
 // ---------------------------------------------------------------------
 // error handling
@@ -402,11 +461,21 @@ private:
 		"Database Systen Error:",               // 0085
 		"database information writen",          // 0086
 		"can not get information for data "
-		"file",                                 // 0087
+		"file:\n%s",                            // 0087
 		"given file is a directory, not a"
 		"database file",                        // 0088
 		"a file with this name already exists\n"
 		"would you override it ?",              // 0089
+		"would you realy delete the current "
+		"data record ?",                        // 0090
+		"data record is empty - not allowed",   // 0091
+		"no data record available for save",    // 0092
+		"table already exists in the database "
+		"catalog !\nwould you replace it ?",    // 0093
+		
+		"internal field delete error",          // 0094
+		"internal error - no such table file "
+		"available on storage disk",            // 0095
 
 		"locale string"
 	};
@@ -529,11 +598,24 @@ private:
 		"Datenbank System Fehler:",                  // 0085
 		"Tabellen-Informationen geschrieben",        // 0086
 		"Datei-Informationen können nicht "
-		"abgerufen werden",                          // 0087
+		"abgerufen werden:\n%s",                     // 0087
 		"Datei-Name ist ein Verzeichnis, und "
 		"keine Datenbank-Datei",                     // 0088
 		"Daten-Datei existiert bereits\n"
 		"Soll diese überschrieben werden ?",         // 0089
+		"möchten Sie das aktuelle Tabellen-Feld "
+		"löschen ?",                                 // 0090
+		"Datensatz-Bezeichner darf nicht leer "
+		"sein",                                      // 0091
+		"kein Datenfeld vorhanden, das abge"
+		"speichert werden kann",                     // 0092
+		"Tabelle existiert bereits im Datenbank "
+		"Katalog !\n möchten Sie diese über"
+		"ersetzen ?",                                // 0093
+		
+		"interner Datensatz-Lösch-Fehler",           // 0094
+		"interner Fehler: keine Datei für diesen "
+		"Zugriff vorhanden.",                        // 0095
 		
 		"locale zeichenkette"
 	};
@@ -759,11 +841,12 @@ public:
 //!         Ausnahmen bei Anwendungen in der Console/Terminal zum Einsatz
 //! \~endGerman
 // ---------------------------------------------------------------------
-class PL_Exception_CommandLine: public PL_Exception { using PL_Exception::PL_Exception; };
-class PL_Exception_ParserError: public PL_Exception { using PL_Exception::PL_Exception; };
-class PL_Exception_Application: public PL_Exception { using PL_Exception::PL_Exception; };
-class PL_Exception_Windows    : public PL_Exception { using PL_Exception::PL_Exception; };
-class PL_Exception_DataBase   : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_CommandLine     : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_ParserError     : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_Application     : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_Windows         : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_DataBase        : public PL_Exception { using PL_Exception::PL_Exception; };
+class PL_Exception_DataBaseWarning : public PL_Exception { using PL_Exception::PL_Exception; };
 
 // ---------------------------------------------------------------------
 // DWARF debugging class ...
@@ -895,15 +978,6 @@ static struct DialogData {
 } *newData;
 
 // ---------------------------------------------------------------------
-// database stuff ...
-// ---------------------------------------------------------------------
-::xb::xbXBase * xdbf_data_class = nullptr;
-::xb::xbDbf   * xdbf_data_file  = nullptr;
-
-::std::string   xdbf_data_table;
-::std::string   xdbf_data_directory;
-
-// ---------------------------------------------------------------------
 // the main console application class ...
 // ---------------------------------------------------------------------
 class Application: public TApplication {
@@ -947,7 +1021,7 @@ public:
 		~TMultiMenu() {
 			for (int i = 0; i < numMenus; i++)
 				
-			if (mList[i] != menu)          // Delete all but current menu.
+			if (mList[i] != menu)
 		
 			delete mList[i];
 			delete [] mList;
@@ -1541,35 +1615,12 @@ public:
 		}
 	};
 
-	class LB_Collection: public TCollection {
-	public:
-		LB_Collection(short lim, short delta):
-			TCollection(lim, delta)
-			{}
-		virtual void  freeItem(void *p) {
-			delete[] (char *) p;
-		}
-	private:
-		virtual void *readItem( ipstream& ) { return 0; }
-		virtual void writeItem( void *, opstream& ) {}
-	};
-	
 	class PL_dBaseNewFile: public TDialog {
-	private:
-		LB_Collection * sc_1         = nullptr;
-		LB_Collection * sc_2         = nullptr;
-		LB_Collection * sc_3         = nullptr;
-		LB_Collection * sc_4         = nullptr;
-		
+	private:		
 		TScrollBar    * sb_1         = nullptr;
 		TScrollBar    * sb_2         = nullptr;
 		TScrollBar    * sb_3         = nullptr;
 		TScrollBar    * sb_4         = nullptr;
-		
-		TListBox      * lb_1         = nullptr;
-		TListBox      * lb_2         = nullptr;
-		TListBox      * lb_3         = nullptr;
-		TListBox      * lb_4         = nullptr;
 		
 		TInputLine    * table_name   = nullptr;
 		
@@ -1578,12 +1629,10 @@ public:
 		TInputLine    * field_length = nullptr;
 		TInputLine    * field_prec   = nullptr;
 		
-		::std::vector< ::std::string > vec_1;
-		::std::vector< ::std::string > vec_2;
-		::std::vector< ::std::string > vec_3;
-		::std::vector< ::std::string > vec_4;
+		::std::vector< ::std::string > xdbf_lbc_vec_1;
 		
-		::std::string tableName;
+		::std::string tbl_name;
+		int           tbl_flag;
 
 		void init()
 		{
@@ -1596,7 +1645,10 @@ public:
 			options |= ofSelectable;
 
 			table_name = new TInputLine( TRect( 2,2, 34,3), 64);
+			table_name->setData( (void*)tbl_name.c_str() );
+			
 			insert(table_name);
+			
 			insert( new TLabel  ( TRect(  2,1, 15, 2 ), locale_str( 57 ).c_str(), table_name));
 			insert( new THistory( TRect( 34,2, 37, 3 ), table_name, 10));
 			
@@ -1648,22 +1700,41 @@ public:
 			x =  3;
 			y = 17;
 
-			lb_1 = new TListBox( TRect(x,7,     24, y ), 1, sb_1 ); x += 24;
-			lb_2 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_2 ); x += 26;
-			lb_3 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_3 ); x += 26;
-			lb_4 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_4 );
+			new_file_lb_1 = new TListBox( TRect(x,7,     24, y ), 1, sb_1 ); x += 24;
+			new_file_lb_2 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_2 ); x += 26;
+			new_file_lb_3 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_3 ); x += 26;
+			new_file_lb_4 = new TListBox( TRect(x,7, x + 23, y ), 1, sb_4 );
 
-			insert( lb_1 );
-			insert( lb_2 );
-			insert( lb_3 );
-			insert( lb_4 );
+			insert( new_file_lb_1 );
+			insert( new_file_lb_2 );
+			insert( new_file_lb_3 );
+			insert( new_file_lb_4 );
+			
+			if (tbl_flag == -1)
+			{
+				xdbf_sc_1 = new LB_Collection( 10, 10 );
+				xdbf_sc_2 = new LB_Collection( 10, 10 );
+				xdbf_sc_3 = new LB_Collection( 10, 10 );
+				xdbf_sc_4 = new LB_Collection( 10, 10 );
+						
+				for (auto &item : xdbf_vec_1) xdbf_sc_1->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_2) xdbf_sc_2->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_3) xdbf_sc_3->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_4) xdbf_sc_4->insert( newStr( item.c_str() ) );
+						
+				new_file_lb_1->newList( xdbf_sc_1 );
+				new_file_lb_2->newList( xdbf_sc_2 );
+				new_file_lb_3->newList( xdbf_sc_3 );
+				new_file_lb_4->newList( xdbf_sc_4 );
+			}
+
 			
 			x = 2;
 			
-			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_1 )); x += 24;
-			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_2 )); x += 26;
-			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_3 )); x += 26;
-			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), lb_4 ));
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_1 )); x += 24;
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_2 )); x += 26;
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_3 )); x += 26;
+			insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_4 ));
 
 			
 			insert( new TButton ( TRect( 40,2, 55,4 ), locale_str( 62 ).c_str(), cmDBASE_add_field, bfDefault ));
@@ -1671,16 +1742,26 @@ public:
 			insert( new TButton ( TRect( 76,2, 91,4 ), locale_str( 64 ).c_str(), cmDBASE_sav_field, bfNormal  ));
 		}
 	public:
-		PL_dBaseNewFile(::std::string file_name):
+		PL_dBaseNewFile(::std::string file_name, int flag):
 			TWindowInit( &PL_dBaseNewFile::initFrame ),
-			TDialog( TRect( 0,0, 108,18), locale_str( 56 ).c_str()),
+			TDialog ( TRect( 0, 0, 108,18), locale_str( 56 ).c_str()),
 			name("PL_dBaseNewFile") {
+			tbl_name = file_name;
+			tbl_flag = flag;
 			init();
 		}
 	
+		PL_dBaseNewFile(StreamableInit, int flag):
+			TWindowInit( 0 ),
+			TDialog    ( streamableInit ),
+			name("PL_dBaseNewFile") {
+			tbl_flag = flag;
+			init();
+		}
+		
 		PL_dBaseNewFile(StreamableInit):
-			TWindowInit(0),
-			TDialog(streamableInit),
+			TWindowInit( 0 ),
+			TDialog    ( streamableInit ),
 			name("PL_dBaseNewFile") {
 			init();
 		}
@@ -1742,7 +1823,8 @@ public:
 		handleEvent( TEvent &event )
 		{
 			TWindow::handleEvent( event );
-			#define MAX_LEN 64
+			::std::string tmp;
+			
 			if (event.what == evKeyboard)
 			{
 				if (event.keyDown.keyCode == 283)     // #27 - Escape
@@ -1753,15 +1835,13 @@ public:
 				}
 				if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
 				{
-					char buffer[MAX_LEN];
-					
-					if ((lb_1->state & sfFocused) != 0) { lb_1->getText(buffer, lb_1->focused, MAX_LEN); } else
-					if ((lb_2->state & sfFocused) != 0) { lb_2->getText(buffer, lb_2->focused, MAX_LEN); } else
-					if ((lb_3->state & sfFocused) != 0) { lb_3->getText(buffer, lb_3->focused, MAX_LEN); } else
-					if ((lb_4->state & sfFocused) != 0) { lb_4->getText(buffer, lb_4->focused, MAX_LEN); }
-					
-					messageBox(buffer,mfInformation|mfOKButton);
 					clearEvent(event);
+					
+					if ((new_file_lb_1->state & sfFocused) != 0) { new_file_lb_1->getText(buffer, new_file_lb_1->focused, MAX_LEN); } else
+					if ((new_file_lb_2->state & sfFocused) != 0) { new_file_lb_2->getText(buffer, new_file_lb_2->focused, MAX_LEN); } else
+					if ((new_file_lb_3->state & sfFocused) != 0) { new_file_lb_3->getText(buffer, new_file_lb_3->focused, MAX_LEN); } else
+					if ((new_file_lb_4->state & sfFocused) != 0) { new_file_lb_4->getText(buffer, new_file_lb_4->focused, MAX_LEN); }
+
 					return;
 				}
 			}
@@ -1769,10 +1849,10 @@ public:
 			{
 				clearEvent(event);
 				
-				if ((lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); return; } else
-				if ((lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); return; } else
-				if ((lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); return; } else
-				if ((lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); return; }
+				if ((new_file_lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); return; } else
+				if ((new_file_lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); return; } else
+				if ((new_file_lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); return; } else
+				if ((new_file_lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); return; }
 				
 				handle_helpView(5);
 				return;
@@ -1788,7 +1868,7 @@ public:
 				char buffer_type[64];
 				char buffer_leng[64];
 				char buffer_prec[64];
-			
+				
 				field_name  ->getData( buffer_name );
 				field_type  ->getData( buffer_type );
 				field_length->getData( buffer_leng );
@@ -1807,231 +1887,228 @@ public:
 				// ---------------------------------------------
 				// get field type value:
 				// ---------------------------------------------
-				try {
-					for (auto &item : vec_1 ) {
-						if (strcmp(item.c_str(),buffer_name) == 0) {
-							throw PL_Exception_Application(
-							locale_str( 66 ).c_str() );
-						}
+				for (auto &item : xdbf_vec_1 ) {
+					if (item.length() < 1) {
+						throw PL_Exception_DataBaseWarning(
+						locale_str( 92 ).c_str() );
 					}
+					else if (strcmp(item.c_str(),buffer_name) == 0) {
+						throw PL_Exception_DataBaseWarning(
+						locale_str( 66 ).c_str() );
+					}
+				}
 
-					::std::string s5;
-					s5 = "";
-					for (int x = 0; x  < s2.size(); ++x)
-					s5 += tolower( s2.at( x ) );
+				tmp = "";
+				for (int x = 0; x  < s2.size(); ++x)
+				tmp += tolower( s2.at( x ) );
 				
-					if (strcmp( s5.c_str(), "numeric" ) == 0) { } else
-					if (strcmp( s5.c_str(), "char"    ) == 0) { } else
-					if (strcmp( s5.c_str(), "date"    ) == 0) { } else
-					if (strcmp( s5.c_str(), "logical" ) == 0) { } else
-					if (strcmp( s5.c_str(), "memo"    ) == 0) { } else
+				if (strcmp( tmp.c_str(), "numeric" ) == 0) { } else
+				if (strcmp( tmp.c_str(), "char"    ) == 0) { } else
+				if (strcmp( tmp.c_str(), "date"    ) == 0) { } else
+				if (strcmp( tmp.c_str(), "logical" ) == 0) { } else
+				if (strcmp( tmp.c_str(), "memo"    ) == 0) { } else
 
-					throw PL_Exception_Application( locale_str( 72 ).c_str() );
-				}
-				catch (PL_Exception_Application& e)
-				{
-					::std::stringstream txt;
-					txt << locale_str( 73 ).c_str()
-					    << ::std::endl
-						<< e.what();
+				throw PL_Exception_Application( locale_str( 72 ).c_str() );
 
-					messageBoxRect(
-						TRect(10,7,60,19),
-						txt.str().c_str(),
-						mfError | mfOKButton );
-					return;
-				}
-				catch (PL_Exception_Windows& e)
-				{
-					::std::stringstream txt;
-					txt << locale_str( 84 ).c_str()
-					    << ::std::endl
-						<< ::std::endl
-						<< e.what();
-						
-					messageBoxRect(
-						TRect(10,7,60,19),
-						txt.str().c_str(),
-						mfError | mfOKButton );
-					return;
-				}
-				catch (PL_Exception_DataBase& e)
-				{
-					::std::stringstream txt;
-					txt << locale_str( 85 ).c_str()
-					    << ::std::endl
-						<< ::std::endl
-						<< e.what();
-						
-					messageBoxRect(
-						TRect(10,7,60,19),
-						txt.str().c_str(),
-						mfError | mfOKButton );
-					return;
-				}
-			
-				vec_1.push_back( s1 );
-				vec_2.push_back( s2 );
-				vec_3.push_back( s3 );
-				vec_4.push_back( s4 );
+				xdbf_vec_1.push_back( s1 );
+				xdbf_vec_2.push_back( s2 );
+				xdbf_vec_3.push_back( s3 );
+				xdbf_vec_4.push_back( s4 );
 				
-				sc_1 = new LB_Collection( 100, 10 );
-				sc_2 = new LB_Collection( 100, 10 );
-				sc_3 = new LB_Collection( 100, 10 );
-				sc_4 = new LB_Collection( 100, 10 );
+				xdbf_sc_1 = new LB_Collection( 10, 10 );
+				xdbf_sc_2 = new LB_Collection( 10, 10 );
+				xdbf_sc_3 = new LB_Collection( 10, 10 );
+				xdbf_sc_4 = new LB_Collection( 10, 10 );
 				
-				for (auto &item : vec_1) sc_1->insert( newStr( item.c_str() ) );
-				for (auto &item : vec_2) sc_2->insert( newStr( item.c_str() ) );
-				for (auto &item : vec_3) sc_3->insert( newStr( item.c_str() ) );
-				for (auto &item : vec_4) sc_4->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_1) xdbf_sc_1->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_2) xdbf_sc_2->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_3) xdbf_sc_3->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_4) xdbf_sc_4->insert( newStr( item.c_str() ) );
 				
-				lb_1->newList( sc_1 );
-				lb_2->newList( sc_2 );
-				lb_3->newList( sc_3 );
-				lb_4->newList( sc_4 );
+				new_file_lb_1->newList( xdbf_sc_1 );
+				new_file_lb_2->newList( xdbf_sc_2 );
+				new_file_lb_3->newList( xdbf_sc_3 );
+				new_file_lb_4->newList( xdbf_sc_4 );
 
 				return;
 			}
+			// ----------------------------------
+			// delete one record from schema:
+			// ----------------------------------
 			else if (event.message.command == cmDBASE_del_field)
 			{
 				clearEvent(event);
-				messageBox("delete field",mfInformation|mfOKButton);
+				
+				new_file_lb_1->getText(buffer,
+				new_file_lb_1->focused, MAX_LEN);
+
+				if (trim_copy( buffer ).length() < 1)
+				throw PL_Exception_DataBaseWarning(
+				locale_str( 82 ).c_str() );
+
+				if (messageBoxRect(
+					TRect(10,7, 60,19),
+					locale_str( 90 ).c_str(),
+					mfError | mfYesButton | mfNoButton ) != 12) {
+					return;
+				}
+
+				int index  = 0;
+				bool found = false;
+				
+				for (auto &item: xdbf_vec_1) {
+					if (strcmp(item.c_str(), buffer) == 0) {
+						xdbf_vec_1.erase( xdbf_vec_1.begin() + index );
+						xdbf_vec_2.erase( xdbf_vec_2.begin() + index );
+						xdbf_vec_3.erase( xdbf_vec_3.begin() + index );
+						xdbf_vec_4.erase( xdbf_vec_4.begin() + index );
+						found = true;
+						break;
+					}
+					++index;
+				}
+				if (found == false) {
+					messageBox( locale_str( 94 ).c_str(),
+					mfError|mfOKButton);
+					return;
+				}
+				
+				xdbf_sc_1 = new LB_Collection( 10, 10 );
+				xdbf_sc_2 = new LB_Collection( 10, 10 );
+				xdbf_sc_3 = new LB_Collection( 10, 10 );
+				xdbf_sc_4 = new LB_Collection( 10, 10 );
+				
+				for (auto &item : xdbf_vec_1) xdbf_sc_1->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_2) xdbf_sc_2->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_3) xdbf_sc_3->insert( newStr( item.c_str() ) );
+				for (auto &item : xdbf_vec_4) xdbf_sc_4->insert( newStr( item.c_str() ) );
+				
+				new_file_lb_1->newList( xdbf_sc_1 );
+				new_file_lb_2->newList( xdbf_sc_2 );
+				new_file_lb_3->newList( xdbf_sc_3 );
+				new_file_lb_4->newList( xdbf_sc_4 );
+				
 				return;
 			}
+			// ----------------------------------
+			// save table information (field's)
+			// ----------------------------------
 			else if (event.message.command == cmDBASE_sav_field)
 			{
 				clearEvent(event);
-				try {
-					char buffer_tabl[64];
-					table_name->getData  ( buffer_tabl );
-					xdbf_data_table = trim_copy( buffer_tabl );
-					
-					::std::string data_file;
-					data_file  = xdbf_data_directory;
-					data_file += "\\";
-					data_file += xdbf_data_table;
+				
+				if (xdbf_vec_1.size() < 1)
+				throw PL_Exception_DataBaseWarning(
+				locale_str( 92 ).c_str() );
 
-					struct stat fileInfo;
-					if (stat( data_file.c_str(), &fileInfo ) != 0)
-						throw PL_Exception_DataBase(
-						locale_str( 87 ).c_str() );
-						
-					if ((fileInfo.st_mode & S_IFMT) == S_IFDIR)
-						throw PL_Exception_DataBase(
-						locale_str( 88 ).c_str() );
-						
-					if (fileInfo.st_size > 0) {
-						if (messageBoxRect(
+				table_name->getData( buffer );
+				xdbf_data_table = trim_copy( buffer );
+				
+				if (xdbf_data_table.length() < 1)
+				throw PL_Exception_DataBaseWarning(
+				locale_str( 82 ).c_str() );
+				
+				::std::string data_file;
+				::std::size_t data_fnd ;
+
+				data_file  = xdbf_data_directory;
+				data_file += "\\";
+				data_file += xdbf_data_table;
+					
+				if (data_file.find( ".dbf" ) == ::std::string::npos)
+					data_file +=    ".dbf" ;
+
+				FILE *test = fopen( data_file.c_str(), "rb" );
+				if (  test ) {
+					fclose( test );
+					if (messageBoxRect(
 						TRect(10,7, 60,19),
 						locale_str( 89 ).c_str(),
-						mfError | mfYesButton | mfNoButton ) != 12)
+						mfError | mfYesButton | mfNoButton ) != 12) {
 						return;
 					}
-					
-					if (xdbf_data_table.length() < 1)
-					throw PL_Exception_Application(
-					locale_str( 82 ).c_str() );
-					
-					::std::vector< ::xb::xbSchema > MyRecord;
-					::std::string  s5;
-					char           fld_type;
-					xbInt16        fld_len;
-					xbInt16        fld_pre;
+				}
 
-					for (int i = 0; i < vec_1.size(); ++i) {
-						s5 = vec_2.at(i);
+				::std::vector< ::xb::xbSchema > MyRecord;
+				::std::string  dat;
+				char           fld_type;
+				xbInt16        fld_len;
+				xbInt16        fld_pre;
 
-						if (strcmp( s5.c_str(), "numeric" ) == 0) fld_type = XB_NUMERIC_FLD; else
-						if (strcmp( s5.c_str(), "char"    ) == 0) fld_type = XB_CHAR_FLD;    else
-						if (strcmp( s5.c_str(), "date"    ) == 0) fld_type = XB_DATE_FLD;    else
-						if (strcmp( s5.c_str(), "logical" ) == 0) fld_type = XB_LOGICAL_FLD; else
-						if (strcmp( s5.c_str(), "memo"    ) == 0) fld_type = XB_MEMO_FLD;
+				for (int i = 0; i < xdbf_vec_1.size(); ++i) {
+					tmp = xdbf_vec_2.at(i);
 
-						fld_len = ::std::atoi( vec_3.at(i).c_str() );
-						fld_pre = ::std::atoi( vec_4.at(i).c_str() );
+					if (strcmp( tmp.c_str(), "numeric" ) == 0) fld_type = XB_NUMERIC_FLD; else
+					if (strcmp( tmp.c_str(), "char"    ) == 0) fld_type = XB_CHAR_FLD;    else
+					if (strcmp( tmp.c_str(), "date"    ) == 0) fld_type = XB_DATE_FLD;    else
+					if (strcmp( tmp.c_str(), "logical" ) == 0) fld_type = XB_LOGICAL_FLD; else
+					if (strcmp( tmp.c_str(), "memo"    ) == 0) fld_type = XB_MEMO_FLD;
 
-						xbSchema record{
-							{},
-							fld_type,
-							fld_len,
-							fld_pre
-						};
-						strcpy(record.cFieldName, vec_1.at(i).c_str() );
-						MyRecord.push_back( record );
-					}
-					
-					// terminated null record:
-					xbSchema record{ "",0,0,0  };
+					fld_len = ::std::atoi( xdbf_vec_3.at(i).c_str() );
+					fld_pre = ::std::atoi( xdbf_vec_4.at(i).c_str() );
+
+					xbSchema record{
+						{},
+						fld_type,
+						fld_len,
+						fld_pre
+					};
+					strcpy(record.cFieldName, xdbf_vec_1.at(i).c_str() );
 					MyRecord.push_back( record );
+				}
 					
-					if (xdbf_data_file != nullptr) {
-						xdbf_data_file->Close(); delete
-						xdbf_data_file;
-					}	xdbf_data_file = new ::xb::xbDbf4( xdbf_data_class );
+				// terminated null record:
+				xbSchema record{ "",0,0,0  };
+				MyRecord.push_back( record );
 					
-					// dbase 3 index style
-					::xb::xbIxNdx MyIndex1( xdbf_data_file );	// class for index 1
-					::xb::xbIxNdx MyIndex2( xdbf_data_file );	// class for index 2
-					::xb::xbIxNdx MyIndex3( xdbf_data_file );	// class for index 3
+				if (xdbf_data_file != nullptr) {
+					xdbf_data_file->Close(); delete
+					xdbf_data_file;
+				}	xdbf_data_file = new ::xb::xbDbf4( xdbf_data_class );
+					
+				// dbase 3 index style
+				::xb::xbIxNdx MyIndex1( xdbf_data_file );	// class for index 1
+				::xb::xbIxNdx MyIndex2( xdbf_data_file );	// class for index 2
+				::xb::xbIxNdx MyIndex3( xdbf_data_file );	// class for index 3
 
-					if (xdbf_data_file->CreateTable(
-						xdbf_data_table.c_str(),
-						xdbf_data_table.c_str(),
-						MyRecord.data(),
-						XB_OVERLAY,	XB_MULTI_USER)
-						!= XB_NO_ERROR ) {
-						throw PL_Exception_DataBase(
-						locale_str( 83 ).c_str() );
-					}
-					messageBox(
-					locale_str( 86 ).c_str(),
-					mfOKButton);
-				}
-				catch (PL_Exception_Application& e)
-				{
-					::std::stringstream txt;
-					txt << locale_str( 73 ).c_str()
-					    << ::std::endl
-						<< e.what();
+				if (xdbf_data_file->CreateTable(
+					xdbf_data_table.c_str(),
+					xdbf_data_table.c_str(),
+					MyRecord.data(),
+					XB_OVERLAY,	XB_MULTI_USER)
+					!= XB_NO_ERROR )
+				throw PL_Exception_DataBase(
+				locale_str( 83 ).c_str() );
 
-					messageBoxRect(
-						TRect(10,7,60,19),
-						txt.str().c_str(),
-						mfError | mfOKButton );
+				// ---------------------------
+				// add table name to catalog
+				// ---------------------------
+				fnd = xdbf_data_table.find_last_of(".dbf" );
+				dat = xdbf_data_table.substr( 0,  fnd - 3 );
+
+				if (::std::find(
+					xdbf_lbc_vec_1.begin(),
+					xdbf_lbc_vec_1.end  (), dat) !=
+					xdbf_lbc_vec_1.end  ()) {
+					if (messageBoxRect(
+						TRect(10,7, 60,19),
+						locale_str( 93 ).c_str(),
+						mfError | mfYesButton | mfNoButton ) == 12)
 					return;
 				}
-				catch (PL_Exception_Windows& e)
-				{
-					::std::stringstream txt;
-					txt << locale_str( 84 ).c_str()
-					    << ::std::endl
-						<< ::std::endl
-						<< e.what();
-						
-					messageBoxRect(
-						TRect(10,7,60,19),
-						txt.str().c_str(),
-						mfError | mfOKButton );
-					return;
-				}
-				catch (PL_Exception_DataBase& e)
-				{
-					::std::stringstream txt;
-					txt << locale_str( 85 ).c_str()
-					    << ::std::endl
-						<< ::std::endl
-						<< e.what();
-						
-					messageBoxRect(
-						TRect(10,7,60,19),
-						txt.str().c_str(),
-						mfError | mfOKButton );
-					return;
-				}
+
+				xdbf_lbc_vec_1.push_back( dat );
+				xdbf_lbc_1 = new LB_Collection( 10, 10 );
+				
+				for (auto &item: xdbf_lbc_vec_1)
+				xdbf_lbc_1->insert ( newStr( item.c_str() ) );
+				xdbf_lb_1 ->newList( xdbf_lbc_1 );
 			}
 		}
 
 	private:
+		char buffer[MAX_LEN];
+			
 		virtual const char *streamableName() const
 		{ return name; }
 	protected:
@@ -2040,27 +2117,17 @@ public:
 	public:
 			   const char  * const name;
 		static TStreamable * build() {
-			return new PL_dBaseNewFile( streamableInit );
+			return new PL_dBaseNewFile( streamableInit, -1 );
 		}
-	};
+	};	//  PL_dBaseNewFile
 	
 	class PL_dBaseCatalog: public TDialog {
 	private:
-		TListBox * lb_1 = nullptr;
-		TListBox * lb_2 = nullptr;
-		TListBox * lb_3 = nullptr;
-		TListBox * lb_4 = nullptr;
-		TListBox * lb_5 = nullptr;
-		TListBox * lb_6 = nullptr;
-		
 		::std::string fileName;
 		
-		template <typename T1>
-		void createNewFileDialog(::std::string s)
+		void createNewFileDialog(::std::string s, int flag)
 		{
-			messageBox( newData->inputLineData, mfInformation | mfOKButton );
-			
-			auto  * d = new T1(s);
+			auto  * d = new PL_dBaseNewFile(s, flag);
 			TView * p = TProgram::application->validView(d);
 			if (!p) {
 				::std::string sz;
@@ -2102,61 +2169,66 @@ public:
 
 			x = 3;
 
-			auto * lbc_1 = new LB_Collection(5,5);
-			auto * lbc_2 = new LB_Collection(5,5);
-			auto * lbc_3 = new LB_Collection(5,5);
-			auto * lbc_4 = new LB_Collection(5,5);
-			auto * lbc_5 = new LB_Collection(5,5);
-			auto * lbc_6 = new LB_Collection(5,5);
+			xdbf_lbc_1 = new LB_Collection(5,5);
+			xdbf_lbc_2 = new LB_Collection(5,5);
+			xdbf_lbc_3 = new LB_Collection(5,5);
+			xdbf_lbc_4 = new LB_Collection(5,5);
+			xdbf_lbc_5 = new LB_Collection(5,5);
+			xdbf_lbc_6 = new LB_Collection(5,5);
 			
-			lbc_1->insert( newStr("Hello") );
-			lbc_1->insert( newStr("World") );
+			xdbf_lbc_1->insert( newStr("Hello") );
+			xdbf_lbc_1->insert( newStr("World") );
 			
-			lbc_2->insert( newStr("Hello") );
-			lbc_2->insert( newStr("World") );
-			lbc_2->insert( newStr("foo") );
-			lbc_2->insert( newStr("bar") );
-			lbc_2->insert( newStr("fuz") );
+			xdbf_lbc_2->insert( newStr("Hello") );
+			xdbf_lbc_2->insert( newStr("World") );
+			xdbf_lbc_2->insert( newStr("foo") );
+			xdbf_lbc_2->insert( newStr("bar") );
+			xdbf_lbc_2->insert( newStr("fuz") );
 			
-			lbc_3->insert( newStr("Hello") );
-			lbc_3->insert( newStr("World") );
-			lbc_2->insert( newStr("smell") );
+			xdbf_lbc_3->insert( newStr("Hello") );
+			xdbf_lbc_3->insert( newStr("World") );
+			xdbf_lbc_2->insert( newStr("smell") );
 			
-			lbc_4->insert( newStr("Hello") );
-			lbc_4->insert( newStr("World") );
+			xdbf_lbc_4->insert( newStr("Hello") );
+			xdbf_lbc_4->insert( newStr("World") );
 			
-			lbc_5->insert( newStr("Hello") );
+			xdbf_lbc_5->insert( newStr("Hello") );
 			
-			lbc_6->insert( newStr("A1") );
-			lbc_6->insert( newStr("B-1") );
-			lbc_6->insert( newStr("CCC") );
-			lbc_6->insert( newStr("dd") );
-			lbc_6->insert( newStr("ee") );
-			lbc_6->insert( newStr("gg") );
-			lbc_6->insert( newStr("hhhho") );
-			lbc_6->insert( newStr("mmmmm") );
-			lbc_6->insert( newStr("oooo") );
-			lbc_6->insert( newStr("232323") );
-			lbc_6->insert( newStr("ääääüüüü") );
-			lbc_6->insert( newStr("######") );
-			lbc_6->insert( newStr("qwerty") );
+			xdbf_lbc_6->insert( newStr("A1") );
+			xdbf_lbc_6->insert( newStr("B-1") );
+			xdbf_lbc_6->insert( newStr("CCC") );
+			xdbf_lbc_6->insert( newStr("dd") );
+			xdbf_lbc_6->insert( newStr("ee") );
+			xdbf_lbc_6->insert( newStr("gg") );
+			xdbf_lbc_6->insert( newStr("hhhho") );
+			xdbf_lbc_6->insert( newStr("mmmmm") );
+			xdbf_lbc_6->insert( newStr("oooo") );
+			xdbf_lbc_6->insert( newStr("232323") );
+			xdbf_lbc_6->insert( newStr("ääääüüüü") );
+			xdbf_lbc_6->insert( newStr("######") );
+			xdbf_lbc_6->insert( newStr("qwerty") );
 
-			lb_1 = new TListBox( TRect(x,7,   18, 16), 1, sb_1 ); x += 17;
-			lb_2 = new TListBox( TRect(x,7, x+15, 16), 1, sb_2 ); x += 17;
-			lb_3 = new TListBox( TRect(x,7, x+15, 16), 1, sb_3 ); x += 17;
-			lb_4 = new TListBox( TRect(x,7, x+15, 16), 1, sb_4 ); x += 17;
-			lb_5 = new TListBox( TRect(x,7, x+15, 16), 1, sb_5 ); x += 17;
-			lb_6 = new TListBox( TRect(x,7, x+15, 16), 1, sb_6 );
+			xdbf_lb_1 = new TListBox( TRect(x,7,   18, 16), 1, sb_1 ); x += 17;
+			xdbf_lb_2 = new TListBox( TRect(x,7, x+15, 16), 1, sb_2 ); x += 17;
+			xdbf_lb_3 = new TListBox( TRect(x,7, x+15, 16), 1, sb_3 ); x += 17;
+			xdbf_lb_4 = new TListBox( TRect(x,7, x+15, 16), 1, sb_4 ); x += 17;
+			xdbf_lb_5 = new TListBox( TRect(x,7, x+15, 16), 1, sb_5 ); x += 17;
+			xdbf_lb_6 = new TListBox( TRect(x,7, x+15, 16), 1, sb_6 );
 			
-			lb_1->eventMask = evMouseDown | evKeyDown | evCommand;
+			xdbf_lb_1->eventMask = evMouseDown | evKeyDown | evCommand;
+			xdbf_lb_2->eventMask = xdbf_lb_1->eventMask;
+			xdbf_lb_3->eventMask = xdbf_lb_1->eventMask;
+			xdbf_lb_4->eventMask = xdbf_lb_1->eventMask;
+			xdbf_lb_5->eventMask = xdbf_lb_1->eventMask;
+			xdbf_lb_6->eventMask = xdbf_lb_1->eventMask;
 
-			lb_1->newList(lbc_1); lb_2->newList(lbc_2);
-			lb_3->newList(lbc_3); lb_4->newList(lbc_4);
-			lb_5->newList(lbc_5); lb_6->newList(lbc_6);
+			xdbf_lb_1->newList(xdbf_lbc_1);  xdbf_lb_2->newList(xdbf_lbc_2);
+			xdbf_lb_3->newList(xdbf_lbc_3);  xdbf_lb_4->newList(xdbf_lbc_4);
+			xdbf_lb_5->newList(xdbf_lbc_5);  xdbf_lb_6->newList(xdbf_lbc_6);
 			
-			insert(lb_1); insert(lb_2);
-			insert(lb_3); insert(lb_4);
-			insert(lb_5); insert(lb_6);
+			insert(xdbf_lb_1); insert(xdbf_lb_2);
+			insert(xdbf_lb_3); insert(xdbf_lb_4);
+			insert(xdbf_lb_5); insert(xdbf_lb_6);
 			
 			x = 3;
 			
@@ -2252,33 +2324,94 @@ public:
 				if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
 				{
 					char buffer[MAX_LEN];
-					
-					if ((lb_1->state & sfFocused) != 0) { lb_1->getText(buffer, lb_1->focused, MAX_LEN); } else
-					if ((lb_2->state & sfFocused) != 0) { lb_2->getText(buffer, lb_2->focused, MAX_LEN); } else
-					if ((lb_3->state & sfFocused) != 0) { lb_3->getText(buffer, lb_3->focused, MAX_LEN); } else
-					if ((lb_4->state & sfFocused) != 0) { lb_4->getText(buffer, lb_4->focused, MAX_LEN); } else
-					if ((lb_5->state & sfFocused) != 0) { lb_5->getText(buffer, lb_5->focused, MAX_LEN); } else
-					if ((lb_6->state & sfFocused) != 0) { lb_6->getText(buffer, lb_6->focused, MAX_LEN); }
-					
-					messageBox(buffer,mfInformation|mfOKButton);
 					clearEvent(event);
+					
+					if ((xdbf_lb_1->state & sfFocused) != 0)
+					{
+						xdbf_lb_1->getText( buffer,
+						xdbf_lb_1->focused, MAX_LEN);
+
+						xdbf_vec_1.clear();
+						xdbf_vec_2.clear();
+						xdbf_vec_3.clear();
+						xdbf_vec_4.clear();
+
+						::xb::xbString xs_buffer( buffer );
+						::xb::xbString xb_buffer;
+
+						xs_buffer += ".dbf";
+						
+						FILE * check = fopen( xs_buffer.Str(), "rb" );
+						if (!check)
+							throw PL_Exception_DataBaseWarning(
+							locale_str( 95 ).c_str() );
+						fclose( check );
+						
+						xdbf_data_file->Close();
+						xdbf_data_file->Open ( xs_buffer, xs_buffer );
+						
+						xbInt32 fieldcount = xdbf_data_file->GetFieldCnt();
+						
+						for (xbInt32 count = 0; count < fieldcount; ++count){
+							xdbf_data_file->GetFieldName( count, xb_buffer );
+							xdbf_vec_1.push_back( xb_buffer.Str() );
+						}	xdbf_data_file->Close();
+						
+						createNewFileDialog( xs_buffer.Str(), -1 );
+						return;
+					} else
+					if ((xdbf_lb_2->state & sfFocused) != 0) {
+						xdbf_lb_2->getText(buffer,
+						xdbf_lb_2->focused, MAX_LEN);
+						
+						messageBox(buffer,mfInformation|mfOKButton);
+						return;
+					} else
+					if ((xdbf_lb_3->state & sfFocused) != 0) {
+						xdbf_lb_3->getText(buffer,
+						xdbf_lb_3->focused, MAX_LEN);
+						
+						messageBox(buffer,mfInformation|mfOKButton);
+						return;
+					} else
+					if ((xdbf_lb_4->state & sfFocused) != 0) {
+						xdbf_lb_4->getText(buffer,
+						xdbf_lb_4->focused, MAX_LEN);
+						
+						messageBox(buffer,mfInformation|mfOKButton);
+						return;
+					} else
+					if ((xdbf_lb_5->state & sfFocused) != 0) {
+						xdbf_lb_5->getText(buffer,
+						xdbf_lb_5->focused, MAX_LEN);
+						
+						messageBox(buffer,mfInformation|mfOKButton);
+						return;
+					} else
+					if ((xdbf_lb_6->state & sfFocused) != 0) {
+						xdbf_lb_6->getText(buffer,
+						xdbf_lb_6->focused, MAX_LEN);
+						
+						messageBox(buffer,mfInformation|mfOKButton);
+						return;
+					}
 				}
 			}
 			if (event.message.command == cmHelp)
 			{
 				clearEvent(event);
 				
-				if ((lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); } else
-				if ((lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); } else
-				if ((lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); } else
+				if ((xdbf_lb_1->state & sfFocused) != 0) { handle_helpView( 1 ); } else
+				if ((xdbf_lb_2->state & sfFocused) != 0) { handle_helpView( 2 ); } else
+				if ((xdbf_lb_3->state & sfFocused) != 0) { handle_helpView( 3 ); } else
 				
-				if ((lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); } else
-				if ((lb_5->state & sfFocused) != 0) { handle_helpView( 5 ); } else
-				if ((lb_6->state & sfFocused) != 0) { handle_helpView( 6 ); }
+				if ((xdbf_lb_4->state & sfFocused) != 0) { handle_helpView( 4 ); } else
+				if ((xdbf_lb_5->state & sfFocused) != 0) { handle_helpView( 5 ); } else
+				if ((xdbf_lb_6->state & sfFocused) != 0) { handle_helpView( 6 ); }
 			}
 			else if (event.message.command == cmDBASE_data) {
 				clearEvent(event);
-				createNewFileDialog< PL_dBaseNewFile >(fileName);
+				createNewFileDialog( ::std::string(""), 1 );
 				return;
 			}
 			else if (event.message.command == cmDBASE_query) {
@@ -2286,7 +2419,7 @@ public:
 				messageBox(
 					locale_str( 24 ).c_str(),
 					mfInformation | mfOKButton);
-				//createNewFileDialog< PL_dBaseNewFile >("query");
+				//createNewFileDialog< PL_dBaseNewFile >("query", 3);
 				return;
 			}
 			else if (event.message.command == cmDBASE_form) {
@@ -2294,7 +2427,7 @@ public:
 				messageBox(
 					locale_str( 24 ).c_str(),
 					mfInformation | mfOKButton);
-				//createNewFileDialog< PL_dBaseNewFile >("form");
+				//createNewFileDialog< PL_dBaseNewFile >("form", 4);
 				return;
 			}
 			else if (event.message.command == cmDBASE_report) {
@@ -2302,7 +2435,7 @@ public:
 				messageBox(
 					locale_str( 24 ).c_str(),
 					mfInformation | mfOKButton);
-				//createNewFileDialog< PL_dBaseNewFile >("report");
+				//createNewFileDialog< PL_dBaseNewFile >("report", 5);
 				return;
 			}
 			else if (event.message.command == cmDBASE_label) {
@@ -2310,12 +2443,12 @@ public:
 				messageBox(
 					locale_str( 24 ).c_str(),
 					mfInformation | mfOKButton);
-				//createNewFileDialog< PL_dBaseNewFile >("label");
+				//createNewFileDialog< PL_dBaseNewFile >("label", 6);
 				return;
 			}
 			else if (event.message.command == cmDBASE_app) {
 				clearEvent(event);
-				createNewFileDialog< PL_dBaseNewFile >("application");
+				auto *dlg = new PL_dBaseNewFile("application", 7);
 				return;
 			}
 			clearEvent( event );
@@ -2739,14 +2872,15 @@ public:
 	void
 	createNewProjectDialog()
 	{
-		auto  * d = new TNewProjectDialog();
-		TView * p = TProgram::application->validView(d);
+		project_dialog = new TNewProjectDialog();
+		TView * p = TProgram::application->validView(
+		project_dialog );
 		if (!p) {
 			::std::string sz;
 			sz = locale_str( 23 ).c_str();
 			throw PL_Exception_Application( sz.c_str() );
 		}
-		TProgram::deskTop->insert(d);
+		TProgram::deskTop->insert( project_dialog );
 	}
 	
 	static bool isTileable(TView *p, void*)
@@ -2797,8 +2931,8 @@ public:
 		dir = exe.substr( 0,  fnd );
 		exe = exe.substr( fnd + 1 );
 
-		messageBox( exe.c_str(), mfOKButton );
-		messageBox( dir.c_str(), mfOKButton );
+		//messageBox( exe.c_str(), mfOKButton );
+		//messageBox( dir.c_str(), mfOKButton );
 
 		xdbf_data_class     = new xbXBase();
 		xdbf_data_directory = dir ;
@@ -2811,6 +2945,25 @@ public:
 		
 		delete xdbf_data_class;
 		delete xdbf_data_file ;
+
+		delete xdbf_lbc_1;
+		delete xdbf_lbc_2;
+		delete xdbf_lbc_3;
+		delete xdbf_lbc_4;
+		delete xdbf_lbc_5;
+		delete xdbf_lbc_6;
+
+		delete xdbf_lb_1;
+		delete xdbf_lb_2;
+		delete xdbf_lb_3;
+		delete xdbf_lb_4;
+		delete xdbf_lb_5;
+		delete xdbf_lb_6;
+
+		delete new_file_lb_1;
+		delete new_file_lb_2;
+		delete new_file_lb_3;
+		delete new_file_lb_4;
 
 		delete clock;
 
@@ -2834,9 +2987,11 @@ private:
 	TClockView *clock;
 	int curMenu;
 
+	static inline TNewProjectDialog * project_dialog;
+	static inline ::std::size_t fnd;
+	
 	::std::string exe;  // application name:   foo.exe
 	::std::string dir;  // application folder: C:\path\to
-	::std::size_t fnd;
 	
 };	// class Application
 
@@ -4936,6 +5091,210 @@ public:
 }	// namespace: prolog
 
 using namespace prolog;
+static prolog::Application * _app = nullptr;
+
+// ----------------------------------------------------------
+// Resolve symbol name and source location given the path
+// to the executable and an address
+// ----------------------------------------------------------
+int
+addr2line(
+	char const * const program_name,
+	void const * const addr)
+{
+	char addr2line_cmd[ 512 ] = {0};
+
+	// ------------------------------------------
+	// have addr2line map the address to the
+	// relent line in the code
+	// ------------------------------------------
+	sprintf( addr2line_cmd,
+		"addr2line -f -p -e %.256s %p",
+		program_name,
+		addr);
+
+	// ------------------------------------------
+	// This will print a nicely formatted string
+	// specifying the function and source line
+	// of the address
+	// ------------------------------------------
+	return system( addr2line_cmd );
+}
+
+void
+windows_print_stacktrace(
+	CONTEXT* context)
+{	SymInitialize(GetCurrentProcess(), 0, true);
+
+	STACKFRAME frame = { 0 };
+
+	/* setup initial stack frame */
+	frame.AddrPC.Offset         = context->Rip;
+	frame.AddrPC.Mode           = AddrModeFlat;
+	frame.AddrStack.Offset      = context->Rsp;
+	frame.AddrStack.Mode        = AddrModeFlat;
+	frame.AddrFrame.Offset      = context->Rbp;
+	frame.AddrFrame.Mode        = AddrModeFlat;
+
+	while (
+		StackWalk(IMAGE_FILE_MACHINE_I386 ,
+		GetCurrentProcess(),
+		GetCurrentThread(),
+		&frame,
+		context,
+		0,
+		SymFunctionTableAccess,
+		SymGetModuleBase,
+		0 ) ) {
+		addr2line(
+			"prolog64.exe",
+			(void*)frame.AddrPC.Offset
+		);
+	}
+
+	SymCleanup( GetCurrentProcess() );
+}
+
+LONG
+WINAPI windows_exception_handler(
+	EXCEPTION_POINTERS * ExceptionInfo)
+{
+	::std::stringstream ss;
+	ss << locale_str( 73 ).c_str();
+	
+	switch ( ExceptionInfo->ExceptionRecord->ExceptionCode )
+	{
+		case EXCEPTION_ACCESS_VIOLATION:
+		{
+			ss << "EXCEPTION_ACCESS_VIOLATION";
+		}
+		break;
+		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+		{
+			ss << "EXCEPTION_ARRAY_BOUNDS_EXCEEDED";
+		}
+		break;
+		case EXCEPTION_BREAKPOINT:
+		{
+			ss << "EXCEPTION_BREAKPOINT";
+		}
+		break;
+		case EXCEPTION_DATATYPE_MISALIGNMENT:
+		{
+			ss << "EXCEPTION_DATATYPE_MISALIGNMENT";
+		}
+		break;
+		case EXCEPTION_FLT_DENORMAL_OPERAND:
+		{
+			ss << "EXCEPTION_FLT_DENORMAL_OPERAND";
+		}
+		break;
+		case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+		{
+			ss << "EXCEPTION_FLT_DIVIDE_BY_ZERO";
+		}
+		break;
+		case EXCEPTION_FLT_INEXACT_RESULT:
+		{
+			ss << "EXCEPTION_FLT_INEXACT_RESULT";
+		}
+		break;
+		case EXCEPTION_FLT_INVALID_OPERATION:
+		{
+			ss << "EXCEPTION_FLT_INVALID_OPERATION";
+		}
+		break;
+		case EXCEPTION_FLT_OVERFLOW:
+		{
+			ss << "EXCEPTION_FLT_OVERFLOW";
+		}
+		break;
+		case EXCEPTION_FLT_STACK_CHECK:
+		{
+			ss << "EXCEPTION_FLT_STACK_CHECK";
+		}
+		break;
+		case EXCEPTION_FLT_UNDERFLOW:
+		{
+			ss << "EXCEPTION_FLT_UNDERFLOW";
+		}
+		break;
+		case EXCEPTION_ILLEGAL_INSTRUCTION:
+		{
+			ss << "EXCEPTION_ILLEGAL_INSTRUCTION";
+		}
+		break;
+		case EXCEPTION_IN_PAGE_ERROR:
+		{
+			ss << "EXCEPTION_IN_PAGE_ERROR";
+		}
+		break;
+		case EXCEPTION_INT_DIVIDE_BY_ZERO:
+		{
+			ss << "EXCEPTION_INT_DIVIDE_BY_ZERO";
+		}
+		break;
+		case EXCEPTION_INT_OVERFLOW:
+		{
+			ss << "EXCEPTION_INT_OVERFLOW";
+		}
+		break;
+		case EXCEPTION_INVALID_DISPOSITION:
+		{
+			ss << "EXCEPTION_INVALID_DISPOSITION";
+		}
+		break;
+		case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+		{
+			ss << "EXCEPTION_NONCONTINUABLE_EXCEPTION";
+		}
+		break;
+		case EXCEPTION_PRIV_INSTRUCTION:
+		{
+			ss << "EXCEPTION_PRIV_INSTRUCTION";
+		}
+		break;
+		case EXCEPTION_SINGLE_STEP:
+		{
+			ss << "EXCEPTION_SINGLE_STEP";
+		}
+		break;
+		case EXCEPTION_STACK_OVERFLOW:
+		{
+			ss << "EXCEPTION_STACK_OVERFLOW";
+		}
+		break;
+		default:
+		{
+			ss << "Unrecognized Exception";
+		}
+		break;
+	}
+	_app->MessageBox( ss.str().c_str(), mfError | mfOKButton );
+
+	// -----------------------------------------------------------
+	// If this is a stack overflow then we can't walk the stack,
+	// so just show where the error happened ...
+	// -----------------------------------------------------------
+	if (EXCEPTION_STACK_OVERFLOW !=
+		ExceptionInfo  ->
+		ExceptionRecord->
+		ExceptionCode)  {
+		windows_print_stacktrace(ExceptionInfo->ContextRecord);
+	}	else {
+		addr2line(
+			"prolog64.exe",
+			(void*)ExceptionInfo->ContextRecord->Rip);
+	}
+
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+void set_signal_handler(prolog::Application * a) {
+	_app = a;
+	SetUnhandledExceptionFilter( windows_exception_handler );
+}
+
 void
 init_con_app(
 	Console& con,
@@ -4944,6 +5303,8 @@ init_con_app(
 	int flag)
 {
 	auto * app = new Application( con, argv );
+	set_signal_handler( app );
+
 	while (true) {
 		try {
 			switch (flag) {
@@ -4969,14 +5330,48 @@ init_con_app(
 				<< ::std::endl
 				<< locale_str( 15 ).c_str();
 
-			ushort res = app->MessageBoxRect(
-			TRect(10,7,60,19),
-			txt.str().c_str(),
-			mfError | mfYesButton | mfNoButton );
-			
-			if (res == 12) {
-				delete app;
-				break;
+			if (app->MessageBoxRect(
+				TRect(10,7,60,19),
+				txt.str().c_str(),
+				mfError | mfYesButton | mfNoButton ) == 12)
+			delete app;
+			break;
+		}
+		catch (PL_Exception_Windows& e)
+		{
+			::std::stringstream txt;
+			txt << locale_str( 84 ).c_str()
+				<< ::std::endl
+				<< ::std::endl
+				<< e.what();
+				
+			if (app->MessageBoxRect(
+				TRect(10,7,60,19),
+				txt.str().c_str(),
+				mfError | mfOKButton ) == 12)
+			continue;	
+		}
+		catch (PL_Exception_DataBaseWarning& e)
+		{
+			app->MessageBoxRect(
+				TRect(10,7,60,19),
+				e.what(),
+				mfError | mfOKButton );
+			continue;
+		}
+		catch (PL_Exception_DataBase& e)
+		{
+			::std::stringstream txt;
+			txt << locale_str( 85 ).c_str()
+				<< ::std::endl
+				<< ::std::endl
+				<< e.what();
+				
+			if (app->MessageBoxRect(
+				TRect(10,7,60,19),
+				txt.str().c_str(),
+				mfError | mfOKButton ) == 12) {
+				continue;
 			}
 		}
 		catch (...) {
@@ -4986,15 +5381,13 @@ init_con_app(
 				<< ::std::endl
 				<< locale_str( 15 );
 
-			ushort res = app->MessageBoxRect(
-			TRect(10,7,60,19),
-			txt.str().c_str(),
-			mfError | mfYesButton | mfNoButton );
-
-			if (res == 12) {
+			if (app->MessageBoxRect(
+				TRect(10,7,60,19),
+				txt.str().c_str(),
+				mfError | mfYesButton | mfNoButton ) == 12) {
 				delete app;
 				break;
-			}
+			}	return;
 		}
 	}
 }
