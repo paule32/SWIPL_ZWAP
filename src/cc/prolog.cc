@@ -352,7 +352,7 @@ constexpr int ILL_BADSTK	= 8;	// internal stack error
 constexpr int ILL_BADIADDR	= 9;	// unimplemented instruction address
 
 
-static uint8_t app_lang = 2;
+static uint8_t app_lang = 1;
 
 // ---------------------------------------------------------------------
 // namespace placeholder.
@@ -528,9 +528,33 @@ public:
 	::std::string
 	message(int32_t which) {
 		::std::stringstream ss;
+		::std::string r;
+
 		ss  << eng_locale.at( which )
 			<< ::std::endl;
-		return ss.str();
+			
+		ss.str().erase(
+		ss.str().size()-1,1);
+
+		// ----------------------------------
+		// replace german umlauts ...
+		// ----------------------------------
+		for (int i  = 0; i < ss.str().length()-1; ++i)
+		{
+			int ch  = ss.str().c_str()[i];
+			
+			if (ch == 'Ä') { r += 0x8E; } else
+			if (ch == 'Ü') { r += 0x9A; } else
+			if (ch == 'Ö') { r += 0x99; } else
+			
+			if (ch == 'ü') { r += 0x81; } else
+			if (ch == 'ä') { r += 0x84; } else
+			if (ch == 'ö') { r += 0x94; } else
+			
+			if (ch == 'ß') { r += 0xE1; } else
+			
+			r += ch;
+		}	return r;
 	}
 	locale_eng() {}
 };
@@ -5681,6 +5705,7 @@ HWND hwndRegister;
 HWND hwndTabs;
 
 HWND hwndStatic[5];
+HWND hwndStaticButtonAll[12];
 
 long long int
 AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -5800,6 +5825,9 @@ RegisterWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
     {
+		case WM_CREATE:
+			SetFocus(hwndStatic[0]);
+		break;
 		case WM_MOVE:
 			SendMessage(hwnd, WM_NCPAINT, 0,0);
 			SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)GetDC(hwnd),0);
@@ -5982,7 +6010,7 @@ DoCreateRegisterWindow(
     }
 	
 	SetParent (hwndRegister, hwndParent);
-	ShowWindow(hwndRegister, SW_SHOWNORMAL);
+	ShowWindow(hwndRegister, TRUE);
 	
 	// ---------------------
 	// directory path field
@@ -6065,6 +6093,142 @@ DoCreateRegisterWindow(
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
+	// 1
+	hwndStaticButtonAll[0] = CreateWindow(WC_BUTTON, "New\nProject",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[0], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[0], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[1] = CreateWindow(WC_BUTTON, "New\nReport",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5+20+20+10, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[1], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[1], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[2] = CreateWindow(WC_BUTTON, "New\nSQL",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5+(5*20), 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[2], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[2], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	
+	// 2
+	hwndStaticButtonAll[3] = CreateWindow(WC_BUTTON, "New\nForm",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		15+(4*20),5, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[3], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[3], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[4] = CreateWindow(WC_BUTTON, "Custom Report",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		15+(4*20),55, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[4], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[4], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[5] = CreateWindow(WC_BUTTON, "Data Module",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		15+(4*20), 5+(5*20), 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[5], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[5], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	
+	// 3
+	hwndStaticButtonAll[6] = CreateWindow(WC_BUTTON, "Custom Form",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5+(9*20),5, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[6], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[6], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[7] = CreateWindow(WC_BUTTON, "New\nLabel",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5+(9*20) , 55, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[7], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[7], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[8] = CreateWindow(WC_BUTTON, "New\nMenue",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5+(9*20),5+(5*20), 5+(4*20), 5+20+20,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[8], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[8], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	
+	// 4
+	hwndStaticButtonAll[9] = CreateWindow(WC_BUTTON, "New\nPopup",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		(20*13)+15,5, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[9], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[9], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[10] = CreateWindow(WC_BUTTON, "New\nProgram",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		(20*13)+15,55, 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[10], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[10], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonAll[11] = CreateWindow(WC_BUTTON, "New\nTable",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		(20*13)+15, 5+(5*20), 5+(4*20), 45,
+		hwndStatic[0],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonAll[11], hwndStatic[0] );
+	SendMessage( hwndStaticButtonAll[11], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+
 	
 	wsprintf( tab_label, "Table's" );
 	pitem.pszText = tab_label;
@@ -6114,9 +6278,13 @@ DoCreateRegisterWindow(
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 
 	SetParent ( hwndTabs, hwndRegister );
-	ShowWindow( hwndTabs, SW_SHOWNORMAL);
-	
+	ShowWindow( hwndTabs, TRUE );
+
 	ShowWindow( hwndStatic[0], TRUE);
+	SetFocus  ( hwndStatic[0] );
+
+	for (int i = 0; i < 12; ++i)
+	ShowWindow( hwndStaticButtonAll[i], TRUE );
 	
 	return hwndRegister;
 }
@@ -6446,7 +6614,7 @@ WinMain(
 		// -i<input file> -o<output file>
 		// ----------------------------------------
 		if (argv_vec.size() < 2) {
-			app_lang = 2;	// <-- todo
+			//app_lang = 2;	// <-- todo
 			Win32API win ;
 			Console  con ( win );
 			
