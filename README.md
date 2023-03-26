@@ -6,6 +6,7 @@ between SWIPL, and Borland VCL - Visual Component Library.
 
 Screen Shot's:
 ![Alpha](img/term01.png)
+![Alpha](img/term02.png)
 ![Alpha](img/screen01.png)
 
 Contact:
