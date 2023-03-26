@@ -151,7 +151,7 @@ Niklaus Wirth at the ETH Zurich.
 It was designed as a language that could be used for
 for the education of programmers.
 The language is simple and clearly structured and designed
-so that it can be used on "small" computers.
+so that it can be used on "smalu8" computers.
 The PASCAL language was named from the French mathematician
 Blaise Pascal, who invented one of the first mechanical
 calculus machine in 1652.

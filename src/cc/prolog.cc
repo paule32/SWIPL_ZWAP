@@ -142,6 +142,7 @@
 # include <limits.h>
 # include <getopt.h>
 # include <limits.h>
+# include <signal.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 
@@ -175,6 +176,7 @@
 # include <fstream>
 # include <istream>
 # include <codecvt>
+# include <cstdlib> 		// for: ::std::itoa
 # include <exception>
 # include <vector>
 # include <algorithm>
@@ -193,7 +195,19 @@
 // Windows header stuff ...
 // ---------------------------------------------------------------------
 # include <windows.h>
+# include <windowsx.h>
 # include <imagehlp.h>
+# include <CommCtrl.h>
+
+# define DCX_USESTYLE 0x00010000	// undefined in Windows header's
+
+# include "resource.h"
+
+#define IDM_CHARACTER    32771
+#define IDM_REGULAR      32772
+#define IDM_BOLD         32773
+#define IDM_ITALIC       32774
+#define IDM_UNDERLINE    32775
 
 // ---------------------------------------------------------------------
 // Turbo Vision for C++ ...
@@ -313,13 +327,30 @@ LB_Collection * xdbf_sc_4 = nullptr;
 // ---------------------------------------------------------------------
 // error handling
 // ---------------------------------------------------------------------
-#ifdef _WIN32
 # define NULL_DEVICE_NAME "NUL"
-#else
-# define NULL_DEVICE_NAME "/dev/null"
-#endif
 
 static ::std::stringstream error_buffer;
+
+constexpr int FPE_INTDIV	= 1;
+constexpr int FPE_INTOVF	= 2;
+constexpr int FPE_FLTDIV	= 3;
+constexpr int FPE_FLTOVF	= 4;
+
+constexpr int FPE_FLTUND	= 5;
+constexpr int FPE_FLTRES	= 6;
+constexpr int FPE_FLTINV	= 7;
+constexpr int FPE_FLTSUB	= 8;
+
+constexpr int ILL_ILLOPC	= 1;	// illegal opcode
+constexpr int ILL_ILLOPN	= 2;	// illegal operand
+constexpr int ILL_ILLADR	= 3;	// illegal addressing mode
+constexpr int ILL_ILLTRP	= 4;	// illegal trap
+constexpr int ILL_PRVOPC	= 5;	// privileged opcode
+constexpr int ILL_PRVREG	= 6;	// privileged register
+constexpr int ILL_COPROC	= 7;	// coprocessor error
+constexpr int ILL_BADSTK	= 8;	// internal stack error
+constexpr int ILL_BADIADDR	= 9;	// unimplemented instruction address
+
 
 static uint8_t app_lang = 2;
 
@@ -353,6 +384,8 @@ class Ftp;
 
 class PL_Exception_Application;
 class PL_Exception_Windows;
+
+static Application * _app = nullptr;
 
 // ---------------------------------------------------------------------
 // locale string's (english):
@@ -476,6 +509,18 @@ private:
 		"internal field delete error",          // 0094
 		"internal error - no such table file "
 		"available on storage disk",            // 0095
+		
+		"signal handler error: ",               // 0096
+		
+		"Error: data-base:",                    // 0097
+		"XB_INVALID_DATA",                      // 0098
+		"XB_INVALID_FIELD_NAME",                // 0099
+		"XB_INVALID_FIELD_NO",                  // 0100
+		"XB_INVALID_FIELD_TYPE",                // 0101
+		
+		"internal memory error",                // 0102
+		"Error !",                              // 0103
+		"Register Window Creation Failed !",    // 0104
 
 		"locale string"
 	};
@@ -617,6 +662,18 @@ private:
 		"interner Fehler: keine Datei für diesen "
 		"Zugriff vorhanden.",                        // 0095
 		
+		"Signal-Handler Fehler: ",                   // 0096
+		
+		"Fehler: Datenbank:",                        // 0097
+		"XB_INVALID_DATA",                           // 0098
+		"XB_INVALID_FIELD_NAME",                     // 0099
+		"XB_INVALID_FIELD_NO",                       // 0100
+		"XB_INVALID_FIELD_TYPE",                     // 0101
+
+		"interner Speicher-Fehler",                  // 0102
+		"Fehler !",                                  // 0103
+		"Fenster konnte nicht registriert werden !", // 0104
+
 		"locale zeichenkette"
 	};
 
@@ -2338,6 +2395,7 @@ public:
 
 						::xb::xbString xs_buffer( buffer );
 						::xb::xbString xb_buffer;
+						char           fld_type;
 
 						xs_buffer += ".dbf";
 						
@@ -2352,10 +2410,48 @@ public:
 						
 						xbInt32 fieldcount = xdbf_data_file->GetFieldCnt();
 						
-						for (xbInt32 count = 0; count < fieldcount; ++count){
+						for (xbInt16 count = 0; count < fieldcount; ++count){
 							xdbf_data_file->GetFieldName( count, xb_buffer );
+							xdbf_data_file->GetFieldType( count, fld_type  );
+							
 							xdbf_vec_1.push_back( xb_buffer.Str() );
-						}	xdbf_data_file->Close();
+							
+							if ( fld_type == XB_NUMERIC_FLD ) xdbf_vec_2.push_back( "numeric" ); else
+							if ( fld_type == XB_CHAR_FLD    ) xdbf_vec_2.push_back( "char"    ); else
+							if ( fld_type == XB_DATE_FLD    ) xdbf_vec_2.push_back( "date"    ); else
+							if ( fld_type == XB_LOGICAL_FLD ) xdbf_vec_2.push_back( "logical" ); else
+							if ( fld_type == XB_MEMO_FLD    ) xdbf_vec_2.push_back( "memo"    );
+							
+							if ( fld_type == XB_CHAR_FLD )
+							{
+								xbInt16 len;
+								xbInt16 res = xdbf_data_file->GetFieldLen( count, len );
+								
+								::std::string err = locale_str( 97 ).c_str();
+								
+								if (res == XB_INVALID_DATA){
+									err += locale_str( 98 );
+									throw PL_Exception_DataBase( err.c_str() );
+								}	else
+								if (res == XB_INVALID_FIELD_NO){
+									err += locale_str( 99 );
+									throw PL_Exception_DataBase( err.c_str() );
+								}	else
+								if (res == XB_INVALID_FIELD_NAME){
+									err += locale_str( 100 );
+									throw PL_Exception_DataBase( err.c_str() );
+								}	else
+								if (res == XB_INVALID_FIELD_TYPE){
+									err += locale_str( 101 );
+									throw PL_Exception_DataBase( err.c_str() );
+								}
+								
+								xdbf_vec_3.push_back( itoa( len, buffer, 10 ) );
+								xdbf_vec_4.push_back( "0" );
+								continue;
+							}
+						}
+						xdbf_data_file->Close();
 						
 						createNewFileDialog( xs_buffer.Str(), -1 );
 						return;
@@ -2774,7 +2870,8 @@ public:
 			case cmAppQuit:
 			{
 				if (messageBox( locale_str( 16 ).c_str(), mfYesButton | mfNoButton ) == 12)
-				TObject::destroy(this);
+					delete _app;
+				//TObject::destroy(this);
 			}
 			break;
 
@@ -2941,35 +3038,38 @@ public:
 	}
 	
 	~Application() {
-		xdbf_data_file->Close();
-		
-		delete xdbf_data_class;
-		delete xdbf_data_file ;
-
-		delete xdbf_lbc_1;
-		delete xdbf_lbc_2;
-		delete xdbf_lbc_3;
-		delete xdbf_lbc_4;
-		delete xdbf_lbc_5;
-		delete xdbf_lbc_6;
-
-		delete xdbf_lb_1;
-		delete xdbf_lb_2;
-		delete xdbf_lb_3;
-		delete xdbf_lb_4;
-		delete xdbf_lb_5;
-		delete xdbf_lb_6;
-
-		delete new_file_lb_1;
-		delete new_file_lb_2;
-		delete new_file_lb_3;
-		delete new_file_lb_4;
-
-		delete clock;
-
-		if (newData != nullptr) {
-			delete newData;
+		if (xdbf_data_file != nullptr) {
+			xdbf_data_file->Close();
+			delete xdbf_data_file;
 		}
+		
+		if (xdbf_data_class != nullptr)
+		delete xdbf_data_class;
+
+		if (xdbf_lbc_1 != nullptr) delete xdbf_lbc_1;
+		if (xdbf_lbc_2 != nullptr) delete xdbf_lbc_2;
+		if (xdbf_lbc_3 != nullptr) delete xdbf_lbc_3;
+		
+		if (xdbf_lbc_4 != nullptr) delete xdbf_lbc_4;
+		if (xdbf_lbc_5 != nullptr) delete xdbf_lbc_5;
+		if (xdbf_lbc_6 != nullptr) delete xdbf_lbc_6;
+
+		if (xdbf_lb_1  != nullptr) delete xdbf_lb_1;
+		if (xdbf_lb_2  != nullptr) delete xdbf_lb_2;
+		if (xdbf_lb_3  != nullptr) delete xdbf_lb_3;
+		
+		if (xdbf_lb_4  != nullptr) delete xdbf_lb_4;
+		if (xdbf_lb_5  != nullptr) delete xdbf_lb_5;
+		if (xdbf_lb_6  != nullptr) delete xdbf_lb_6;
+
+		if (new_file_lb_1 != nullptr) delete new_file_lb_1;
+		if (new_file_lb_2 != nullptr) delete new_file_lb_2;
+
+		if (new_file_lb_3 != nullptr) delete new_file_lb_3;
+		if (new_file_lb_4 != nullptr) delete new_file_lb_4;
+
+		if (clock   != nullptr) delete clock;
+		if (newData != nullptr) delete newData;
 	}
 	
 	void exit(int returnCode = 0)
@@ -5091,7 +5191,6 @@ public:
 }	// namespace: prolog
 
 using namespace prolog;
-static prolog::Application * _app = nullptr;
 
 // ----------------------------------------------------------
 // Resolve symbol name and source location given the path
@@ -5109,16 +5208,19 @@ addr2line(
 	// relent line in the code
 	// ------------------------------------------
 	sprintf( addr2line_cmd,
-		"addr2line -f -p -e %.256s %p",
+		".\\addr2line.exe -f main -p -e %.256s %p",
 		program_name,
 		addr);
-
+::std::cout << addr2line_cmd << ::std::endl;
 	// ------------------------------------------
 	// This will print a nicely formatted string
 	// specifying the function and source line
 	// of the address
 	// ------------------------------------------
-	return system( addr2line_cmd );
+	int res = system( addr2line_cmd );
+	::std::cout << res <<
+	::std::endl;
+	return res;
 }
 
 void
@@ -5131,28 +5233,32 @@ windows_print_stacktrace(
 	/* setup initial stack frame */
 	frame.AddrPC.Offset         = context->Rip;
 	frame.AddrPC.Mode           = AddrModeFlat;
+	
 	frame.AddrStack.Offset      = context->Rsp;
 	frame.AddrStack.Mode        = AddrModeFlat;
+	
 	frame.AddrFrame.Offset      = context->Rbp;
 	frame.AddrFrame.Mode        = AddrModeFlat;
 
-	while (
-		StackWalk(IMAGE_FILE_MACHINE_I386 ,
-		GetCurrentProcess(),
-		GetCurrentThread(),
-		&frame,
-		context,
-		0,
-		SymFunctionTableAccess,
-		SymGetModuleBase,
-		0 ) ) {
-		addr2line(
-			"prolog64.exe",
-			(void*)frame.AddrPC.Offset
-		);
-	}
+	if (!frame.AddrPC.Offset) {
+		while (
+			StackWalk(IMAGE_FILE_MACHINE_I386 ,
+			GetCurrentProcess(),
+			GetCurrentThread(),
+			&frame,
+			context,
+			0,
+			SymFunctionTableAccess,
+			SymGetModuleBase,
+			0 ) ) {
+			addr2line(
+				"prolog64.exe",
+				(void*)frame.AddrPC.Offset
+			);
+		}
 
-	SymCleanup( GetCurrentProcess() );
+		SymCleanup( GetCurrentProcess() );
+	}
 }
 
 LONG
@@ -5270,7 +5376,8 @@ WINAPI windows_exception_handler(
 		}
 		break;
 	}
-	_app->MessageBox( ss.str().c_str(), mfError | mfOKButton );
+	::std::cout << ss.str() <<
+	::std::endl ;
 
 	// -----------------------------------------------------------
 	// If this is a stack overflow then we can't walk the stack,
@@ -5286,15 +5393,171 @@ WINAPI windows_exception_handler(
 			"prolog64.exe",
 			(void*)ExceptionInfo->ContextRecord->Rip);
 	}
-
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
-void set_signal_handler(prolog::Application * a) {
-	_app = a;
-	SetUnhandledExceptionFilter( windows_exception_handler );
+void
+app_signal_handler(
+	int sig ,
+	int arg )
+{
+	::std::stringstream ss;
+	
+	::std::string s1 = "Caught ";
+	::std::string s2 = "Caught SIGFPE: (floating-point: ";
+	::std::string s3 = "Caught SIGILL: ";
+	::std::string s4 = "Caught SIGFPE: ";
+
+	switch ( sig )
+	{
+		case SIGSEGV:
+			ss << s1;
+			ss << "SIGSEGV: Segmentation Fault" << ::std::endl;
+		break;
+		case SIGINT:
+			ss << s1;
+			ss << "SIGINT: Interactive attention signal, (usually ctrl+c)" << ::std::endl;
+		break;
+		case SIGFPE:
+			switch ( arg )
+			{
+				case FPE_INTDIV:
+					ss << s2;
+					ss << "(integer divide by zero)" << ::std::endl;
+				break;
+				case FPE_INTOVF:
+					ss << s2;
+					ss << "(integer overflow)" << ::std::endl;
+				break;
+				case FPE_FLTDIV:
+					ss << s2;
+					ss << "divide by zero)" << ::std::endl;
+				break;
+				case FPE_FLTOVF:
+					ss << s2;
+					ss << "overflow)" << ::std::endl;
+				break;
+				case FPE_FLTUND:
+					ss << s2;
+					ss << "underflow)" << ::std::endl;
+				break;
+				case FPE_FLTRES:
+					ss << s2;
+					ss << "inexact result)" << ::std::endl;
+				break;
+				case FPE_FLTINV:
+					ss << s2;
+					ss << "invalid operation)" << ::std::endl;
+				break;
+				case FPE_FLTSUB:
+					ss << s4;
+					ss << "(subscript out of range)" << ::std::endl;
+				break;
+				default:
+					ss << s4;
+					ss << "Arithmetic Exception" << ::std::endl;
+				break;
+			}
+		case SIGILL:
+			switch ( arg )
+			{
+				case ILL_ILLOPC:
+					ss << s3;
+					ss << "(illegal opcode)" << ::std::endl;
+				break;
+				case ILL_ILLOPN:
+					ss << s3;
+					ss << "(illegal operand)" << ::std::endl;
+				break;
+				case ILL_ILLADR:
+					ss << s3;
+					ss << "(illegal addressing mode)" << ::std::endl;
+				break;
+				case ILL_ILLTRP:
+					ss << s3;
+					ss << "(illegal trap)" << ::std::endl;
+				break;
+				case ILL_PRVOPC:
+					ss << s3;
+					ss << "(privileged opcode)" << ::std::endl;
+				break;
+				case ILL_PRVREG:
+					ss << s3;
+					ss << "(privileged register)" << ::std::endl;
+				break;
+				case ILL_COPROC:
+					ss << s3;
+					ss << "(coprocessor error)" << ::std::endl;
+				break;
+				case ILL_BADSTK:
+					ss << s3;
+					ss << "(internal stack error)" << ::std::endl;
+				break;
+				default:
+					ss << s3;
+					ss << "Illegal Instruction" << ::std::endl;
+				break;
+			}
+		break;
+		case SIGTERM:
+			ss << s1;
+			ss << "SIGTERM: a termination request was sent to the program" << ::std::endl;
+		break;
+		case SIGABRT:
+			ss << s1;
+			ss << "SIGABRT: usually caused by an abort() or assert()" << ::std::endl;
+		break;
+		default:
+		break;
+	}
+
+	throw PL_Exception_Application( ss.str() );
+
+	//::std::cout << ss.str() <<
+	//::std::endl ;
 }
 
+// ---------------------------------------------------------------------
+// signal handler registration's ...
+// ---------------------------------------------------------------------
+void sig_handler_1( int arg ) { app_signal_handler( SIGSEGV, arg ); }
+void sig_handler_2( int arg ) { app_signal_handler( SIGFPE , arg ); }
+void sig_handler_3( int arg ) { app_signal_handler( SIGINT , arg ); }
+
+void sig_handler_4( int arg ) { app_signal_handler( SIGILL , arg ); }
+void sig_handler_5( int arg ) {	app_signal_handler( SIGTERM, arg ); }
+void sig_handler_6( int arg ) {	app_signal_handler( SIGABRT, arg ); }
+
+void set_signal_handler()
+{
+	signal(SIGSEGV, &sig_handler_1);
+	signal(SIGFPE,  &sig_handler_2);
+	signal(SIGINT,  &sig_handler_3);
+	signal(SIGILL,  &sig_handler_4);
+	signal(SIGTERM, &sig_handler_5);
+	signal(SIGABRT, &sig_handler_6);
+}
+
+int createWindow();
+void init_gui_app()
+{
+	createWindow();
+}
+
+
+void set_signal_handler(prolog::Application * a) {
+	_app = a;
+	set_signal_handler();
+	SetUnhandledExceptionFilter( windows_exception_handler );
+	fflush( stderr );
+	fflush( stdout );
+
+	init_gui_app();
+}
+
+// ---------------------------------------------------------------------
+// tui app - text user interface application ...
+// ---------------------------------------------------------------------
 void
 init_con_app(
 	Console& con,
@@ -5303,100 +5566,844 @@ init_con_app(
 	int flag)
 {
 	auto * app = new Application( con, argv );
-	set_signal_handler( app );
+	start_label:
+	try {
+		// --- test signal ---
+		static int flg = 0;
+		if (flg == 0) {
+			flg += 1;
+			set_signal_handler( app );
+			//raise(SIGILL);
+		}
+		// --- test end ---
+		while (true) {
+			if (app == nullptr)
+			break;
 
-	while (true) {
-		try {
 			switch (flag) {
-			case 1: {
-				PL_globalHolder.PL_language = app_lang;
-				app->run();
-			}
-			break;
-			case 2: { PL_Executable prg ( app ); prg.PL_parseFile ( item ); } break;
-			case 3: { PL_Assembler  prg ( app ); prg.PL_parseFile ( item ); } break;
-			case 4: { PL_Fortran    prg ( app ); prg.PL_parseFile ( item ); } break;
-			case 5: { PL_Prolog     prg ( app ); prg.PL_parseFile ( item ); } break;
-			case 6: { PL_Pascal     prg ( app ); prg.PL_parseFile ( item ); } break;
-			case 7: { PL_cLang      prg ( app ); prg.PL_parseFile ( item ); } break;
-			case 8: { PL_dBase      prg ( app ); prg.PL_parseFile ( item );	} break;
+				case 1: {
+					PL_globalHolder.PL_language = app_lang;
+					app->run();
+				}
+				break;
+				case 2: { PL_Executable prg ( app ); prg.PL_parseFile ( item ); } break;
+				case 3: { PL_Assembler  prg ( app ); prg.PL_parseFile ( item ); } break;
+				case 4: { PL_Fortran    prg ( app ); prg.PL_parseFile ( item ); } break;
+				case 5: { PL_Prolog     prg ( app ); prg.PL_parseFile ( item ); } break;
+				case 6: { PL_Pascal     prg ( app ); prg.PL_parseFile ( item ); } break;
+				case 7: { PL_cLang      prg ( app ); prg.PL_parseFile ( item ); } break;
+				case 8: { PL_dBase      prg ( app ); prg.PL_parseFile ( item );	} break;
 			}
 		}
-		catch (PL_Exception_Application& e) {
-			::std::stringstream txt;
-			txt << locale_str( 73 ).c_str()
-				<< ::std::endl << e.what ()
-				<< ::std::endl
-				<< ::std::endl
-				<< locale_str( 15 ).c_str();
+	}
+	catch (PL_Exception_Application& e) {
+		::std::stringstream txt;
+		txt << locale_str( 73 ).c_str()
+			<< ::std::endl << e.what ()
+			<< ::std::endl
+			<< ::std::endl
+			<< locale_str( 15 ).c_str();
 
-			if (app->MessageBoxRect(
-				TRect(10,7,60,19),
-				txt.str().c_str(),
-				mfError | mfYesButton | mfNoButton ) == 12)
-			delete app;
-			break;
-		}
-		catch (PL_Exception_Windows& e)
-		{
-			::std::stringstream txt;
-			txt << locale_str( 84 ).c_str()
-				<< ::std::endl
-				<< ::std::endl
-				<< e.what();
-				
-			if (app->MessageBoxRect(
-				TRect(10,7,60,19),
-				txt.str().c_str(),
-				mfError | mfOKButton ) == 12)
-			continue;	
-		}
-		catch (PL_Exception_DataBaseWarning& e)
-		{
-			app->MessageBoxRect(
-				TRect(10,7,60,19),
-				e.what(),
-				mfError | mfOKButton );
-			continue;
-		}
-		catch (PL_Exception_DataBase& e)
-		{
-			::std::stringstream txt;
-			txt << locale_str( 85 ).c_str()
-				<< ::std::endl
-				<< ::std::endl
-				<< e.what();
-				
-			if (app->MessageBoxRect(
-				TRect(10,7,60,19),
-				txt.str().c_str(),
-				mfError | mfOKButton ) == 12) {
-				continue;
-			}
-		}
-		catch (...) {
-			::std::stringstream txt;
-			txt << locale_str( 73 ).c_str() << ::std::endl
-				<< locale_str( 74 ).c_str()
-				<< ::std::endl
-				<< locale_str( 15 );
-
+		if (app != nullptr) {
 			if (app->MessageBoxRect(
 				TRect(10,7,60,19),
 				txt.str().c_str(),
 				mfError | mfYesButton | mfNoButton ) == 12) {
 				delete app;
-				break;
-			}	return;
+				exit( 1  );
+			}
+		}	else {
+			throw PL_Exception_Application(
+			locale_str( 102 ).c_str() );
 		}
 	}
+	catch (PL_Exception_Windows& e)
+	{
+		::std::stringstream txt;
+		txt << locale_str( 84 ).c_str()
+			<< ::std::endl
+			<< ::std::endl
+			<< e.what();
+			
+		if (app->MessageBoxRect(
+			TRect(10,7,60,19),
+			txt.str().c_str(),
+			mfError | mfOKButton ) == 12)
+		goto start_label;
+	}
+	catch (PL_Exception_DataBaseWarning& e)
+	{
+		app->MessageBoxRect(
+			TRect(10,7,60,19),
+			e.what(),
+			mfError | mfOKButton );
+		goto start_label;
+	}
+	catch (PL_Exception_DataBase& e)
+	{
+		::std::stringstream txt;
+		txt << locale_str( 85 ).c_str()
+			<< ::std::endl
+			<< ::std::endl
+			<< e.what();
+			
+		if (app->MessageBoxRect(
+			TRect(10,7,60,19),
+			txt.str().c_str(),
+			mfError | mfOKButton ) == 12)
+		goto start_label;
+	}
+	catch (...) {
+		::std::stringstream txt;
+		txt << locale_str( 73 ).c_str() << ::std::endl
+			<< locale_str( 74 ).c_str()
+			<< ::std::endl
+			<< locale_str( 15 );
+
+		if (app->MessageBoxRect(
+			TRect(10,7,60,19),
+			txt.str().c_str(),
+			mfError | mfYesButton | mfNoButton ) == 12)
+		delete app;
+		goto start_label;
+	}
+}
+
+// ---------------------------------------------------------------------
+// gui app - graphics user interface application ...
+// ---------------------------------------------------------------------
+const char g_szClassName[] = "myWindowClass";
+
+HWND hwndMDI;
+HWND hwndStatusBar;
+HWND hwndToolBar;
+HWND hwndRegister;
+HWND hwndTabs;
+
+HWND hwndStatic[5];
+
+long long int
+AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+        case WM_INITDIALOG:
+			return TRUE;
+		case WM_CLOSE:
+			EndDialog( hwnd, 0 );
+			return TRUE;
+
+        case WM_COMMAND:
+            switch (LOWORD(wParam))
+            {
+                case IDC_OK:
+                    DestroyWindow(hwnd);
+                break;
+                case IDC_CANCEL:
+                    DestroyWindow(hwnd);
+                break;
+            }
+        break;
+        default:
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+    return FALSE;
+}
+
+// ---------------------------------------------------------------------
+// @brief
+//   Creates a status bar and divides it into the specified number of
+//   parts.
+// @parameter
+//   hwndParent - parent window for the status bar.
+//   idStatus   - child window identifier of the status bar.
+//   hinst      - handle to the application instance.
+//   cParts     - number of parts into which to divide the status bar.
+// @return
+//   The handle to the status bar.
+// ---------------------------------------------------------------------
+HWND
+DoCreateStatusBar(
+	HWND      hwndParent,
+	HMENU     idStatus,
+	HINSTANCE hinst,
+	int       cParts)
+{
+    RECT   rcClient;
+    HLOCAL hloc;
+    PINT   paParts;
+    int i, nWidth;
+	
+	hwndStatusBar = CreateWindowEx(
+		0,                       // no extended styles
+		STATUSCLASSNAME,         // name of status bar class
+		(PCTSTR) NULL,           // no text when first created
+		SBARS_SIZEGRIP |         // includes a sizing grip
+		WS_CHILD | WS_VISIBLE,   // creates a visible child window
+		0, 0, 0, 0,              // ignores size and position
+		hwndParent,              // handle to parent window
+		(HMENU) idStatus,        // child window identifier
+		hinst,                   // handle to application instance
+		NULL);
+	if (hwndStatusBar == NULL)
+	{
+		MessageBox(NULL,
+		locale_str( 104 ).c_str(),
+		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
+		
+		throw PL_Exception_Application(
+		locale_str( 104 ).c_str() );
+	}
+	
+	// ----------------------------------------------------------
+	// Get the coordinates of the parent window's client area.
+	// ----------------------------------------------------------
+	GetClientRect(hwndParent, &rcClient);
+
+	// ----------------------------------------------------------
+	// Allocate an array for holding the right edge coordinates.
+	// ----------------------------------------------------------
+	hloc    = LocalAlloc(LHND, sizeof(int) * cParts);
+    paParts = (PINT) LocalLock(hloc);
+
+	// --------------------------------------------------------
+	// Calculate the right edge coordinate for each part, and
+    // copy the coordinates to the array.
+	// --------------------------------------------------------
+	nWidth = rcClient.right / cParts;
+	
+	int rightEdge = nWidth;
+    for (i = 0; i < cParts; i++) { 
+       paParts[i] = rightEdge;
+       rightEdge += nWidth;
+    }
+	
+	// -------------------------------------------------
+	// Tell the status bar to create the window parts.
+	// -------------------------------------------------
+    SendMessage(hwndStatusBar, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
+	
+	// ----------------------------
+	// Free the array, and return.
+	// ----------------------------
+    LocalUnlock(hloc);
+    LocalFree  (hloc);
+	
+	return hwndStatusBar;
+}
+
+// ---------------------------------------------------------------------
+// window procedure for the register window:
+// ---------------------------------------------------------------------
+LRESULT CALLBACK
+RegisterWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+    {
+		case WM_MOVE:
+			SendMessage(hwnd, WM_NCPAINT, 0,0);
+			SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)GetDC(hwnd),0);
+		break;
+		case WM_NOTIFY:
+		{
+			switch (((LPNMHDR)lParam)->code)
+			{
+				case TCN_SELCHANGING:
+				{
+					return FALSE;
+				}
+				break;
+				case TCN_SELCHANGE:
+				{
+					int tabID = TabCtrl_GetCurSel(hwndTabs);
+					switch (tabID)
+					{
+						case 0:
+						{
+							for (int i = 0; i < 5; ++i)
+							ShowWindow(hwndStatic[i], FALSE);
+							ShowWindow(hwndStatic[0], TRUE);
+						}
+						break;
+						case 1:
+							for (int i = 0; i < 5; ++i)
+							ShowWindow(hwndStatic[i], FALSE);
+							ShowWindow(hwndStatic[1], TRUE);
+						break;
+						case 2:
+						{
+							for (int i = 0; i < 5; ++i)
+							ShowWindow(hwndStatic[i], FALSE);
+							ShowWindow(hwndStatic[2], TRUE);
+						}
+						break;
+						case 3:
+						{
+							for (int i = 0; i < 5; ++i)
+							ShowWindow(hwndStatic[i], FALSE);
+							ShowWindow(hwndStatic[3], TRUE);
+						}
+						break;
+						case 4:
+						{
+							for (int i = 0; i < 5; ++i)
+							ShowWindow(hwndStatic[i], FALSE);
+							ShowWindow(hwndStatic[4], TRUE);
+						}
+						break;
+					}
+				}
+			}
+        }
+		break;
+		/*
+		case WM_MOUSEACTIVATE:
+		case WM_CHILDACTIVATE:
+		case WM_MDIACTIVATE:
+		case WM_LBUTTONDOWN:
+		case WM_ACTIVATE:
+		case WM_NCPAINT:
+		{
+			HDC hdc = GetDCEx(hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
+			if (hdc) {
+				RECT  rcclient;
+				RECT  rcwin;
+				
+				POINT ptupleft;
+				
+				GetClientRect( hwnd, &rcclient );
+				GetWindowRect( hwnd, &rcwin );
+				
+				ptupleft.x = rcwin.left;
+				ptupleft.y = rcwin.top;
+
+				MapWindowPoints(0, hwnd, (LPPOINT) &rcwin, (sizeof(RECT)/sizeof(POINT)));
+				
+				OffsetRect( &rcclient, -rcwin.left, -rcwin.top);
+				OffsetRect( &rcwin,    -rcwin.left, -rcwin.top);
+				
+				HRGN rgntemp = NULL;
+				
+				if (wParam == NULLREGION || wParam == ERROR ) {
+					ExcludeClipRect(hdc, rcclient.left, rcclient.top, rcclient.right, rcclient.bottom);
+				}
+				else {
+					rgntemp = CreateRectRgn(
+						rcclient.left   + ptupleft.x,
+						rcclient.top    + ptupleft.y,
+						rcclient.right  + ptupleft.x,
+						rcclient.bottom + ptupleft.y);
+						
+					if (CombineRgn(rgntemp, (HRGN) wParam, rgntemp, RGN_DIFF) == NULLREGION) {
+						// nothing to paint
+					}
+					
+					OffsetRgn(rgntemp, -ptupleft.x, -ptupleft.y);
+					ExtSelectClipRgn(hdc, rgntemp, RGN_AND);
+				}
+
+				HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 0));
+				
+				FillRect(hdc, &rcwin, hbrush);
+				
+				DeleteObject(hbrush);
+				ReleaseDC(hwnd, hdc);
+				
+				if (rgntemp != 0) {
+					DeleteObject(rgntemp);
+				}
+			}
+			return 0;
+		}
+		break;
+		case WM_MOVE:
+		{
+			SendMessage( hwnd, WM_NCPAINT, 0, 0);
+		}
+		break;*/
+		default:
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+
+    return 0;
+}
+
+// ---------------------------------------------------------------------
+// create the register windows:
+// ---------------------------------------------------------------------
+HWND
+DoCreateRegisterWindow(
+	HWND      hwndParent,
+	HMENU     idStatus,
+	HINSTANCE hinst)
+{
+	WNDCLASSEX wc;
+
+    wc.cbSize         = sizeof(WNDCLASSEX);
+    wc.style          = 0;
+    wc.lpfnWndProc    = RegisterWndProc;
+    wc.cbClsExtra     = 0;
+    wc.cbWndExtra     = 0;
+    wc.hInstance      = hinst;
+    wc.hIcon          = LoadIcon  (NULL, IDI_APPLICATION);
+    wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground  = (HBRUSH)CreateSolidBrush( RGB( 200,10,20 ) );
+	wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
+    wc.lpszClassName  = "myRegisterWindow";
+	wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+
+    if(!RegisterClassEx(&wc)) {
+        MessageBox(NULL,
+		locale_str( 104 ).c_str(),
+		locale_str( 103 ).c_str(),
+        MB_ICONEXCLAMATION | MB_OK);
+        return 0;
+    }
+
+	// ---------------------
+	// regie-centrum ...
+	// ---------------------
+	hwndRegister = CreateWindowEx(
+        WS_EX_CLIENTEDGE,
+        "myRegisterWindow",
+        "Regiecentrum",
+		WS_VISIBLE | WS_CLIPCHILDREN,
+        CW_USEDEFAULT, CW_USEDEFAULT, 480, 360,
+        hwndParent,
+		NULL,
+		hinst, NULL);
+    if (hwndRegister == NULL) {
+        MessageBox(NULL,
+			locale_str( 104 ).c_str(),
+			locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
+
+        throw PL_Exception_Application(
+		locale_str( 104 ).c_str() );
+    }
+	
+	SetParent (hwndRegister, hwndParent);
+	ShowWindow(hwndRegister, SW_SHOWNORMAL);
+	
+	// ---------------------
+	// directory path field
+	// ---------------------
+	HWND hwndEditPath = CreateWindowEx(
+		0,
+        WC_EDIT,
+        "",
+		ES_AUTOHSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+        20, 10, 390, 20,
+        hwndRegister,
+		NULL,
+		hinst, NULL);
+    if (hwndEditPath == NULL) {
+        MessageBox(NULL,
+		locale_str( 104 ).c_str(),
+		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
+
+		throw PL_Exception_Application(
+		locale_str( 104 ).c_str() );
+	}
+
+	SendMessage( hwndEditPath, EM_SETLIMITTEXT, 512, 512);
+	
+	// ---------------------
+	// open dialog button
+	// ---------------------
+	HWND hwndEditPathButton = CreateWindowEx(
+		0,
+        WC_BUTTON,
+        "X",
+		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+        419, 10, 22, 20,
+        hwndRegister,
+		NULL,
+		hinst, NULL);
+    if (hwndEditPathButton == NULL) {
+        MessageBox(NULL,
+		locale_str( 104 ).c_str(),
+		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
+
+		throw PL_Exception_Application(
+		locale_str( 104 ).c_str() );
+	}
+	
+	// ---------------------
+	// page/tab control
+	// ---------------------
+	hwndTabs = CreateWindowEx(
+		0,
+        WC_TABCONTROL,
+        "",
+		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+        20, 40, 420, 240,
+        hwndRegister,
+		NULL,
+		hinst, NULL);
+    if (hwndTabs == NULL) {
+        MessageBox(NULL,
+		locale_str( 104 ).c_str(),
+		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
+
+        throw PL_Exception_Application(
+		locale_str( 104 ).c_str() );
+    }
+	
+	TCITEM pitem;
+	TCHAR  tab_label[32];
+	
+	pitem.mask   = TCIF_TEXT | TCIF_IMAGE;
+	pitem.iImage = -1;
+	
+	wsprintf( tab_label, "All" );
+	pitem.pszText = tab_label;
+	TabCtrl_InsertItem( hwndTabs, 0, &pitem );
+	hwndStatic[0] = CreateWindow(WC_PAGESCROLLER, "",
+		WS_CHILD | WS_VISIBLE | WS_BORDER,
+		4,26, 409,208,
+		hwndTabs,
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	
+	wsprintf( tab_label, "Table's" );
+	pitem.pszText = tab_label;
+	TabCtrl_InsertItem( hwndTabs, 1, &pitem );
+	hwndStatic[1] = CreateWindow(WC_PAGESCROLLER, "",
+		WS_CHILD | WS_VISIBLE | WS_BORDER,
+		4,26, 409,208,
+		hwndTabs,
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	
+	wsprintf( tab_label, "Querie's" );
+	pitem.pszText = tab_label;
+	TabCtrl_InsertItem( hwndTabs, 2, &pitem );
+	hwndStatic[2] = CreateWindow(WC_PAGESCROLLER, "",
+		WS_CHILD | WS_VISIBLE | WS_BORDER,
+		4,26, 409,208,
+		hwndTabs,
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	
+	wsprintf( tab_label, "Form's" );
+	pitem.pszText = tab_label;
+	TabCtrl_InsertItem( hwndTabs, 3, &pitem );
+	hwndStatic[3] = CreateWindow(WC_PAGESCROLLER, "",
+		WS_CHILD | WS_VISIBLE | WS_BORDER,
+		4,26, 409,208,
+		hwndTabs,
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	
+	wsprintf( tab_label, "Program's" );
+	pitem.pszText = tab_label;
+	TabCtrl_InsertItem( hwndTabs, 4, &pitem );
+	hwndStatic[4] = CreateWindow(WC_PAGESCROLLER, "",
+		WS_CHILD | WS_VISIBLE | WS_BORDER,
+		4,26, 409,208,
+		hwndTabs,
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	
+	SendMessage(hwndTabs, WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+
+	SetParent ( hwndTabs, hwndRegister );
+	ShowWindow( hwndTabs, SW_SHOWNORMAL);
+	
+	ShowWindow( hwndStatic[0], TRUE);
+	
+	return hwndRegister;
+}
+
+// ---------------------------------------------------------------------
+// create the tool-bar window ...
+// ---------------------------------------------------------------------
+HWND
+DoCreateToolBar(
+	HWND      hwndParent,
+	HMENU     idStatus,
+	HINSTANCE hinst)
+{
+    RECT   rcClient;
+	
+	hwndToolBar = CreateWindowEx(
+		0,
+		TOOLBARCLASSNAME,
+		NULL,
+		WS_CHILD | WS_VISIBLE,
+		0, 0, 0, 0,
+        hwndParent,
+		(HMENU) idStatus,
+		hinst,
+		NULL);
+	
+	// ----------------------------------------------------------
+	// Get the coordinates of the parent window's client area.
+	// ----------------------------------------------------------
+	GetClientRect(hwndParent, &rcClient);
+	SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
+	
+	TBBUTTON tbb[3];
+    TBADDBITMAP tbab;
+	
+    tbab.hInst = HINST_COMMCTRL;
+    tbab.nID   = IDB_STD_SMALL_COLOR;
+    SendMessage(hwndToolBar, TB_ADDBITMAP, 0, (LPARAM)&tbab);
+	
+	ZeroMemory(tbb, sizeof(tbb));
+	
+    tbb[0].iBitmap   = STD_FILENEW;
+    tbb[0].fsState   = TBSTATE_ENABLED;
+    tbb[0].fsStyle   = TBSTYLE_BUTTON;
+    tbb[0].idCommand = ID_FILE_NEW;
+
+    tbb[1].iBitmap   = STD_FILEOPEN;
+    tbb[1].fsState   = TBSTATE_ENABLED;
+    tbb[1].fsStyle   = TBSTYLE_BUTTON;
+    tbb[1].idCommand = ID_FILE_OPEN;
+
+    tbb[2].iBitmap   = STD_FILESAVE;
+    tbb[2].fsState   = TBSTATE_ENABLED;
+    tbb[2].fsStyle   = TBSTYLE_BUTTON;
+    tbb[2].idCommand = ID_FILE_SAVEAS;
+
+    SendMessage(hwndToolBar,
+		TB_ADDBUTTONS,
+		sizeof(tbb)/sizeof(TBBUTTON),
+		(LPARAM)&tbb);
+	
+	return hwndToolBar;
+}
+
+// ---------------------------------------------------------------------
+// main windows procedure:
+// ---------------------------------------------------------------------
+LRESULT CALLBACK
+WndProc(
+	HWND   hwnd,
+	UINT   msg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+    switch (msg)
+    {
+		case WM_CREATE:
+		{
+			HMENU hMenu, hMenuHelp, hSubMenu;
+			HICON hIcon, hIconSm;
+
+			hMenu     = CreateMenu();
+			
+			hSubMenu  = CreatePopupMenu();
+			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_NEW   , "New ...");
+			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_OPEN  , "Open");
+			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_SAVE  , "Save");
+			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_SAVEAS, "Save As ...");
+			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_EXIT  , "E&xit");
+			AppendMenuA( hMenu,    MF_STRING | MF_POPUP, (UINT_PTR)hSubMenu, "&File");
+			
+			hSubMenu  = CreatePopupMenu();
+			AppendMenuA( hSubMenu, MF_STRING, ID_HELP_ABOUT , "About ...");
+			AppendMenuA( hMenu,    MF_STRING | MF_POPUP, (UINT_PTR)hSubMenu, "&Help");
+
+			SetMenu(hwnd, hMenu);
+		}
+		break;
+		case WM_MOUSEACTIVATE:
+		case WM_ACTIVATE:
+		{
+			//SendMessage( hwndRegister, WM_NCPAINT, 0, 0);
+		}
+		break;
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint( hwnd, &ps );
+
+			//SendMessage( hwndRegister, WM_NCPAINT, 0, 0);
+			// Add any drawing code here...
+
+			EndPaint(hwnd, &ps);
+		}
+		break;
+		case WM_COMMAND:
+			switch(LOWORD(wParam))
+			{
+				case ID_HELP_ABOUT:
+				{
+					HWND hwndDialog = CreateDialog(GetModuleHandle(NULL),
+						MAKEINTRESOURCE(IDD_ABOUT),
+						hwnd,
+						AboutDlgProc);
+					if (hwndDialog == NULL) {
+						MessageBox(hwnd, "Dialog failed !", "Notice",
+						MB_OK | MB_ICONINFORMATION);
+					}
+					ShowWindow( hwndDialog, SW_SHOWNORMAL );
+				}
+				break;
+				// Other menu commands...
+			}
+			switch(LOWORD(wParam))
+			{
+				case ID_FILE_EXIT:
+					PostMessage(hwnd, WM_CLOSE, 0, 0);
+				break;
+			}
+		break;
+		case WM_SIZE:
+		{
+			RECT   rcClient;
+			HLOCAL hloc;
+			PINT   paParts;
+			int i, nWidth;
+			int    cParts = 3;
+
+			// ----------------------------------------------------------
+			// Get the coordinates of the parent window's client area.
+			// ----------------------------------------------------------
+			GetClientRect(hwnd, &rcClient);
+
+			// ----------------------------------------------------------
+			// Allocate an array for holding the right edge coordinates.
+			// ----------------------------------------------------------
+			hloc    = LocalAlloc(LHND, sizeof(int) * cParts);
+			paParts = (PINT) LocalLock(hloc);
+
+			// --------------------------------------------------------
+			// Calculate the right edge coordinate for each part, and
+			// copy the coordinates to the array.
+			// --------------------------------------------------------
+			nWidth = rcClient.right / cParts;
+			
+			int rightEdge = nWidth;
+			for (i = 0; i < cParts; i++) { 
+			   paParts[i] = rightEdge;
+			   rightEdge += nWidth;
+			}
+			
+			// -------------------------------------------------
+			// Tell the status bar to create the window parts.
+			// -------------------------------------------------
+			SendMessage( hwndStatusBar, WM_SIZE, 0,0 );
+			SendMessage( hwndStatusBar, SB_SETPARTS,
+				(WPARAM) cParts,
+				(LPARAM) paParts);
+				
+			SendMessage( hwndToolBar, WM_SIZE, 0,0 );
+			
+			// ----------------------------
+			// Free the array, and return.
+			// ----------------------------
+			LocalUnlock(hloc);
+			LocalFree  (hloc);
+		}
+		break;
+        case WM_CLOSE:
+            DestroyWindow(hwnd);
+        break;
+        case WM_DESTROY:
+            PostQuitMessage(0);
+        break;
+        default:
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+    return 0;
+}
+
+int createWindow()
+{
+    WNDCLASSEX wc;
+    HWND hwnd;
+    MSG Msg;
+	
+	InitCommonControls();
+	
+	HMODULE hInstance = GetModuleHandle(NULL);
+
+    wc.cbSize         = sizeof(WNDCLASSEX);
+    wc.style          = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc    = WndProc;
+    wc.cbClsExtra     = 0;
+    wc.cbWndExtra     = 0;
+    wc.hInstance      = hInstance;
+    wc.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
+    wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground  = (HBRUSH)(COLOR_WINDOW+2);
+	wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
+    wc.lpszClassName  = g_szClassName;
+	wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+
+    if(!RegisterClassEx(&wc))
+    {
+        MessageBox(NULL, "Window Registration Failed!", "Error!",
+        MB_ICONEXCLAMATION | MB_OK);
+        return 0;
+    }
+	
+    hwnd = CreateWindowEx(
+        WS_EX_CLIENTEDGE,
+        g_szClassName,
+        "dBase4Windows (c) 2023 Jens Kallup",
+		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+        NULL, NULL, hInstance, NULL);
+    if (hwnd == NULL)
+    {
+        MessageBox(NULL, "Window Creation Failed!", "Error!",
+        MB_ICONEXCLAMATION | MB_OK);
+
+        throw PL_Exception_Application(
+		"Window Creation Failed!");
+    }
+	
+	hwndToolBar   = DoCreateToolBar(
+		hwnd,
+		nullptr,
+		hInstance);
+
+	hwndStatusBar = DoCreateStatusBar(
+		hwnd,
+		nullptr,
+		hInstance,
+		3);
+
+	hwndRegister = DoCreateRegisterWindow(
+		hwnd,
+		nullptr,
+		hInstance);
+	
+    ShowWindow( hwnd         , SW_SHOWNORMAL );
+	ShowWindow( hwndToolBar  , SW_SHOWNORMAL );
+	ShowWindow( hwndStatusBar, SW_SHOWNORMAL );
+	
+	ShowWindow( hwndRegister , SW_SHOWNORMAL );
+
+    UpdateWindow( hwnd );
+
+    while(GetMessage(&Msg, NULL, 0, 0) > 0)
+    {
+        TranslateMessage( &Msg );
+        DispatchMessage ( &Msg );
+    }
+    return Msg.wParam;
 }
 
 // ---------------------------------------------------------------------
 // test case entry point ...
 // ---------------------------------------------------------------------
-int
-main(int argc, char** argv)
+int WINAPI
+WinMain(
+	HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR     lpCmdLine,
+	int       nCmdShow)
 {
 	using namespace prolog;
 
@@ -5405,10 +6412,30 @@ main(int argc, char** argv)
 	::std::string                  s0;
 	::std::vector< ::std::string > argv_vec;
 	
-	int output   = 0;
+	int output = 0;
 
 	try {
-		argv_vec.push_back( argv[0] );
+		LPWSTR *szArglist;
+
+		int nArgs  = 0;
+		szArglist  = CommandLineToArgvW( GetCommandLineW(), &nArgs );
+
+		::std::wstring a;
+		::std:: string s;
+
+		for (int i = 0; i < nArgs; i++) {
+			a = szArglist[i];
+			::std::transform(
+				a.begin(),
+				a.end(), std::back_inserter(s), [] (wchar_t c) {
+					return (char)c;
+				}
+			);
+			argv_vec.push_back( s );
+			s = "";
+		}
+
+		LocalFree( szArglist );
 
 		setlocale(LC_ALL,"");
 		bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
@@ -5418,19 +6445,21 @@ main(int argc, char** argv)
 		// get command arguments from console ...
 		// -i<input file> -o<output file>
 		// ----------------------------------------
-		if (argc < 2) {
+		if (argv_vec.size() < 2) {
 			app_lang = 2;	// <-- todo
 			Win32API win ;
 			Console  con ( win );
+			
+			init_gui_app();
 			init_con_app ( con, argv_vec, "", 1 );
 			
 			return SUCCESS;
 		}
 
-		for (int arg = 1; arg < argc; ++arg)
+		for (int arg = 1; arg < argv_vec.size(); ++arg)
 		{
 			s0.clear();
-			s0.append(argv[arg]);
+			s0.append( argv_vec.at(arg) );
 
 			switch (s0.at(0)) {
 			case '-':
@@ -5608,6 +6637,11 @@ main(int argc, char** argv)
 	// -------------------------------------------
 	// common exception, context is PL:
 	// -------------------------------------------
+	catch (PL_Exception_Application& e)
+	{
+		::std::cout << "eeeeee" << ::std::endl;
+		return 1;
+	}
 	catch (PL_Exception& e)
 	{
 		STDCOUT
