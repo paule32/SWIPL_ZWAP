@@ -258,6 +258,12 @@
 # include <tvision/tv.h>
 # include <tvision/help.h>
 
+# define SUCCESS 0
+# define FAILURE 1
+
+#if 0
+
+
 # include "help.h"
 
 class TApplication;
@@ -373,7 +379,6 @@ namespace prolog {
 // ---------------------------------------------------------------------
 // forward declaration's ...
 // ---------------------------------------------------------------------
-class Win32API;
 class Application;
 class Desktop;
 class Console;
@@ -521,6 +526,24 @@ private:
 		"internal memory error",                // 0102
 		"Error !",                              // 0103
 		"Register Window Creation Failed !",    // 0104
+		
+		"New\nProject",                         // 0105
+		"New\nReport",                          // 0106
+		"New\nSQL",                             // 0107
+		"New\nForm",                            // 0108
+		"Custom\nReport",                       // 0109
+		"Data Module",                          // 0110
+		"Custom Form",                          // 0111
+		"New\nLabel",                           // 0112
+		"New\nMenue",                           // 0113
+		"New\nPopup",                           // 0114
+		"New\nProgram",                         // 0115
+		"New\nTable",                           // 0116
+		"Table's",                              // 0117
+		"All",                                  // 0118
+		"Querie's",                             // 0119
+		"Form's",                               // 0120
+		"Program's",                            // 0121
 
 		"locale string"
 	};
@@ -698,6 +721,24 @@ private:
 		"Fehler !",                                  // 0103
 		"Fenster konnte nicht registriert werden !", // 0104
 
+		"Neues\nProjekt",                            // 0105
+		"Neuer\nBericht",                            // 0106
+		"Neu\nSQL",                                  // 0107
+		"Neues\nFormular",                           // 0108
+		"benutzdefi.\nBericht",                      // 0109
+		"Daten Modul",                               // 0110
+		"benutzdefi.\nFormulat",                     // 0111
+		"Neues\nEttiket",                            // 0112
+		"Neues\nMenü",                               // 0113
+		"Neues\nPopup-Menü",                         // 0114
+		"Neues\nProgramm",                           // 0115
+		"Neue\nTabelle",                             // 0116
+		"Tabellen",                                  // 0117
+		"Alle",                                      // 0118
+		"Abfragen",                                  // 0119
+		"Formulare",                                 // 0120
+		"Programme",                                 // 0121
+		
 		"locale zeichenkette"
 	};
 
@@ -816,9 +857,6 @@ static inline std::string trim_copy(std::string s) {
 #endif
 
 # define PL_HELPFILE	"prolog64.hlp"
-
-# define SUCCESS 0
-# define FAILURE 1
 
 inline int NT_ListExpr  () { return 1; }
 inline int NT_ListString() { return 2; }
@@ -5127,7 +5165,6 @@ public:
 
 class Desktop {
 public:
-	Desktop(Win32API&) { }
 	Desktop() {
 		DEBUGSTR("ctor: PL_Desktop ()")
 	}
@@ -5147,23 +5184,8 @@ public:
 	}
 };
 
-class Win32API {
-public:
-	Win32API() {
-		DEBUGSTR("ctor: PL_Win32API ()")
-	}
-	~Win32API() {
-		DEBUGSTR("dtor: ~PL_Win32API ()")
-	}
-};
-
 class Console {
 public:
-	Console(Win32API& w32) {
-		xbString s1;
-		s1 = "Test String 1";
-		fprintf( stdout, "s1 = [%s]\n", s1.Str());
-	}
 	Console() {
 		DEBUGSTR("ctor: PL_Console ()")
 	}
@@ -5562,12 +5584,6 @@ void set_signal_handler()
 	signal(SIGABRT, &sig_handler_6);
 }
 
-int createWindow();
-void init_gui_app()
-{
-	createWindow();
-}
-
 
 void set_signal_handler(prolog::Application * a) {
 	_app = a;
@@ -5701,11 +5717,24 @@ const char g_szClassName[] = "myWindowClass";
 HWND hwndMDI;
 HWND hwndStatusBar;
 HWND hwndToolBar;
-HWND hwndRegister;
 HWND hwndTabs;
 
-HWND hwndStatic[5];
-HWND hwndStaticButtonAll[12];
+// ---------------------------------------------------------------------
+// control center window
+// ---------------------------------------------------------------------
+HWND hwndRegister;
+HWND hwndStatic                  [  5 ];
+HWND hwndStaticButtonAll         [ 12 ];
+HWND hwndStaticButtonTable       [  2 ];
+HWND hwndStaticButtonQuery       [  2 ];
+HWND hwndStaticButtonForm        [  4 ];
+HWND hwndStaticButtonApplication [  1 ];
+
+// ---------------------------------------------------------------------
+// control center button id's - register "all"
+// ---------------------------------------------------------------------
+# define ID_STATIC_BUTTON_NEW_PROJECT 8801
+# define ID_STATIC_BUTTON_NEW_REPORT  8802
 
 long long int
 AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -5821,6 +5850,41 @@ DoCreateStatusBar(
 // window procedure for the register window:
 // ---------------------------------------------------------------------
 LRESULT CALLBACK
+Register_All_WndProc(
+	HWND hwnd,
+	UINT msg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+	switch (msg)
+    {
+		case WM_COMMAND:
+		{
+			int msgId    = LOWORD(wParam);
+			int msgEvent = HIWORD(lParam);
+			
+			switch ( msgId )
+			{
+				case ID_STATIC_BUTTON_NEW_PROJECT:
+				{
+					MessageBox(hwnd,"111new project","test",MB_OK);
+				}
+				break;
+				case ID_STATIC_BUTTON_NEW_REPORT:
+				{
+					MessageBox(hwnd,"sssssnew report","test",MB_OK);
+				}
+				break;
+			}
+		}
+		break;
+		default:
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
+	return 0;
+}
+
+LRESULT CALLBACK
 RegisterWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -5834,6 +5898,14 @@ RegisterWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 		case WM_NOTIFY:
 		{
+			int msgId    = LOWORD(wParam);
+			int msgEvent = HIWORD(lParam);
+			
+			char buffer[100];
+			sprintf(buffer, "reg---> %d,  %d,  %d", msgId, msgEvent, ((LPNMHDR)lParam)->code);
+			MessageBoxA(0,buffer,"test",MB_OK);
+
+
 			switch (((LPNMHDR)lParam)->code)
 			{
 				case TCN_SELCHANGING:
@@ -5967,26 +6039,26 @@ DoCreateRegisterWindow(
 {
 	WNDCLASSEX wc;
 
-    wc.cbSize         = sizeof(WNDCLASSEX);
-    wc.style          = 0;
-    wc.lpfnWndProc    = RegisterWndProc;
-    wc.cbClsExtra     = 0;
-    wc.cbWndExtra     = 0;
-    wc.hInstance      = hinst;
-    wc.hIcon          = LoadIcon  (NULL, IDI_APPLICATION);
-    wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground  = (HBRUSH)CreateSolidBrush( RGB( 200,10,20 ) );
+	wc.cbSize         = sizeof(WNDCLASSEX);
+	wc.style          = 0;
+	wc.lpfnWndProc    = RegisterWndProc;
+	wc.cbClsExtra     = 0;
+	wc.cbWndExtra     = 0;
+	wc.hInstance      = hinst;
+	wc.hIcon          = LoadIcon  (NULL, IDI_APPLICATION);
+	wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground  = (HBRUSH)CreateSolidBrush( RGB( 200,10,20 ) );
 	wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
-    wc.lpszClassName  = "myRegisterWindow";
+	wc.lpszClassName  = "myRegisterWindow";
 	wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
 
-    if(!RegisterClassEx(&wc)) {
-        MessageBox(NULL,
+	if (!RegisterClassEx(&wc)) {
+		MessageBox(NULL,
 		locale_str( 104 ).c_str(),
 		locale_str( 103 ).c_str(),
-        MB_ICONEXCLAMATION | MB_OK);
-        return 0;
-    }
+		MB_ICONEXCLAMATION | MB_OK);
+		return 0;
+	}
 
 	// ---------------------
 	// regie-centrum ...
@@ -6082,41 +6154,83 @@ DoCreateRegisterWindow(
 	
 	pitem.mask   = TCIF_TEXT | TCIF_IMAGE;
 	pitem.iImage = -1;
-	
-	wsprintf( tab_label, "All" );
+
+	// --------------------
+	// register: all
+	// --------------------
+	wsprintf( tab_label, locale_str( 118 ).c_str() );
 	pitem.pszText = tab_label;
 	TabCtrl_InsertItem( hwndTabs, 0, &pitem );
-	hwndStatic[0] = CreateWindow(WC_PAGESCROLLER, "",
+
+	{
+		WNDCLASSEX wc;
+		
+		wc.cbSize         = sizeof(WNDCLASSEX);
+		wc.style          = 0;
+		wc.lpfnWndProc    = Register_All_WndProc;
+		wc.cbClsExtra     = 0;
+		wc.cbWndExtra     = 0;
+		wc.hInstance      = hinst;
+		wc.hIcon          = LoadIcon  (NULL, IDI_APPLICATION);
+		wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground  = (HBRUSH)CreateSolidBrush( RGB( 200,200,20 ) );
+		wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
+		wc.lpszClassName  = "myRegisterTabAllWindow";
+		wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+
+		if (!RegisterClassEx(&wc)) {
+			MessageBox(NULL,
+			locale_str( 104 ).c_str(),
+			locale_str( 103 ).c_str(),
+			MB_ICONEXCLAMATION | MB_OK);
+			return 0;
+		}
+	}
+	
+	hwndStatic[0] = CreateWindow(
+		WC_PAGESCROLLER,
+		"myRegisterTabAllWindow",
 		WS_CHILD | WS_VISIBLE | WS_BORDER,
 		4,26, 409,208,
-		hwndTabs,
+		hwndRegister,
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
+
 	// 1
-	hwndStaticButtonAll[0] = CreateWindow(WC_BUTTON, "New\nProject",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+	// new project
+	hwndStaticButtonAll[0] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 105 ).c_str(),
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE |
+		BS_PUSHBUTTON,
 		5,5, 5+(4*20), 45,
 		hwndStatic[0],
-		NULL,
+		(HMENU) ID_STATIC_BUTTON_NEW_PROJECT,
 		GetModuleHandle(NULL),
 		NULL);
 	SetParent  ( hwndStaticButtonAll[0], hwndStatic[0] );
 	SendMessage( hwndStaticButtonAll[0], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[1] = CreateWindow(WC_BUTTON, "New\nReport",
+	// new report
+	hwndStaticButtonAll[1] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 106 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		5,5+20+20+10, 5+(4*20), 45,
 		hwndStatic[0],
-		NULL,
+		(HMENU) ID_STATIC_BUTTON_NEW_REPORT,
 		GetModuleHandle(NULL),
 		NULL);
 	SetParent  ( hwndStaticButtonAll[1], hwndStatic[0] );
 	SendMessage( hwndStaticButtonAll[1], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[2] = CreateWindow(WC_BUTTON, "New\nSQL",
+	// new sql
+	hwndStaticButtonAll[2] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 107 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		5,5+(5*20), 5+(4*20), 45,
 		hwndStatic[0],
@@ -6128,7 +6242,10 @@ DoCreateRegisterWindow(
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	
 	// 2
-	hwndStaticButtonAll[3] = CreateWindow(WC_BUTTON, "New\nForm",
+	// new form
+	hwndStaticButtonAll[3] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 108 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		15+(4*20),5, 5+(4*20), 45,
 		hwndStatic[0],
@@ -6139,7 +6256,10 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[3], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[4] = CreateWindow(WC_BUTTON, "Custom Report",
+	// custom report
+	hwndStaticButtonAll[4] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 109 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		15+(4*20),55, 5+(4*20), 45,
 		hwndStatic[0],
@@ -6150,7 +6270,10 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[4], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[5] = CreateWindow(WC_BUTTON, "Data Module",
+	// data module
+	hwndStaticButtonAll[5] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 110 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		15+(4*20), 5+(5*20), 5+(4*20), 45,
 		hwndStatic[0],
@@ -6162,7 +6285,10 @@ DoCreateRegisterWindow(
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	
 	// 3
-	hwndStaticButtonAll[6] = CreateWindow(WC_BUTTON, "Custom Form",
+	// custom form
+	hwndStaticButtonAll[6] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 111 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		5+(9*20),5, 5+(4*20), 45,
 		hwndStatic[0],
@@ -6173,7 +6299,10 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[6], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[7] = CreateWindow(WC_BUTTON, "New\nLabel",
+	// new label
+	hwndStaticButtonAll[7] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 112 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		5+(9*20) , 55, 5+(4*20), 45,
 		hwndStatic[0],
@@ -6184,7 +6313,10 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[7], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[8] = CreateWindow(WC_BUTTON, "New\nMenue",
+	// new menue
+	hwndStaticButtonAll[8] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 113 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		5+(9*20),5+(5*20), 5+(4*20), 5+20+20,
 		hwndStatic[0],
@@ -6196,7 +6328,10 @@ DoCreateRegisterWindow(
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	
 	// 4
-	hwndStaticButtonAll[9] = CreateWindow(WC_BUTTON, "New\nPopup",
+	// new popup
+	hwndStaticButtonAll[9] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 114 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		(20*13)+15,5, 5+(4*20), 45,
 		hwndStatic[0],
@@ -6207,7 +6342,10 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[9], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[10] = CreateWindow(WC_BUTTON, "New\nProgram",
+	// new program
+	hwndStaticButtonAll[10] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 115 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		(20*13)+15,55, 5+(4*20), 45,
 		hwndStatic[0],
@@ -6218,7 +6356,10 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[10], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	//
-	hwndStaticButtonAll[11] = CreateWindow(WC_BUTTON, "New\nTable",
+	// new table
+	hwndStaticButtonAll[11] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 116 ).c_str(),
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
 		(20*13)+15, 5+(5*20), 5+(4*20), 45,
 		hwndStatic[0],
@@ -6229,8 +6370,11 @@ DoCreateRegisterWindow(
 	SendMessage( hwndStaticButtonAll[11], WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 
-	
-	wsprintf( tab_label, "Table's" );
+
+	// --------------------
+	// register: tables
+	// --------------------
+	wsprintf( tab_label, locale_str( 117 ).c_str() );
 	pitem.pszText = tab_label;
 	TabCtrl_InsertItem( hwndTabs, 1, &pitem );
 	hwndStatic[1] = CreateWindow(WC_PAGESCROLLER, "",
@@ -6240,8 +6384,26 @@ DoCreateRegisterWindow(
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
-	
-	wsprintf( tab_label, "Querie's" );
+	//
+	// new table
+	hwndStaticButtonTable[0] = CreateWindow(
+		WC_BUTTON,
+		locale_str( 116 ).c_str(),
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5, 5+(4*20), 45,
+		hwndStatic[1],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonTable[ 0 ], hwndStatic[ 1 ] );
+	SendMessage( hwndStaticButtonTable[ 0 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+
+
+	// --------------------
+	// register: queries
+	// --------------------
+	wsprintf( tab_label, locale_str( 119 ).c_str() );
 	pitem.pszText = tab_label;
 	TabCtrl_InsertItem( hwndTabs, 2, &pitem );
 	hwndStatic[2] = CreateWindow(WC_PAGESCROLLER, "",
@@ -6251,8 +6413,22 @@ DoCreateRegisterWindow(
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
-	
-	wsprintf( tab_label, "Form's" );
+	hwndStaticButtonQuery[ 0 ] = CreateWindow(WC_BUTTON, "New\nQuery",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5, 5+(4*20), 45,
+		hwndStatic[2],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonQuery[ 0 ], hwndStatic[ 2 ] );
+	SendMessage( hwndStaticButtonQuery[ 0 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+
+
+	// --------------------
+	// register: Forms
+	// --------------------	
+	wsprintf( tab_label, locale_str( 120 ).c_str() );
 	pitem.pszText = tab_label;
 	TabCtrl_InsertItem( hwndTabs, 3, &pitem );
 	hwndStatic[3] = CreateWindow(WC_PAGESCROLLER, "",
@@ -6262,8 +6438,54 @@ DoCreateRegisterWindow(
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
+	hwndStaticButtonForm[ 0 ] = CreateWindow(WC_BUTTON, "New\nForm",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5, 5+(4*20), 45,
+		hwndStatic[ 3 ],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonForm[ 0 ], hwndStatic[ 3 ] );
+	SendMessage( hwndStaticButtonForm[ 0 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonForm[ 1 ] = CreateWindow(WC_BUTTON, "Custom\nForm",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		15+(4*20),5, 5+(4*20), 45,
+		hwndStatic[ 3 ],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonForm[ 1 ], hwndStatic[ 3 ] );
+	SendMessage( hwndStaticButtonForm[ 1 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonForm[ 2 ] = CreateWindow(WC_BUTTON, "New\nMenue",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5+(9*20),5, 5+(4*20), 45,
+		hwndStatic[ 3 ],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonForm[ 2 ], hwndStatic[ 3 ] );
+	SendMessage( hwndStaticButtonForm[ 2 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
+	//
+	hwndStaticButtonForm[ 3 ] = CreateWindow(WC_BUTTON, "New\nPopup",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		(20*13)+15,5, 5+(4*20), 45,
+		hwndStatic[ 3 ],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonForm[ 3 ], hwndStatic[ 3 ] );
+	SendMessage( hwndStaticButtonForm[ 3 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	
-	wsprintf( tab_label, "Program's" );
+	// --------------------
+	// register: protgrams
+	// --------------------
+	wsprintf( tab_label, locale_str( 121 ).c_str() );
 	pitem.pszText = tab_label;
 	TabCtrl_InsertItem( hwndTabs, 4, &pitem );
 	hwndStatic[4] = CreateWindow(WC_PAGESCROLLER, "",
@@ -6273,6 +6495,16 @@ DoCreateRegisterWindow(
 		NULL,
 		GetModuleHandle(NULL),
 		NULL);
+	hwndStaticButtonApplication[ 0 ] = CreateWindow(WC_BUTTON, "New\nApplication",
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
+		5,5, 5+(4*20), 45,
+		hwndStatic[ 4 ],
+		NULL,
+		GetModuleHandle(NULL),
+		NULL);
+	SetParent  ( hwndStaticButtonApplication[ 0 ], hwndStatic[ 4 ] );
+	SendMessage( hwndStaticButtonApplication[ 0 ], WM_SETFONT,
+    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
 	
 	SendMessage(hwndTabs, WM_SETFONT,
     reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
@@ -6283,9 +6515,12 @@ DoCreateRegisterWindow(
 	ShowWindow( hwndStatic[0], TRUE);
 	SetFocus  ( hwndStatic[0] );
 
-	for (int i = 0; i < 12; ++i)
-	ShowWindow( hwndStaticButtonAll[i], TRUE );
+	TabCtrl_SetCurFocus( hwndTabs, 1 );
+	TabCtrl_SetCurFocus( hwndTabs, 0 );
 	
+	//for (int i = 0; i < 12; ++i)
+	//ShowWindow( hwndStaticButtonAll[i], TRUE );
+
 	return hwndRegister;
 }
 
@@ -6401,8 +6636,22 @@ WndProc(
 		}
 		break;
 		case WM_COMMAND:
-			switch(LOWORD(wParam))
+		{
+			int msgId    = LOWORD(wParam);
+			int msgEvent = HIWORD(lParam);
+			
+			switch(msgId)
 			{
+				case ID_STATIC_BUTTON_NEW_PROJECT:
+				{
+					MessageBox(0,"new project","test",MB_OK);
+				}
+				break;
+				case ID_STATIC_BUTTON_NEW_REPORT:
+				{
+					MessageBox(0,"new report","test",MB_OK);
+				}
+				break;
 				case ID_HELP_ABOUT:
 				{
 					HWND hwndDialog = CreateDialog(GetModuleHandle(NULL),
@@ -6424,6 +6673,7 @@ WndProc(
 					PostMessage(hwnd, WM_CLOSE, 0, 0);
 				break;
 			}
+		}
 		break;
 		case WM_SIZE:
 		{
@@ -6615,11 +6865,9 @@ WinMain(
 		// ----------------------------------------
 		if (argv_vec.size() < 2) {
 			//app_lang = 2;	// <-- todo
-			Win32API win ;
-			Console  con ( win );
 			
-			init_gui_app();
-			init_con_app ( con, argv_vec, "", 1 );
+			Application< Desktop >( argv_vec );
+			Application< Console >( argv_vec );
 			
 			return SUCCESS;
 		}
@@ -6694,8 +6942,8 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "exe")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Deskrop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 2 );
 				
 				return 0;
@@ -6705,8 +6953,8 @@ WinMain(
 			// -------------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "asm")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Desktop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 3 );
 				
 				return 0;
@@ -6716,8 +6964,8 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "for")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Desktop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 4 );
 
 				return 0;
@@ -6727,8 +6975,8 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pl")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Desktop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 5 );
 				
 				return 0;
@@ -6738,8 +6986,8 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pas")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Desktop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 6 );
 
 				return 0;
@@ -6749,8 +6997,8 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "cc")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Desktop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 7 );
 
 				return 0;
@@ -6760,8 +7008,8 @@ WinMain(
 			// -------------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "prg")
 			{
-				Win32API win ;
-				Console  con ( win );
+				Desktop  win ;
+				Console  con ( );
 				init_con_app ( con, argv_vec, item, 8 );
 				
 				return 0;
@@ -6829,4 +7077,177 @@ WinMain(
 
 		return 1;
 	}	return 0;
+}
+
+#endif
+
+// ---------------------------------------------------------------------
+// sanity namespace to avoid overlapping other library function's ...
+// ---------------------------------------------------------------------
+namespace prolog {
+// ---------------------------------------------------------------------
+// for customize the compiler output ...
+// ---------------------------------------------------------------------
+# define ENGLISH 1
+# define GERMAN  2
+# define LANGUAGE  ENGLISH
+
+// ---------------------------------------------------------------------
+// static assert compiler output:
+// ---------------------------------------------------------------------
+#if LANGUAGE == ENGLISH
+# define PL_ASSERT_APPLICATION         "T1 must be of <DOS> or <Windows>"
+# define PL_ASSERT_APPLICATION_WINDOWS "T1 must be of <Desktop> or <Server>"
+#elif LANGUAGE == GERMAN
+# define PL_ASSERT_APPLICATION         "T1 Typ muss <DOS> oder <Windows> sein"
+# define PL_ASSERT_APPLICATION_WINDOWS "T1 Typ muss <Desktop> oder <Server> sein"
+#endif
+
+// ---------------------------------------------------------------------
+// forward declaration ...
+// ---------------------------------------------------------------------
+template <typename T1> class Application;
+template <typename T1> class Server;
+template <typename T1> class Desktop;
+template <typename T1> class Windows;
+
+// window classes:
+class DOS;
+class MDI;
+class Normal;
+
+// server classes:
+class FTP;
+
+class FTP {
+public:
+	FTP(int) {
+	}
+	FTP(void) {
+	}
+private:
+};
+
+template <typename T1>
+class Server {
+	static_assert(
+	::std::is_base_of< FTP, T1>::value ||
+	PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Server(int)
+	{
+		::std::cout << "Server Windows Template" << ::std::endl;
+		fflush(stdout);
+	}
+	Server( void )
+	{
+		::std::cout << "Server" << ::std::endl;
+		fflush(stdout);
+	}
+private:
+	T1 * server_type;
+};
+
+class Normal {
+public:
+};
+
+class MDI {
+public:
+};
+
+template <typename T1>
+class Desktop {
+	static_assert(
+		::std::is_base_of< Normal, T1>::value ||
+		::std::is_base_of< MDI   , T1>::value ||
+		PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Desktop(int)
+	{
+		::std::cout << "Desktop Windows Template" << ::std::endl;
+		fflush(stdout);
+	}
+	Desktop( void )
+	{
+		::std::cout << "Desktop" << ::std::endl;
+	}
+private:
+	T1 * window_type;
+};
+
+template <typename T1>
+class Windows {
+	static_assert(
+		::std::is_base_of< Desktop< Normal >, T1>::value ||
+		::std::is_base_of< Desktop< MDI    >, T1>::value ||
+		::std::is_base_of< Server < FTP    >, T1>::value ,
+		PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Windows( int )
+	{
+		::std::cout << "Windows Template" << ::std::endl;
+	}
+	Windows( void )
+	{
+		::std::cout << "Windows" << ::std::endl;
+		app_type = new T1();
+	}
+private:
+	T1 *app_type;
+};
+
+class DOS {
+public:
+	DOS( int )
+	{
+		::std::cout << "DOS Template" << ::std::endl;
+		fflush(stdout);
+	}
+	DOS( void )
+	{
+		::std::cout << "DOS" << ::std::endl;
+		fflush(stdout);
+	}
+};
+
+template <typename T1>
+class Application {
+	static_assert(
+		(::std::is_base_of< Windows< Desktop< Normal >>, T1 >::value == false) ||
+		(::std::is_base_of< Windows< Desktop< MDI    >>, T1 >::value == false) ||
+		(::std::is_base_of< Windows< Server < FTP    >>, T1 >::value == false) ||
+		(::std::is_base_of< DOS                        , T1 >::value == false) ,
+		PL_ASSERT_APPLICATION);
+public:
+	Application( int argc, char **argv )
+	{
+		::std::cout << "Application Template: "
+		<< ::std::endl << "argc: " << argc
+		<< ::std::endl << "argv: " << argv[0]
+		<< ::std::endl ;
+		sub_system = new T1();
+	}
+	Application(void)
+	{
+		::std::cout << "Application" << ::std::endl;
+	}
+	::std::ostream& operator << ( ::std::ostream& os ) {
+		return os;
+	}
+private:
+	T1 *sub_system;
+};
+
+}	// namespace: prolog
+
+int main(int argc, char **argv)
+{
+	using namespace prolog;
+
+	Application< Windows< Server < FTP    > >> srv_app( argc, argv );
+	Application< Windows< Desktop< Normal > >> win_app( argc, argv );
+	Application< DOS                         > dos_app( argc, argv );
+
+	return SUCCESS;
 }

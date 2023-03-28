@@ -13,7 +13,7 @@ g++ -std=c++17 -m64 -mconsole -O2 -DDEBUG			\
 	-Wno-write-strings					\
 	-o prolog.o -c prolog.cc
 
-g++ -std=c++17 -m64 -mwindows -o prolog64.exe prolog.o dwarf.o  \
+g++ -std=c++17 -m64 -mconsole -o prolog64.exe prolog.o dwarf.o  \
 	resource.o                                              \
 	-static                                                 \
 	-L. -L../../lib -ltvision64  -lxbase -ldwarf64 -lz64    \
