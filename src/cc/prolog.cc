@@ -258,14 +258,14 @@
 # include <tvision/tv.h>
 # include <tvision/help.h>
 
-# define SUCCESS 0
-# define FAILURE 1
-
-#if 0
-
-
 # include "help.h"
 
+inline int SUCCESS() { return 0; }
+inline int FAILURE() { return 1; }
+
+// ---------------------------------------------------------------------
+// forward declaration's ...
+// ---------------------------------------------------------------------
 class TApplication;
 class TMenuBar;
 class TStatusLine;
@@ -379,18 +379,21 @@ namespace prolog {
 // ---------------------------------------------------------------------
 // forward declaration's ...
 // ---------------------------------------------------------------------
-class Application;
-class Desktop;
+template <typename T1, typename T2> class Application;
+template <typename T1>              class Desktop;
+template <typename T1>              class Client;
+template <typename T1>              class Server;
+template <typename T1>              class IO_Stream;    // in/out stream
+
+class ConsoleApplication;
 class Console;
-class Client;
-class Server;
 class Html;
 class Ftp;
 
 class PL_Exception_Application;
 class PL_Exception_Windows;
 
-static Application * _app = nullptr;
+static ConsoleApplication * _app = nullptr;
 
 // ---------------------------------------------------------------------
 // locale string's (english):
@@ -786,22 +789,29 @@ locale_str(int32_t which)
 	return "";
 }
 
-// ---------------------------------------------------------------------
-// PL parser stuff:
-// ---------------------------------------------------------------------
-class    PL_Prolog ;
-class    PL_Pascal ;
-class    PL_cLang  ;
-class    PL_dBase  ;
-class    PL_Fortran;
-
-class    PL_parser; 		// common parser stuff
-
 uint32_t PL_line_row = 1;	// PL parser row number
 uint32_t PL_line_col = 1;   // ...       column #
 
 # define TOK_IDENT 1000
 # define TOK_WHITE 1001
+
+// ---------------------------------------------------------------------
+// some mark-up styles, and code writing shortner ...
+// ---------------------------------------------------------------------
+# define BEGIN_WHILE       \
+  while (                  \
+  PL_lookaheadPosition !=  \
+  PL_file_size)    {
+# define END_WHILE }
+
+#ifdef DEBUG
+# define DEBUGSTR(x)       \
+  ::std::cout <<  x  <<    \
+  ::std::endl ;
+#else
+# define DEBUGSTR(x)
+#endif
+
 
 // ---------------------------------------------------------------------
 // helper tool's:
@@ -838,62 +848,6 @@ static inline std::string trim_copy(std::string s) {
 	trim(s);
 	return s;
 }
-
-// ---------------------------------------------------------------------
-// some mark-up styles, and code writing shortner ...
-// ---------------------------------------------------------------------
-# define BEGIN_WHILE       \
-  while (                  \
-  PL_lookaheadPosition !=  \
-  PL_file_size)    {
-# define END_WHILE }
-
-#ifdef DEBUG
-# define DEBUGSTR(x)       \
-  ::std::cout <<  x  <<    \
-  ::std::endl ;
-#else
-# define DEBUGSTR(x)
-#endif
-
-# define PL_HELPFILE	"prolog64.hlp"
-
-inline int NT_ListExpr  () { return 1; }
-inline int NT_ListString() { return 2; }
-
-struct PL_ASTList_Expr {
-	double lhs;
-	double rhs;
-	int    op;
-};
-
-struct PL_ASTList_String {
-	::std::string str;
-	int           op;
-};
-
-struct PL_ASTList_Node {
-	int lineno;
-	int nodeType;
-	::std::string name;
-	
-	::std::vector< PL_ASTList_Expr   * > nodes_expr;
-	::std::vector< PL_ASTList_String * > nodes_string;
-	
-	struct PL_ASTList_Node * next;
-} *pl_head, *pl_tail, * pl_ptr ;
-
-
-// ---------------------------------------------------------------------
-// const, variables.
-// ---------------------------------------------------------------------
-#define STDCOUT  std::cout
-
-const int CVT_NONE   = 0;
-const int CVT_ASM    = 1;
-const int CVT_PASCAL = 2;   // default ?
-
-int   convert_mode   = 0;
 
 // ---------------------------------------------------------------------
 //! \class  PL_Exception
@@ -966,6 +920,70 @@ class PL_Exception_Application     : public PL_Exception { using PL_Exception::P
 class PL_Exception_Windows         : public PL_Exception { using PL_Exception::PL_Exception; };
 class PL_Exception_DataBase        : public PL_Exception { using PL_Exception::PL_Exception; };
 class PL_Exception_DataBaseWarning : public PL_Exception { using PL_Exception::PL_Exception; };
+
+// ---------------------------------------------------------------------
+// for customize the compiler output ...
+// ---------------------------------------------------------------------
+# define ENGLISH 1
+# define GERMAN  2
+
+#ifndef LANGUAGE
+# define LANGUAGE  ENGLISH
+#endif
+
+// ---------------------------------------------------------------------
+// static assert compiler output:
+// ---------------------------------------------------------------------
+#if LANGUAGE == ENGLISH
+# define PL_ASSERT_APPLICATION              "T1 must be of <DOS> or <Windows> !"
+# define PL_ASSERT_APPLICATION_ASCII        "T1 must be of <English> or <German> !"
+# define PL_ASSERT_APPLICATION_STREAMER_IO  "T1 must be of <i/ofstream> or <wi/ofstream> !"
+# define PL_ASSERT_APPLICATION_WINDOWS      "T1 must be of <Desktop> or <Server> !"
+#elif LANGUAGE == GERMAN
+# define PL_ASSERT_APPLICATION              "T1 Typ muss <DOS> oder <Windows> sein !"
+# define PL_ASSERT_APPLICATION_ASCII        "T1 Typ muss <English> oder <German> sein !"
+# define PL_ASSERT_APPLICATION_STREAMER_IO  "T1 Typ muss <i/ofstream> oder <wi/ofstream> sein !"
+# define PL_ASSERT_APPLICATION_WINDOWS      "T1 Typ muss <Desktop> oder <Server> sein !"
+#endif
+
+# define PL_HELPFILE	"prolog64.hlp"
+
+inline int NT_ListExpr  () { return 1; }
+inline int NT_ListString() { return 2; }
+
+struct PL_ASTList_Expr {
+	double lhs;
+	double rhs;
+	int    op;
+};
+
+struct PL_ASTList_String {
+	::std::string str;
+	int           op;
+};
+
+struct PL_ASTList_Node {
+	int lineno;
+	int nodeType;
+	::std::string name;
+	
+	::std::vector< PL_ASTList_Expr   * > nodes_expr;
+	::std::vector< PL_ASTList_String * > nodes_string;
+	
+	struct PL_ASTList_Node * next;
+} *pl_head, *pl_tail, * pl_ptr ;
+
+
+// ---------------------------------------------------------------------
+// const, variables.
+// ---------------------------------------------------------------------
+#define STDCOUT  std::cout
+
+const int CVT_NONE   = 0;
+const int CVT_ASM    = 1;
+const int CVT_PASCAL = 2;   // default ?
+
+int   convert_mode   = 0;
 
 // ---------------------------------------------------------------------
 // DWARF debugging class ...
@@ -1099,7 +1117,7 @@ static struct DialogData {
 // ---------------------------------------------------------------------
 // the main console application class ...
 // ---------------------------------------------------------------------
-class Application: public TApplication {
+class ConsoleApplication: public TApplication {
 public:
 	class TMultiMenu : public ::TMenuBar {
 	protected:
@@ -3062,13 +3080,12 @@ public:
 	}
 
 public:
-	Application(
-		Console& con,
+	ConsoleApplication(
 		::std::vector<  ::std::string > argv):
 		::TProgInit(
-			&Application::initStatusLine,
-			&Application::initMenuBar,
-			&Application::initDeskTop),
+			&ConsoleApplication::initStatusLine,
+			&ConsoleApplication::initMenuBar,
+			&ConsoleApplication::initDeskTop),
 		TApplication(),
 		curMenu(0)
 	{
@@ -3099,7 +3116,7 @@ public:
 		xdbf_data_class->SetDataDirectory( dir.c_str() );
 	}
 	
-	~Application() {
+	~ConsoleApplication() {
 		if (xdbf_data_file != nullptr) {
 			xdbf_data_file->Close();
 			delete xdbf_data_file;
@@ -3136,12 +3153,13 @@ public:
 	
 	void exit(int returnCode = 0)
 	{
-		DEBUGSTR("Application exit")
+		DEBUGSTR("ConsoleApplication exit")
 	}
 
+	void run() { TApplication::run(); }
 	int exec()
 	{
-		DEBUGSTR("Application exec")
+		DEBUGSTR("ConsoleApplication exec")
 		return 0;
 	}
 
@@ -3155,25 +3173,25 @@ private:
 	::std::string exe;  // application name:   foo.exe
 	::std::string dir;  // application folder: C:\path\to
 	
-};	// class Application
+};	// class ConsoleApplication
 
-inline ipstream& operator >> ( ipstream& is, Application::TTable&  cl ) { return is >> (TStreamable&) cl; }
-inline ipstream& operator >> ( ipstream& is, Application::TTable*& cl ) { return is >> (void *&) cl; }
+inline ipstream& operator >> ( ipstream& is, ConsoleApplication::TTable&  cl ) { return is >> (TStreamable&) cl; }
+inline ipstream& operator >> ( ipstream& is, ConsoleApplication::TTable*& cl ) { return is >> (void *&) cl; }
 
-inline opstream& operator << ( opstream& os, Application::TTable&  cl ) { return os << (TStreamable&) cl; }
-inline opstream& operator << ( opstream& os, Application::TTable*  cl ) { return os << (TStreamable*) cl; }
+inline opstream& operator << ( opstream& os, ConsoleApplication::TTable&  cl ) { return os << (TStreamable&) cl; }
+inline opstream& operator << ( opstream& os, ConsoleApplication::TTable*  cl ) { return os << (TStreamable*) cl; }
 
-inline ipstream& operator >> ( ipstream& is, Application::TReport&  cl ) { return is >> (TStreamable&) cl; }
-inline ipstream& operator >> ( ipstream& is, Application::TReport*& cl ) { return is >> (void *&) cl; }
+inline ipstream& operator >> ( ipstream& is, ConsoleApplication::TReport&  cl ) { return is >> (TStreamable&) cl; }
+inline ipstream& operator >> ( ipstream& is, ConsoleApplication::TReport*& cl ) { return is >> (void *&) cl; }
 
-inline opstream& operator << ( opstream& os, Application::TReport&  cl ) { return os << (TStreamable&) cl; }
-inline opstream& operator << ( opstream& os, Application::TReport*  cl ) { return os << (TStreamable*) cl; }
+inline opstream& operator << ( opstream& os, ConsoleApplication::TReport&  cl ) { return os << (TStreamable&) cl; }
+inline opstream& operator << ( opstream& os, ConsoleApplication::TReport*  cl ) { return os << (TStreamable*) cl; }
 
-inline ipstream& operator >> ( ipstream& is, Application::TAsciiChart&  cl ) { return is >> (TStreamable&) cl; }
-inline ipstream& operator >> ( ipstream& is, Application::TAsciiChart*& cl ) { return is >> (void *&) cl; }
+inline ipstream& operator >> ( ipstream& is, ConsoleApplication::TAsciiChart&  cl ) { return is >> (TStreamable&) cl; }
+inline ipstream& operator >> ( ipstream& is, ConsoleApplication::TAsciiChart*& cl ) { return is >> (void *&) cl; }
 
-inline opstream& operator << ( opstream& os, Application::TAsciiChart&  cl ) { return os << (TStreamable&) cl; }
-inline opstream& operator << ( opstream& os, Application::TAsciiChart*  cl ) { return os << (TStreamable*) cl; }
+inline opstream& operator << ( opstream& os, ConsoleApplication::TAsciiChart&  cl ) { return os << (TStreamable&) cl; }
+inline opstream& operator << ( opstream& os, ConsoleApplication::TAsciiChart*  cl ) { return os << (TStreamable*) cl; }
 
 // ---------------------------------------------------------------------
 //! \class  PL_helper
@@ -4118,20 +4136,20 @@ public:
 	//! \see    PL_Prolog::PL_Prolog()
 	//! \~English
 	//! \brief  This is a C++ constructor class for the Prolog Parser.
-	//! \param  Application& ptr - Pointer to the Application class.
+	//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
 	//! \return internal used Object with Pointer to itself.
 	//! \~endEnglish
 	//! \~German
 	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
-	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
-	PL_Fortran(Application&) {
-		DEBUGSTR("ctor: PL_Fortran Application")
+	PL_Fortran(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_Fortran ConsoleApplication")
 	//	init();
 	}
-	PL_Fortran(Application*) {
-		DEBUGSTR("ctor: PL_Fortran Application")
+	PL_Fortran(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_Fortran ConsoleApplication")
 	//	init();
 	}
 	
@@ -4208,12 +4226,12 @@ class PL_Assembler: public PL_parser
 	}
 public:
 	//-- CONSTRUCTORS DEFINITIONS -----------------------------
-	PL_Assembler(Application&) {
-		DEBUGSTR("ctor: PL_Assembler Application")
+	PL_Assembler(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_Assembler ConsoleApplication")
 		init();
 	}
-	PL_Assembler(Application*) {
-		DEBUGSTR("ctor: PL_Assembler Application")
+	PL_Assembler(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_Assembler ConsoleApplication")
 		init();
 	}
 	PL_Assembler() { }
@@ -4279,26 +4297,26 @@ public:
 	//! \see    PL_Prolog::PL_Prolog()
 	//! \~English
 	//! \brief  This is a C++ constructor class for the Prolog Parser.
-	//! \param  Application& ptr - Pointer to the Application class.
+	//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
 	//! \return internal used Object with Pointer to itself.
 	//! \~endEnglish
 	//! \~German
 	//! \brief  Dies ist ein C++ Konstruktor für den Prolog Parser.
-	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
-	PL_Prolog(Application&) {
-		DEBUGSTR("ctor: PL_Prolog Application")
+	PL_Prolog(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_Prolog ConsoleApplication")
 		init();
 	}
-	PL_Prolog(Application*) {
-		DEBUGSTR("ctor: PL_Prolog Application")
+	PL_Prolog(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_Prolog ConsoleApplication")
 		init();
 	}
 
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application&)
+	//! \see    PL_Prolog::PL_Prolog(ConsoleApplication&)
 	//! \see    PL_Prolog::PL_Prolog(std::string)
 	//! \see    PL_Prolog::PL_Prolog(char&)
 	//! \see    PL_Prolog::PL_Prolog()
@@ -4319,7 +4337,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application&)
+	//! \see    PL_Prolog::PL_Prolog(ConsoleApplication&)
 	//! \see    PL_Prolog::PL_Prolog(std::string&)
 	//! \see    PL_Prolog::PL_Prolog(char&)
 	//! \see    PL_Prolog::PL_Prolog()
@@ -4340,7 +4358,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application&)
+	//! \see    PL_Prolog::PL_Prolog(ConsoleApplication&)
 	//! \see    PL_Prolog::PL_Prolog(std::string&)
 	//! \see    PL_Prolog::PL_Prolog(std::string)
 	//! \see    PL_Prolog::PL_Prolog()
@@ -4361,7 +4379,7 @@ public:
 
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_Prolog::PL_Prolog(Application&)
+	//! \see    PL_Prolog::PL_Prolog(ConsoleApplication&)
 	//! \see    PL_Prolog::PL_Prolog(std::string&)
 	//! \see    PL_Prolog::PL_Prolog(std::string)
 	//! \see    PL_Prolog::PL_Prolog(char&)
@@ -4487,33 +4505,33 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application&)
+	//! \see    PL_dBase::PL_dBase(ConsoleApplication&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(std::string)
 	//! \see    PL_dBase::PL_dBase(char&)
 	//! \see    PL_dBase::PL_dBase()
 	//! \~English
 	//! \brief  This is the C++ constructor class for the dBase Parser.
-	//! \param  Application& ptr - Pointer to the Application class.
+	//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
 	//! \return internal used Object with Pointer to itself.
 	//! \~endEnglish
 	//! \~German
 	//! \brief  Dies ist der C++ Konstruktor für den dBase Parser.
-	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
-	PL_dBase(Application&) {
-		DEBUGSTR("ctor: PL_dBase Application")
+	PL_dBase(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_dBase ConsoleApplication")
 		init();
 	}
-	PL_dBase(Application*) {
-		DEBUGSTR("ctor: PL_dBase Application")
+	PL_dBase(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_dBase ConsoleApplication")
 		init();
 	}
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application&)
+	//! \see    PL_dBase::PL_dBase(ConsoleApplication&)
 	//! \see    PL_dBase::PL_dBase(std::string)
 	//! \see    PL_dBase::PL_dBase(char&)
 	//! \see    PL_dBase::PL_dBase()
@@ -4534,7 +4552,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application&)
+	//! \see    PL_dBase::PL_dBase(ConsoleApplication&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(char&)
 	//! \see    PL_dBase::PL_dBase()
@@ -4555,7 +4573,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application&)
+	//! \see    PL_dBase::PL_dBase(ConsoleApplication&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(std::string)
 	//! \see    PL_dBase::PL_dBase()
@@ -4576,7 +4594,7 @@ public:
 	
 	//! \since  Version 0.0.1
 	//! \author paule32
-	//! \see    PL_dBase::PL_dBase(Application&)
+	//! \see    PL_dBase::PL_dBase(ConsoleApplication&)
 	//! \see    PL_dBase::PL_dBase(std::string&)
 	//! \see    PL_dBase::PL_dBase(std::string))
 	//! \see    PL_dBase::PL_dBase(char&)
@@ -4663,20 +4681,20 @@ public:
 	//! \see    PL_Pascal::PL_Pascal()
 	//! \~English
 	//! \brief  This is the C++ constructor class for the Pascal Parser.
-	//! \param  Application& ptr - Pointer to the Application class.
+	//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
 	//! \return internal used Object with Pointer to itself.
 	//! \~endEnglish
 	//! \~German
 	//! \brief  Dies ist der C++ Konstruktor für den Pascal Parser.
-	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
-	PL_Pascal(Application&) {
-		DEBUGSTR("ctor: PL_Pascal Application")
+	PL_Pascal(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_Pascal ConsoleApplication")
 		init();
 	}
-	PL_Pascal(Application*) {
-		DEBUGSTR("ctor: PL_Pascal Application")
+	PL_Pascal(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_Pascal ConsoleApplication")
 		init();
 	}
 	
@@ -4906,20 +4924,20 @@ public:
 	//! \see    PL_cLang::PL_cLang()
 	//! \~English
 	//! \brief  This is the C++ constructor class for the C Parser.
-	//! \param  Application& ptr - Pointer to the Application class.
+	//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
 	//! \return internal used Object with Pointer to itself.
 	//! \~endEnglish
 	//! \~German
 	//! \brief  Dies ist der C++ Konstruktor für den C Parser.
-	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
-	PL_cLang(Application&) {
-		DEBUGSTR("ctor: PL_Pascal Application")
+	PL_cLang(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_Pascal ConsoleApplication")
 		init();
 	}
-	PL_cLang(Application*) {
-		DEBUGSTR("ctor: PL_Pascal Application")
+	PL_cLang(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_Pascal ConsoleApplication")
 		init();
 	}
 
@@ -5000,20 +5018,20 @@ public:
 	//! \see    PL_Executable::PL_Executable()
 	//! \~English
 	//! \brief  This is the C++ constructor class for the Pascal Parser.
-	//! \param  Application& ptr - Pointer to the Application class.
+	//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
 	//! \return internal used Object with Pointer to itself.
 	//! \~endEnglish
 	//! \~German
 	//! \brief  Dies ist der C++ Konstruktor für den Pascal Parser.
-	//! \param  Application& ptr - Zeiger auf ein zugewiesenes Application Objekt
+	//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
 	//! \return internes Objekt auf diese Klasse.
 	//! \~endGerman
-	PL_Executable(Application&) {
-		DEBUGSTR("ctor: PL_Executable Application")
+	PL_Executable(ConsoleApplication&) {
+		DEBUGSTR("ctor: PL_Executable ConsoleApplication")
 		init();
 	}
-	PL_Executable(Application*) {
-		DEBUGSTR("ctor: PL_Executable Application")
+	PL_Executable(ConsoleApplication*) {
+		DEBUGSTR("ctor: PL_Executable ConsoleApplication")
 		init();
 	}
 
@@ -5162,82 +5180,6 @@ public:
 	}
 };
 
-
-class Desktop {
-public:
-	Desktop() {
-		DEBUGSTR("ctor: PL_Desktop ()")
-	}
-	~Desktop() {
-		DEBUGSTR("dtor: ~PL_Desktop ()")
-	}
-	
-	void exit(int returnCode = 0)
-	{
-		DEBUGSTR("Desktop exit")
-	}
-
-	int exec()
-	{
-		DEBUGSTR("Desktop exec")
-		return 0;
-	}
-};
-
-class Console {
-public:
-	Console() {
-		DEBUGSTR("ctor: PL_Console ()")
-	}
-	~Console() {
-		DEBUGSTR("dtor: ~PL_Console ()")
-	}
-};
-
-class Server {
-public:
-	Server() {
-		DEBUGSTR("ctor: PL_Server ()")
-	}
-	~Server() {
-		DEBUGSTR("ctor: ~PL_Server ()")
-	}
-};
-
-class Client {
-public:
-	Client() {
-		DEBUGSTR("ctor: PL_Client ()")
-	}
-	~Client() {
-		DEBUGSTR("dtor: ~PL_Client ()")
-	}
-};
-
-class Html {
-public:
-	Html() {
-		DEBUGSTR("ctor: PL_Html ()")
-	}
-	~Html() {
-		DEBUGSTR("dtor: ~PL_Html ()")
-	}
-};
-
-class Ftp {
-public:
-	Ftp() {
-		DEBUGSTR("ctor: PL_Ftp ()")
-	}
-	~Ftp() {
-		DEBUGSTR("dtor: ~PL_Ftp ()")
-	}
-};
-
-}	// namespace: prolog
-
-using namespace prolog;
-
 // ----------------------------------------------------------
 // Resolve symbol name and source location given the path
 // to the executable and an address
@@ -5257,7 +5199,7 @@ addr2line(
 		".\\addr2line.exe -f main -p -e %.256s %p",
 		program_name,
 		addr);
-::std::cout << addr2line_cmd << ::std::endl;
+	::std::cout << addr2line_cmd << ::std::endl;
 	// ------------------------------------------
 	// This will print a nicely formatted string
 	// specifying the function and source line
@@ -5585,29 +5527,30 @@ void set_signal_handler()
 }
 
 
-void set_signal_handler(prolog::Application * a) {
+void set_signal_handler(prolog::ConsoleApplication * a) {
 	_app = a;
 	set_signal_handler();
 	SetUnhandledExceptionFilter( windows_exception_handler );
-	fflush( stderr );
-	fflush( stdout );
-
-	init_gui_app();
 }
 
 // ---------------------------------------------------------------------
-// tui app - text user interface application ...
+// tui app - text user interface ConsoleApplication ...
 // ---------------------------------------------------------------------
 void
 init_con_app(
-	Console& con,
 	::std::vector< ::std::string > argv,
 	::std::string item,
 	int flag)
 {
-	auto * app = new Application( con, argv );
+	auto * app = new ConsoleApplication( argv );
 	start_label:
 	try {
+		if (flag == 2) {
+			PL_globalHolder.PL_language = app_lang;
+			PL_Executable prg ( app ); prg.PL_parseFile ( item );
+			app->run();
+			return;
+		}
 		// --- test signal ---
 		static int flg = 0;
 		if (flg == 0) {
@@ -5709,1114 +5652,756 @@ init_con_app(
 	}
 }
 
-// ---------------------------------------------------------------------
-// gui app - graphics user interface application ...
-// ---------------------------------------------------------------------
-const char g_szClassName[] = "myWindowClass";
-
-HWND hwndMDI;
-HWND hwndStatusBar;
-HWND hwndToolBar;
-HWND hwndTabs;
-
-// ---------------------------------------------------------------------
-// control center window
-// ---------------------------------------------------------------------
-HWND hwndRegister;
-HWND hwndStatic                  [  5 ];
-HWND hwndStaticButtonAll         [ 12 ];
-HWND hwndStaticButtonTable       [  2 ];
-HWND hwndStaticButtonQuery       [  2 ];
-HWND hwndStaticButtonForm        [  4 ];
-HWND hwndStaticButtonApplication [  1 ];
-
-// ---------------------------------------------------------------------
-// control center button id's - register "all"
-// ---------------------------------------------------------------------
-# define ID_STATIC_BUTTON_NEW_PROJECT 8801
-# define ID_STATIC_BUTTON_NEW_REPORT  8802
-
-long long int
-AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
-        case WM_INITDIALOG:
-			return TRUE;
-		case WM_CLOSE:
-			EndDialog( hwnd, 0 );
-			return TRUE;
-
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDC_OK:
-                    DestroyWindow(hwnd);
-                break;
-                case IDC_CANCEL:
-                    DestroyWindow(hwnd);
-                break;
-            }
-        break;
-        default:
-            return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-    return FALSE;
+inline ::std::string
+PL_STREAM_FILE() {
+	return ::std::string("test.out");
 }
 
-// ---------------------------------------------------------------------
-// @brief
-//   Creates a status bar and divides it into the specified number of
-//   parts.
-// @parameter
-//   hwndParent - parent window for the status bar.
-//   idStatus   - child window identifier of the status bar.
-//   hinst      - handle to the application instance.
-//   cParts     - number of parts into which to divide the status bar.
-// @return
-//   The handle to the status bar.
-// ---------------------------------------------------------------------
-HWND
-DoCreateStatusBar(
-	HWND      hwndParent,
-	HMENU     idStatus,
-	HINSTANCE hinst,
-	int       cParts)
-{
-    RECT   rcClient;
-    HLOCAL hloc;
-    PINT   paParts;
-    int i, nWidth;
-	
-	hwndStatusBar = CreateWindowEx(
-		0,                       // no extended styles
-		STATUSCLASSNAME,         // name of status bar class
-		(PCTSTR) NULL,           // no text when first created
-		SBARS_SIZEGRIP |         // includes a sizing grip
-		WS_CHILD | WS_VISIBLE,   // creates a visible child window
-		0, 0, 0, 0,              // ignores size and position
-		hwndParent,              // handle to parent window
-		(HMENU) idStatus,        // child window identifier
-		hinst,                   // handle to application instance
-		NULL);
-	if (hwndStatusBar == NULL)
+// window classes:
+class DOS;
+class MDI;
+class Normal;
+
+template <typename T1>
+class IO_Stream {
+	static_assert(
+		::std::is_base_of< ::std::ofstream, T1>::value ||
+		::std::is_base_of< ::std::wfstream, T1>::value ||
+		PL_ASSERT_APPLICATION_STREAMER_IO);
+public:
+	IO_Stream( ::std::string file_name )
 	{
-		MessageBox(NULL,
-		locale_str( 104 ).c_str(),
-		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
+		const std::type_info& t2 = typeid( ::std::ofstream );
+		const std::type_info& t3 = typeid( ::std::wfstream );
 		
-		throw PL_Exception_Application(
-		locale_str( 104 ).c_str() );
+		stream_file.clear( stream_file.failbit );
+		stream_file.clear( stream_file.badbit  );
+
+		// ansi
+		if ( typeid( T1 ) == t2 ) {
+			::std::stringstream ss;
+			stream_file.open(
+				PL_STREAM_FILE(),
+				::std::fstream::out |
+				::std::fstream::in  |
+				::std::fstream::app
+			);
+			if (stream_file.failbit == true)
+			ss << "A logical error on i/o operation"; else
+
+			if (stream_file.badbit == true)
+			ss << "A read error on i/o operation.";
+		}
+		
+		// wide
+		else if ( typeid( T1 ) == t3 ) {
+			::std::wstringstream ss;
+			stream_file.open(
+				PL_STREAM_FILE(),
+				::std::wfstream::out |
+				::std::wfstream::in  |
+				::std::wfstream::app
+			);
+			if (stream_file.failbit == true)
+			ss << "W logical error on i/o operation"; else
+
+			if (stream_file.badbit == true)
+			ss << "W read error on i/o operation.";
+		}
+	}
+	~IO_Stream()
+	{
+		::std::cout << "close stream file ..." <<
+		::std::endl;
+		
+		stream_file.close();
+	}
+private:
+	T1 stream_file;
+};
+
+// server classes:
+class FTP;
+
+class FTP {
+public:
+	FTP(int) {
+	}
+	FTP(void) {
+	}
+private:
+};
+
+template <typename T1>
+class Client {
+	static_assert(
+	::std::is_base_of< FTP, T1>::value ||
+	PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Client(void)
+	{
+		::std::cout << "Client" <<
+		::std::endl;
+	}
+private:
+};
+
+template <typename T1>
+class Server {
+	static_assert(
+	::std::is_base_of< FTP, T1>::value ||
+	PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Server(int)
+	{
+		::std::cout << "Server Windows Template" <<
+		::std::endl;
+	}
+	Server( void )
+	{
+		::std::cout << "Server" <<
+		::std::endl;
+	}
+private:
+	T1 * server_type;
+};
+
+class Menu
+{
+public:
+	Menu() { }
+	~Menu() {
+		items.clear();
 	}
 	
-	// ----------------------------------------------------------
-	// Get the coordinates of the parent window's client area.
-	// ----------------------------------------------------------
-	GetClientRect(hwndParent, &rcClient);
+	void operator << ( ::std::string s ) { add( s ); }
 
-	// ----------------------------------------------------------
-	// Allocate an array for holding the right edge coordinates.
-	// ----------------------------------------------------------
-	hloc    = LocalAlloc(LHND, sizeof(int) * cParts);
-    paParts = (PINT) LocalLock(hloc);
+	void add( ::std::string s ) { items.push_back( s ); }
+	int getCount() const { return items.size(); }
 
-	// --------------------------------------------------------
-	// Calculate the right edge coordinate for each part, and
-    // copy the coordinates to the array.
-	// --------------------------------------------------------
-	nWidth = rcClient.right / cParts;
-	
-	int rightEdge = nWidth;
-    for (i = 0; i < cParts; i++) { 
-       paParts[i] = rightEdge;
-       rightEdge += nWidth;
-    }
-	
-	// -------------------------------------------------
-	// Tell the status bar to create the window parts.
-	// -------------------------------------------------
-    SendMessage(hwndStatusBar, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
-	
-	// ----------------------------
-	// Free the array, and return.
-	// ----------------------------
-    LocalUnlock(hloc);
-    LocalFree  (hloc);
-	
-	return hwndStatusBar;
-}
+	::std::vector< ::std::string > items;
+};
 
-// ---------------------------------------------------------------------
-// window procedure for the register window:
-// ---------------------------------------------------------------------
-LRESULT CALLBACK
-Register_All_WndProc(
-	HWND hwnd,
-	UINT msg,
-	WPARAM wParam,
-	LPARAM lParam)
-{
-	switch (msg)
-    {
-		case WM_COMMAND:
-		{
-			int msgId    = LOWORD(wParam);
-			int msgEvent = HIWORD(lParam);
+class WindowGlobals {
+public:
+	WindowGlobals( void )
+	{
+		::std::cout << "win globals" << ::std::endl;
+	}
+	
+	static void
+	RePaintWindow(
+		HWND   _hwnd,
+		WPARAM wParam,
+		LPARAM lParam)
+	{
+		HDC hdc = GetDCEx(_hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
+		if (hdc) {
+			RECT  rcclient;
+			RECT  rcwin;
 			
-			switch ( msgId )
-			{
-				case ID_STATIC_BUTTON_NEW_PROJECT:
-				{
-					MessageBox(hwnd,"111new project","test",MB_OK);
+			POINT ptupleft;
+			
+			GetClientRect( _hwnd, &rcclient );
+			GetWindowRect( _hwnd, &rcwin );
+			
+			ptupleft.x = rcwin.left;
+			ptupleft.y = rcwin.top;
+
+			MapWindowPoints(0, _hwnd, (LPPOINT) &rcwin, (sizeof(RECT)/sizeof(POINT)));
+			
+			OffsetRect( &rcclient, -rcwin.left, -rcwin.top);
+			OffsetRect( &rcwin,    -rcwin.left, -rcwin.top);
+			
+			HRGN rgntemp = NULL;
+			
+			if (wParam == NULLREGION || wParam == ERROR ) {
+				ExcludeClipRect(
+					hdc,
+					rcclient.left,
+					rcclient.top,
+					rcclient.right,
+					rcclient.bottom
+				);
+			}
+			else {
+				rgntemp = CreateRectRgn(
+				rcclient.left   + ptupleft.x,
+				rcclient.top    + ptupleft.y,
+				rcclient.right  + ptupleft.x,
+				rcclient.bottom + ptupleft.y);
+					
+				if (CombineRgn(rgntemp, (HRGN) wParam, rgntemp, RGN_DIFF) == NULLREGION) {
+					// nothing to paint
 				}
-				break;
-				case ID_STATIC_BUTTON_NEW_REPORT:
-				{
-					MessageBox(hwnd,"sssssnew report","test",MB_OK);
-				}
-				break;
+				
+				OffsetRgn(rgntemp, -ptupleft.x, -ptupleft.y);
+				ExtSelectClipRgn(hdc, rgntemp, RGN_AND);
+			}
+
+			HBRUSH borderBrush = CreateSolidBrush(RGB(255,   0,   0));
+			HBRUSH menuBrush   = CreateSolidBrush(RGB(  0,   0, 200));
+			
+			FillRect(hdc, &rcwin, borderBrush);
+			
+			rcclient.top    = 37;
+			rcclient.bottom = 62;
+			FillRect(hdc, &rcclient, menuBrush);
+			
+			DeleteObject( menuBrush   );
+			DeleteObject( borderBrush );
+			
+			ReleaseDC(_hwnd, hdc);
+			
+			if (rgntemp != 0) {
+				DeleteObject(rgntemp);
 			}
 		}
-		break;
-		default:
-            return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
-	return 0;
-}
+	
+	#define IDC_MAIN_EDIT	102	
+	static LRESULT CALLBACK
+	windowProc(
+		HWND   _hwnd,
+		UINT   _msg,
+		WPARAM wParam,
+		LPARAM lParam)
+	{
+		HBITMAP hBitmap;
 
-LRESULT CALLBACK
-RegisterWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	switch (msg)
-    {
-		case WM_CREATE:
-			SetFocus(hwndStatic[0]);
-		break;
-		case WM_MOVE:
-			SendMessage(hwnd, WM_NCPAINT, 0,0);
-			SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)GetDC(hwnd),0);
-		break;
-		case WM_NOTIFY:
+		switch (_msg)
 		{
-			int msgId    = LOWORD(wParam);
-			int msgEvent = HIWORD(lParam);
-			
-			char buffer[100];
-			sprintf(buffer, "reg---> %d,  %d,  %d", msgId, msgEvent, ((LPNMHDR)lParam)->code);
-			MessageBoxA(0,buffer,"test",MB_OK);
-
-
-			switch (((LPNMHDR)lParam)->code)
+			case WM_CREATE:
 			{
-				case TCN_SELCHANGING:
-				{
-					return FALSE;
-				}
-				break;
-				case TCN_SELCHANGE:
-				{
-					int tabID = TabCtrl_GetCurSel(hwndTabs);
-					switch (tabID)
-					{
-						case 0:
-						{
-							for (int i = 0; i < 5; ++i)
-							ShowWindow(hwndStatic[i], FALSE);
-							ShowWindow(hwndStatic[0], TRUE);
-						}
-						break;
-						case 1:
-							for (int i = 0; i < 5; ++i)
-							ShowWindow(hwndStatic[i], FALSE);
-							ShowWindow(hwndStatic[1], TRUE);
-						break;
-						case 2:
-						{
-							for (int i = 0; i < 5; ++i)
-							ShowWindow(hwndStatic[i], FALSE);
-							ShowWindow(hwndStatic[2], TRUE);
-						}
-						break;
-						case 3:
-						{
-							for (int i = 0; i < 5; ++i)
-							ShowWindow(hwndStatic[i], FALSE);
-							ShowWindow(hwndStatic[3], TRUE);
-						}
-						break;
-						case 4:
-						{
-							for (int i = 0; i < 5; ++i)
-							ShowWindow(hwndStatic[i], FALSE);
-							ShowWindow(hwndStatic[4], TRUE);
-						}
-						break;
-					}
-				}
+				// remove border icons (close, max/min)
+				SetWindowLong(_hwnd, GWL_STYLE,
+				GetWindowLong(_hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
 			}
-        }
-		break;
-		/*
-		case WM_MOUSEACTIVATE:
-		case WM_CHILDACTIVATE:
-		case WM_MDIACTIVATE:
-		case WM_LBUTTONDOWN:
-		case WM_ACTIVATE:
-		case WM_NCPAINT:
-		{
-			HDC hdc = GetDCEx(hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
-			if (hdc) {
-				RECT  rcclient;
+			break;
+			case WM_PAINT:
+			{
+				PAINTSTRUCT ps;
+				RECT rect;
+				
+				HDC    hdc = GetDC( _hwnd );
+				
+				HBRUSH clientBrush = CreateSolidBrush( RGB( 0, 100, 255 ) );
+				HBRUSH menuBrush   = CreateSolidBrush( RGB( 0,  10, 200 ) );
+				
+				HFONT  hFont = CreateFont(
+					-MulDiv(11, GetDeviceCaps(hdc, LOGPIXELSY), 72),
+					0,0,0,
+					FW_BOLD,	// font weight
+					FALSE,		// italic ?
+					FALSE,		// underline ?
+					FALSE,		// strike-out ?
+					ANSI_CHARSET, 
+					OUT_TT_PRECIS,
+					CLIP_DEFAULT_PRECIS,
+					DEFAULT_QUALITY, 
+					FF_SWISS,
+					TEXT("Arial")
+				);
+				
+				hdc = BeginPaint  ( _hwnd, &ps   );
+					GetClientRect ( _hwnd, &rect );
+					FillRect(hdc, &rect, clientBrush);
+
+					// menu bar
+					if (menu_ptr != nullptr)
+					{
+						rect.top = 0;
+						rect.left = 0;
+						rect.bottom = 34;
+						FillRect(hdc, &rect, menuBrush);
+						//
+						SelectFont  ( hdc, hFont);
+						SetBkColor  ( hdc, RGB(0, 10,255));
+						SetTextColor( hdc, RGB(0,255,255));
+						
+						SIZE strSize;
+						int  xp = 14;
+						int  yp =  5;
+						for (auto &item: menu_ptr->items)
+						{
+							TextOutA( hdc, xp,yp, item.c_str(), item.size());
+							GetTextExtentPoint32A(
+								hdc,
+								item.c_str(),
+								item.size(),
+								&strSize
+							);
+							xp += strSize.cx + 14;
+						}
+					}
+
+				EndPaint(_hwnd, &ps);
+				
+				DeleteObject( clientBrush );
+				DeleteObject( menuBrush   );
+				DeleteObject( hFont       );
+			}
+			break;
+			case WM_SHOWWINDOW:
+			case WM_MOUSEACTIVATE:
+			case WM_LBUTTONDOWN:
+			case WM_ACTIVATE:
+			{
 				RECT  rcwin;
-				
 				POINT ptupleft;
+
+				GetWindowRect(_hwnd, &rcwin);
+				MapWindowPoints(0, _hwnd, (LPPOINT) &rcwin, (sizeof(RECT)/sizeof(POINT)));
+				OffsetRect( &rcwin, -rcwin.left, -rcwin.top);
 				
-				GetClientRect( hwnd, &rcclient );
-				GetWindowRect( hwnd, &rcwin );
+				SetWindowPos( _hwnd,0,
+					rcwin.left , rcwin.top,
+					rcwin.right, rcwin.bottom,
+					SWP_DRAWFRAME    |
+					SWP_FRAMECHANGED |
+					SWP_NOMOVE       | SWP_NOREPOSITION );
+					
+				SendMessage(_hwnd, WM_PAINT,      0,0);
+				SendMessage(_hwnd, WM_ERASEBKGND, 0,0);
+				
+				return 0;
+			}
+			break;
+			case WM_NCPAINT:
+			{
+				RePaintWindow(_hwnd, wParam, lParam);
+				
+				// close button
+				RECT    rcwin;
+				HDC hdc = GetDCEx(   _hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
+				GetWindowRect    (   _hwnd, &rcwin );
+				MapWindowPoints  (0, _hwnd,
+					(LPPOINT)&rcwin,
+					(sizeof(RECT)  /
+					 sizeof(POINT)));
+				HBITMAP arrow = (HBITMAP) LoadImageA(
+					GetModuleHandle(NULL),
+					MAKEINTRESOURCE(IDBMP_CLOSE),
+					IMAGE_BITMAP,
+					32,32,
+					LR_SHARED 
+				);
+				HDC hdcMem = CreateCompatibleDC(hdc);
+				SelectObject(hdcMem, arrow);
+				BitBlt(hdc, rcwin.right-32, 1, 32, 32, hdcMem, 0, 0, SRCCOPY);
+				DeleteDC(hdcMem);
+				return 0;
+			}
+			break;
+			case WM_NCMOUSEMOVE:
+			{
+				int xPos = GET_X_LPARAM(lParam);
+				int yPos = GET_Y_LPARAM(lParam);
+				
+				RECT  rcwin   ;
+				POINT ptupleft;
+
+				HDC hdc = GetDCEx( _hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
+				GetWindowRect    ( _hwnd, &rcwin );
 				
 				ptupleft.x = rcwin.left;
 				ptupleft.y = rcwin.top;
 
-				MapWindowPoints(0, hwnd, (LPPOINT) &rcwin, (sizeof(RECT)/sizeof(POINT)));
+				MapWindowPoints(0, _hwnd, (LPPOINT) &rcwin, (sizeof(RECT)/sizeof(POINT)));
+				OffsetRect( &rcwin, -rcwin.left, -rcwin.top );
 				
-				OffsetRect( &rcclient, -rcwin.left, -rcwin.top);
-				OffsetRect( &rcwin,    -rcwin.left, -rcwin.top);
+				int ypos = yPos - ptupleft.y;
+				int xpos = xPos - ptupleft.x;
 				
-				HRGN rgntemp = NULL;
-				
-				if (wParam == NULLREGION || wParam == ERROR ) {
-					ExcludeClipRect(hdc, rcclient.left, rcclient.top, rcclient.right, rcclient.bottom);
+				// close button
+				if (((ypos >= 10)               && (ypos <= 30))
+				&&  ((xpos >= rcwin.right - 40) && (xpos <= rcwin.right-10)))
+				{
+					HBITMAP arrow = (HBITMAP) LoadImageA(
+						GetModuleHandle(NULL),
+						MAKEINTRESOURCE(IDBMP_OPEN),
+						IMAGE_BITMAP,
+						32,32,
+						LR_SHARED 
+					);
+					HDC hdcMem = CreateCompatibleDC(hdc);
+					SelectObject(hdcMem, arrow);
+					BitBlt(hdc, rcwin.right-43, 1, 32, 32, hdcMem, 0, 0, SRCCOPY);
+					DeleteDC(hdcMem);
 				}
 				else {
-					rgntemp = CreateRectRgn(
-						rcclient.left   + ptupleft.x,
-						rcclient.top    + ptupleft.y,
-						rcclient.right  + ptupleft.x,
-						rcclient.bottom + ptupleft.y);
-						
-					if (CombineRgn(rgntemp, (HRGN) wParam, rgntemp, RGN_DIFF) == NULLREGION) {
-						// nothing to paint
-					}
-					
-					OffsetRgn(rgntemp, -ptupleft.x, -ptupleft.y);
-					ExtSelectClipRgn(hdc, rgntemp, RGN_AND);
-				}
-
-				HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 0));
-				
-				FillRect(hdc, &rcwin, hbrush);
-				
-				DeleteObject(hbrush);
-				ReleaseDC(hwnd, hdc);
-				
-				if (rgntemp != 0) {
-					DeleteObject(rgntemp);
+					HBITMAP arrow = (HBITMAP) LoadImageA(
+						GetModuleHandle(NULL),
+						MAKEINTRESOURCE(IDBMP_CLOSE),
+						IMAGE_BITMAP,
+						32,32,
+						LR_SHARED 
+					);
+					HDC hdcMem = CreateCompatibleDC(hdc);
+					SelectObject(hdcMem, arrow);
+					BitBlt(hdc, rcwin.right-43, 1, 32, 32, hdcMem, 0, 0, SRCCOPY);
+					DeleteDC(hdcMem);
 				}
 			}
-			return 0;
+			break;
+			case WM_NCLBUTTONDOWN:
+			{
+				int xPos = GET_X_LPARAM(lParam);
+				int yPos = GET_Y_LPARAM(lParam);
+				
+				RECT  rcwin   ;
+				POINT ptupleft;
+
+				HDC hdc = GetDCEx( _hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
+				GetWindowRect    ( _hwnd, &rcwin );
+				
+				ptupleft.x = rcwin.left;
+				ptupleft.y = rcwin.top;
+
+				MapWindowPoints(0, _hwnd, (LPPOINT) &rcwin, (sizeof(RECT)/sizeof(POINT)));
+				OffsetRect( &rcwin, -rcwin.left, -rcwin.top );
+				
+				int ypos = yPos - ptupleft.y;
+				int xpos = xPos - ptupleft.x;
+				
+				// close button
+				if (((ypos >= 10)               && (ypos <= 30))
+				&&  ((xpos >= rcwin.right - 40) && (xpos <= rcwin.right-10)))
+				{
+					SendMessage( getWindowHandle(), WM_DESTROY, 0,0);
+					return 0;
+				}
+				else {
+					return DefWindowProc(_hwnd, _msg, wParam, lParam);
+				}
+			}
+			break;
+			case WM_MOVE:
+			{
+				SendMessage( _hwnd, WM_NCPAINT, 0,0);
+			}
+			break;
+			case WM_SIZE:
+			{
+				RePaintWindow(_hwnd, wParam, lParam);
+			}
+			break;
+	        case WM_CLOSE:
+			{
+				DestroyWindow( _hwnd );
+			}
+			break;
+			case WM_DESTROY:
+			{
+				PostQuitMessage(0);
+			}
+			break;
+
+			default:
+			return DefWindowProc(_hwnd, _msg, wParam, lParam);
 		}
-		break;
-		case WM_MOVE:
-		{
-			SendMessage( hwnd, WM_NCPAINT, 0, 0);
-		}
-		break;*/
-		default:
-            return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-
-    return 0;
-}
-
-// ---------------------------------------------------------------------
-// create the register windows:
-// ---------------------------------------------------------------------
-HWND
-DoCreateRegisterWindow(
-	HWND      hwndParent,
-	HMENU     idStatus,
-	HINSTANCE hinst)
-{
-	WNDCLASSEX wc;
-
-	wc.cbSize         = sizeof(WNDCLASSEX);
-	wc.style          = 0;
-	wc.lpfnWndProc    = RegisterWndProc;
-	wc.cbClsExtra     = 0;
-	wc.cbWndExtra     = 0;
-	wc.hInstance      = hinst;
-	wc.hIcon          = LoadIcon  (NULL, IDI_APPLICATION);
-	wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground  = (HBRUSH)CreateSolidBrush( RGB( 200,10,20 ) );
-	wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
-	wc.lpszClassName  = "myRegisterWindow";
-	wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
-
-	if (!RegisterClassEx(&wc)) {
-		MessageBox(NULL,
-		locale_str( 104 ).c_str(),
-		locale_str( 103 ).c_str(),
-		MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
-
-	// ---------------------
-	// regie-centrum ...
-	// ---------------------
-	hwndRegister = CreateWindowEx(
-        WS_EX_CLIENTEDGE,
-        "myRegisterWindow",
-        "Regiecentrum",
-		WS_VISIBLE | WS_CLIPCHILDREN,
-        CW_USEDEFAULT, CW_USEDEFAULT, 480, 360,
-        hwndParent,
-		NULL,
-		hinst, NULL);
-    if (hwndRegister == NULL) {
-        MessageBox(NULL,
-			locale_str( 104 ).c_str(),
-			locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
-
-        throw PL_Exception_Application(
-		locale_str( 104 ).c_str() );
-    }
 	
-	SetParent (hwndRegister, hwndParent);
-	ShowWindow(hwndRegister, TRUE);
-	
-	// ---------------------
-	// directory path field
-	// ---------------------
-	HWND hwndEditPath = CreateWindowEx(
-		0,
-        WC_EDIT,
-        "",
-		ES_AUTOHSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-        20, 10, 390, 20,
-        hwndRegister,
-		NULL,
-		hinst, NULL);
-    if (hwndEditPath == NULL) {
-        MessageBox(NULL,
-		locale_str( 104 ).c_str(),
-		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
-
-		throw PL_Exception_Application(
-		locale_str( 104 ).c_str() );
-	}
-
-	SendMessage( hwndEditPath, EM_SETLIMITTEXT, 512, 512);
-	
-	// ---------------------
-	// open dialog button
-	// ---------------------
-	HWND hwndEditPathButton = CreateWindowEx(
-		0,
-        WC_BUTTON,
-        "X",
-		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-        419, 10, 22, 20,
-        hwndRegister,
-		NULL,
-		hinst, NULL);
-    if (hwndEditPathButton == NULL) {
-        MessageBox(NULL,
-		locale_str( 104 ).c_str(),
-		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
-
-		throw PL_Exception_Application(
-		locale_str( 104 ).c_str() );
-	}
-	
-	// ---------------------
-	// page/tab control
-	// ---------------------
-	hwndTabs = CreateWindowEx(
-		0,
-        WC_TABCONTROL,
-        "",
-		WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-        20, 40, 420, 240,
-        hwndRegister,
-		NULL,
-		hinst, NULL);
-    if (hwndTabs == NULL) {
-        MessageBox(NULL,
-		locale_str( 104 ).c_str(),
-		locale_str( 103 ).c_str(), MB_ICONEXCLAMATION | MB_OK);
-
-        throw PL_Exception_Application(
-		locale_str( 104 ).c_str() );
-    }
-	
-	TCITEM pitem;
-	TCHAR  tab_label[32];
-	
-	pitem.mask   = TCIF_TEXT | TCIF_IMAGE;
-	pitem.iImage = -1;
-
-	// --------------------
-	// register: all
-	// --------------------
-	wsprintf( tab_label, locale_str( 118 ).c_str() );
-	pitem.pszText = tab_label;
-	TabCtrl_InsertItem( hwndTabs, 0, &pitem );
-
+	void add_menu( Menu& m )
 	{
-		WNDCLASSEX wc;
-		
-		wc.cbSize         = sizeof(WNDCLASSEX);
-		wc.style          = 0;
-		wc.lpfnWndProc    = Register_All_WndProc;
-		wc.cbClsExtra     = 0;
-		wc.cbWndExtra     = 0;
-		wc.hInstance      = hinst;
-		wc.hIcon          = LoadIcon  (NULL, IDI_APPLICATION);
-		wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground  = (HBRUSH)CreateSolidBrush( RGB( 200,200,20 ) );
-		wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
-		wc.lpszClassName  = "myRegisterTabAllWindow";
-		wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+		menu_ptr = &m;
+	}
 
-		if (!RegisterClassEx(&wc)) {
-			MessageBox(NULL,
-			locale_str( 104 ).c_str(),
-			locale_str( 103 ).c_str(),
+	static HWND getWindowHandle() { return hwnd; }
+
+	static WNDCLASSEX wc;
+	static HWND       hwnd;
+	static MSG        msg;
+	static HMODULE    hinstance;
+	
+	static Menu *     menu_ptr;
+};
+
+WNDCLASSEX WindowGlobals::wc;
+MSG        WindowGlobals::msg;
+HWND       WindowGlobals::hwnd = 0;
+
+HMODULE    WindowGlobals::hinstance;
+Menu *     WindowGlobals::menu_ptr = nullptr;
+
+class RegisterWindow {
+public:
+	RegisterWindow( ::std::string class_name )
+	{
+		InitCommonControls();
+		
+		wg                    = new WindowGlobals;
+		wg->hinstance         = GetModuleHandle(NULL);
+		
+		wg->wc.cbSize         = sizeof(WNDCLASSEX);
+		wg->wc.style          = CS_HREDRAW | CS_VREDRAW;
+		wg->wc.lpfnWndProc    = wg->windowProc;
+		wg->wc.cbClsExtra     = 0;
+		wg->wc.cbWndExtra     = 0;
+		wg->wc.hInstance      = wg->hinstance;
+		wg->wc.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
+		wg->wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+		wg->wc.hbrBackground  = (HBRUSH)CreateSolidBrush(RGB( 0, 100, 255));
+		wg->wc.lpszMenuName   = NULL;
+		wg->wc.lpszClassName  = class_name.c_str();
+		wg->wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+
+		if (!::RegisterClassEx(&wg->wc))
+			throw PL_Exception_Application(
+			"Window Registration Failed!" );
+			
+		wg->hwnd = CreateWindowEx(
+			WS_EX_CLIENTEDGE,
+			class_name.c_str(),
+			"dBase4Windows (c) 2023 Jens Kallup",
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+			CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+			nullptr, nullptr, wg->hinstance,
+			nullptr);
+		if (wg->hwnd == nullptr)
+		{
+			MessageBox(nullptr, "Window Creation Failed!", "Error!",
 			MB_ICONEXCLAMATION | MB_OK);
-			return 0;
+
+			throw PL_Exception_Application(
+			"Window Creation Failed!");
 		}
 	}
-	
-	hwndStatic[0] = CreateWindow(
-		WC_PAGESCROLLER,
-		"myRegisterTabAllWindow",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		4,26, 409,208,
-		hwndRegister,
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-
-	// 1
-	// new project
-	hwndStaticButtonAll[0] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 105 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE |
-		BS_PUSHBUTTON,
-		5,5, 5+(4*20), 45,
-		hwndStatic[0],
-		(HMENU) ID_STATIC_BUTTON_NEW_PROJECT,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[0], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[0], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// new report
-	hwndStaticButtonAll[1] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 106 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5,5+20+20+10, 5+(4*20), 45,
-		hwndStatic[0],
-		(HMENU) ID_STATIC_BUTTON_NEW_REPORT,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[1], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[1], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// new sql
-	hwndStaticButtonAll[2] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 107 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5,5+(5*20), 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[2], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[2], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	
-	// 2
-	// new form
-	hwndStaticButtonAll[3] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 108 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		15+(4*20),5, 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[3], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[3], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// custom report
-	hwndStaticButtonAll[4] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 109 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		15+(4*20),55, 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[4], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[4], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// data module
-	hwndStaticButtonAll[5] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 110 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		15+(4*20), 5+(5*20), 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[5], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[5], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	
-	// 3
-	// custom form
-	hwndStaticButtonAll[6] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 111 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5+(9*20),5, 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[6], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[6], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// new label
-	hwndStaticButtonAll[7] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 112 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5+(9*20) , 55, 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[7], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[7], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// new menue
-	hwndStaticButtonAll[8] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 113 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5+(9*20),5+(5*20), 5+(4*20), 5+20+20,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[8], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[8], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	
-	// 4
-	// new popup
-	hwndStaticButtonAll[9] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 114 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		(20*13)+15,5, 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[9], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[9], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// new program
-	hwndStaticButtonAll[10] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 115 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		(20*13)+15,55, 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[10], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[10], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	// new table
-	hwndStaticButtonAll[11] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 116 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		(20*13)+15, 5+(5*20), 5+(4*20), 45,
-		hwndStatic[0],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonAll[11], hwndStatic[0] );
-	SendMessage( hwndStaticButtonAll[11], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-
-
-	// --------------------
-	// register: tables
-	// --------------------
-	wsprintf( tab_label, locale_str( 117 ).c_str() );
-	pitem.pszText = tab_label;
-	TabCtrl_InsertItem( hwndTabs, 1, &pitem );
-	hwndStatic[1] = CreateWindow(WC_PAGESCROLLER, "",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		4,26, 409,208,
-		hwndTabs,
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	//
-	// new table
-	hwndStaticButtonTable[0] = CreateWindow(
-		WC_BUTTON,
-		locale_str( 116 ).c_str(),
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5,5, 5+(4*20), 45,
-		hwndStatic[1],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonTable[ 0 ], hwndStatic[ 1 ] );
-	SendMessage( hwndStaticButtonTable[ 0 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-
-
-	// --------------------
-	// register: queries
-	// --------------------
-	wsprintf( tab_label, locale_str( 119 ).c_str() );
-	pitem.pszText = tab_label;
-	TabCtrl_InsertItem( hwndTabs, 2, &pitem );
-	hwndStatic[2] = CreateWindow(WC_PAGESCROLLER, "",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		4,26, 409,208,
-		hwndTabs,
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	hwndStaticButtonQuery[ 0 ] = CreateWindow(WC_BUTTON, "New\nQuery",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5,5, 5+(4*20), 45,
-		hwndStatic[2],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonQuery[ 0 ], hwndStatic[ 2 ] );
-	SendMessage( hwndStaticButtonQuery[ 0 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-
-
-	// --------------------
-	// register: Forms
-	// --------------------	
-	wsprintf( tab_label, locale_str( 120 ).c_str() );
-	pitem.pszText = tab_label;
-	TabCtrl_InsertItem( hwndTabs, 3, &pitem );
-	hwndStatic[3] = CreateWindow(WC_PAGESCROLLER, "",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		4,26, 409,208,
-		hwndTabs,
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	hwndStaticButtonForm[ 0 ] = CreateWindow(WC_BUTTON, "New\nForm",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5,5, 5+(4*20), 45,
-		hwndStatic[ 3 ],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonForm[ 0 ], hwndStatic[ 3 ] );
-	SendMessage( hwndStaticButtonForm[ 0 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	hwndStaticButtonForm[ 1 ] = CreateWindow(WC_BUTTON, "Custom\nForm",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		15+(4*20),5, 5+(4*20), 45,
-		hwndStatic[ 3 ],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonForm[ 1 ], hwndStatic[ 3 ] );
-	SendMessage( hwndStaticButtonForm[ 1 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	hwndStaticButtonForm[ 2 ] = CreateWindow(WC_BUTTON, "New\nMenue",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5+(9*20),5, 5+(4*20), 45,
-		hwndStatic[ 3 ],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonForm[ 2 ], hwndStatic[ 3 ] );
-	SendMessage( hwndStaticButtonForm[ 2 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	//
-	hwndStaticButtonForm[ 3 ] = CreateWindow(WC_BUTTON, "New\nPopup",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		(20*13)+15,5, 5+(4*20), 45,
-		hwndStatic[ 3 ],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonForm[ 3 ], hwndStatic[ 3 ] );
-	SendMessage( hwndStaticButtonForm[ 3 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	
-	// --------------------
-	// register: protgrams
-	// --------------------
-	wsprintf( tab_label, locale_str( 121 ).c_str() );
-	pitem.pszText = tab_label;
-	TabCtrl_InsertItem( hwndTabs, 4, &pitem );
-	hwndStatic[4] = CreateWindow(WC_PAGESCROLLER, "",
-		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		4,26, 409,208,
-		hwndTabs,
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	hwndStaticButtonApplication[ 0 ] = CreateWindow(WC_BUTTON, "New\nApplication",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_MULTILINE,
-		5,5, 5+(4*20), 45,
-		hwndStatic[ 4 ],
-		NULL,
-		GetModuleHandle(NULL),
-		NULL);
-	SetParent  ( hwndStaticButtonApplication[ 0 ], hwndStatic[ 4 ] );
-	SendMessage( hwndStaticButtonApplication[ 0 ], WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-	
-	SendMessage(hwndTabs, WM_SETFONT,
-    reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), 0);
-
-	SetParent ( hwndTabs, hwndRegister );
-	ShowWindow( hwndTabs, TRUE );
-
-	ShowWindow( hwndStatic[0], TRUE);
-	SetFocus  ( hwndStatic[0] );
-
-	TabCtrl_SetCurFocus( hwndTabs, 1 );
-	TabCtrl_SetCurFocus( hwndTabs, 0 );
-	
-	//for (int i = 0; i < 12; ++i)
-	//ShowWindow( hwndStaticButtonAll[i], TRUE );
-
-	return hwndRegister;
-}
-
-// ---------------------------------------------------------------------
-// create the tool-bar window ...
-// ---------------------------------------------------------------------
-HWND
-DoCreateToolBar(
-	HWND      hwndParent,
-	HMENU     idStatus,
-	HINSTANCE hinst)
-{
-    RECT   rcClient;
-	
-	hwndToolBar = CreateWindowEx(
-		0,
-		TOOLBARCLASSNAME,
-		NULL,
-		WS_CHILD | WS_VISIBLE,
-		0, 0, 0, 0,
-        hwndParent,
-		(HMENU) idStatus,
-		hinst,
-		NULL);
-	
-	// ----------------------------------------------------------
-	// Get the coordinates of the parent window's client area.
-	// ----------------------------------------------------------
-	GetClientRect(hwndParent, &rcClient);
-	SendMessage(hwndToolBar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
-	
-	TBBUTTON tbb[3];
-    TBADDBITMAP tbab;
-	
-    tbab.hInst = HINST_COMMCTRL;
-    tbab.nID   = IDB_STD_SMALL_COLOR;
-    SendMessage(hwndToolBar, TB_ADDBITMAP, 0, (LPARAM)&tbab);
-	
-	ZeroMemory(tbb, sizeof(tbb));
-	
-    tbb[0].iBitmap   = STD_FILENEW;
-    tbb[0].fsState   = TBSTATE_ENABLED;
-    tbb[0].fsStyle   = TBSTYLE_BUTTON;
-    tbb[0].idCommand = ID_FILE_NEW;
-
-    tbb[1].iBitmap   = STD_FILEOPEN;
-    tbb[1].fsState   = TBSTATE_ENABLED;
-    tbb[1].fsStyle   = TBSTYLE_BUTTON;
-    tbb[1].idCommand = ID_FILE_OPEN;
-
-    tbb[2].iBitmap   = STD_FILESAVE;
-    tbb[2].fsState   = TBSTATE_ENABLED;
-    tbb[2].fsStyle   = TBSTYLE_BUTTON;
-    tbb[2].idCommand = ID_FILE_SAVEAS;
-
-    SendMessage(hwndToolBar,
-		TB_ADDBUTTONS,
-		sizeof(tbb)/sizeof(TBBUTTON),
-		(LPARAM)&tbb);
-	
-	return hwndToolBar;
-}
-
-// ---------------------------------------------------------------------
-// main windows procedure:
-// ---------------------------------------------------------------------
-LRESULT CALLBACK
-WndProc(
-	HWND   hwnd,
-	UINT   msg,
-	WPARAM wParam,
-	LPARAM lParam)
-{
-    switch (msg)
-    {
-		case WM_CREATE:
-		{
-			HMENU hMenu, hMenuHelp, hSubMenu;
-			HICON hIcon, hIconSm;
-
-			hMenu     = CreateMenu();
-			
-			hSubMenu  = CreatePopupMenu();
-			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_NEW   , "New ...");
-			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_OPEN  , "Open");
-			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_SAVE  , "Save");
-			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_SAVEAS, "Save As ...");
-			AppendMenuA( hSubMenu, MF_STRING, ID_FILE_EXIT  , "E&xit");
-			AppendMenuA( hMenu,    MF_STRING | MF_POPUP, (UINT_PTR)hSubMenu, "&File");
-			
-			hSubMenu  = CreatePopupMenu();
-			AppendMenuA( hSubMenu, MF_STRING, ID_HELP_ABOUT , "About ...");
-			AppendMenuA( hMenu,    MF_STRING | MF_POPUP, (UINT_PTR)hSubMenu, "&Help");
-
-			SetMenu(hwnd, hMenu);
+	RegisterWindow( void ) {
+		RegisterWindow( ::std::string("RegisterWindow_1") );
+	}
+	~RegisterWindow()
+	{
+		delete wg;
+	}
+	void add( Menu& m) { getWinGlobals()->add_menu( m ); }
+	int  run()
+	{
+		int result = 0;
+		while(GetMessage(&getWinGlobals()->msg, nullptr, 0, 0) > 0) {
+			TranslateMessage( &getWinGlobals()->msg );
+			DispatchMessage ( &getWinGlobals()->msg );
 		}
-		break;
-		case WM_MOUSEACTIVATE:
-		case WM_ACTIVATE:
-		{
-			//SendMessage( hwndRegister, WM_NCPAINT, 0, 0);
-		}
-		break;
-		case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint( hwnd, &ps );
+		result = getWinGlobals()->msg.wParam;
+		return result;
+	}
+	WindowGlobals * getWinGlobals(void) const { return wg; }
+	void            setWinGlobals(WindowGlobals * w) { this->wg = w; }
+	void            setWinGlobals(void) { wg = new WindowGlobals; }
 
-			//SendMessage( hwndRegister, WM_NCPAINT, 0, 0);
-			// Add any drawing code here...
+	static int      intWinGlobals;
+private:
+	WindowGlobals * wg;
+};
+int RegisterWindow::intWinGlobals = 0;
 
-			EndPaint(hwnd, &ps);
-		}
-		break;
-		case WM_COMMAND:
-		{
-			int msgId    = LOWORD(wParam);
-			int msgEvent = HIWORD(lParam);
-			
-			switch(msgId)
-			{
-				case ID_STATIC_BUTTON_NEW_PROJECT:
-				{
-					MessageBox(0,"new project","test",MB_OK);
-				}
-				break;
-				case ID_STATIC_BUTTON_NEW_REPORT:
-				{
-					MessageBox(0,"new report","test",MB_OK);
-				}
-				break;
-				case ID_HELP_ABOUT:
-				{
-					HWND hwndDialog = CreateDialog(GetModuleHandle(NULL),
-						MAKEINTRESOURCE(IDD_ABOUT),
-						hwnd,
-						AboutDlgProc);
-					if (hwndDialog == NULL) {
-						MessageBox(hwnd, "Dialog failed !", "Notice",
-						MB_OK | MB_ICONINFORMATION);
-					}
-					ShowWindow( hwndDialog, SW_SHOWNORMAL );
-				}
-				break;
-				// Other menu commands...
-			}
-			switch(LOWORD(wParam))
-			{
-				case ID_FILE_EXIT:
-					PostMessage(hwnd, WM_CLOSE, 0, 0);
-				break;
-			}
-		}
-		break;
-		case WM_SIZE:
-		{
-			RECT   rcClient;
-			HLOCAL hloc;
-			PINT   paParts;
-			int i, nWidth;
-			int    cParts = 3;
+class Normal {
+public:
+	Normal( void )
+	{
+		::std::cout << "Normal" <<
+		::std::endl ;
+		
+		RegisterWindow::intWinGlobals += 1;
+		::std::stringstream win_type;
+		win_type << "RegisterWindow_" << RegisterWindow::intWinGlobals;
+		
+		regwin = new RegisterWindow( win_type.str().c_str() );
+	}
+	~Normal()
+	{
+		delete regwin;
+	}
 
-			// ----------------------------------------------------------
-			// Get the coordinates of the parent window's client area.
-			// ----------------------------------------------------------
-			GetClientRect(hwnd, &rcClient);
+	void add( Menu& m) {        regwin->add( m ); }
+	int  run()         { return regwin->run();    }
 
-			// ----------------------------------------------------------
-			// Allocate an array for holding the right edge coordinates.
-			// ----------------------------------------------------------
-			hloc    = LocalAlloc(LHND, sizeof(int) * cParts);
-			paParts = (PINT) LocalLock(hloc);
+private:
+	RegisterWindow * regwin;
+};
 
-			// --------------------------------------------------------
-			// Calculate the right edge coordinate for each part, and
-			// copy the coordinates to the array.
-			// --------------------------------------------------------
-			nWidth = rcClient.right / cParts;
-			
-			int rightEdge = nWidth;
-			for (i = 0; i < cParts; i++) { 
-			   paParts[i] = rightEdge;
-			   rightEdge += nWidth;
-			}
-			
-			// -------------------------------------------------
-			// Tell the status bar to create the window parts.
-			// -------------------------------------------------
-			SendMessage( hwndStatusBar, WM_SIZE, 0,0 );
-			SendMessage( hwndStatusBar, SB_SETPARTS,
-				(WPARAM) cParts,
-				(LPARAM) paParts);
-				
-			SendMessage( hwndToolBar, WM_SIZE, 0,0 );
-			
-			// ----------------------------
-			// Free the array, and return.
-			// ----------------------------
-			LocalUnlock(hloc);
-			LocalFree  (hloc);
-		}
-		break;
-        case WM_CLOSE:
-            DestroyWindow(hwnd);
-        break;
-        case WM_DESTROY:
-            PostQuitMessage(0);
-        break;
-        default:
-            return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-    return 0;
-}
+class MDI: public RegisterWindow {
+public:
+	MDI( void )
+	{
+		::std::cout << "MDI" <<
+		::std::endl ;
+		
+		::std::stringstream win_type;
+		win_type << "RegisterWindow_" << ++intWinGlobals;
+		
+		RegisterWindow( win_type.str().c_str() );
+	}
+private:
+};
 
-int createWindow()
-{
-    WNDCLASSEX wc;
-    HWND hwnd;
-    MSG Msg;
+template <typename T1>
+class Desktop {
+	static_assert(
+		::std::is_base_of< Normal, T1>::value ||
+		::std::is_base_of< MDI   , T1>::value ||
+		PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Desktop(int)
+	{
+		::std::cout << "Desktop Windows Template" <<
+		::std::endl;
+	}
+	Desktop( void )
+	{
+		::std::cout << "Desktop" <<
+		::std::endl;
+		
+		window_type = new T1();
+	}
+	~Desktop()
+	{
+		delete window_type;
+	}
+	void add( Menu& m) {        window_type->add( m ); }
+	int  run()         { return window_type->run();    }
+private:
+	T1 * window_type;
+};
+
+template <typename T1>
+class Windows {
+	static_assert(
+		::std::is_base_of< Desktop< Normal >, T1>::value ||
+		::std::is_base_of< Desktop< MDI    >, T1>::value ||
+
+		::std::is_base_of< Client < FTP    >, T1>::value ||
+		::std::is_base_of< Server < FTP    >, T1>::value ,
+		PL_ASSERT_APPLICATION_WINDOWS);
+public:
+	Windows( int )
+	{
+		::std::cout << "Windows Template" << ::std::endl;
+	}
+	Windows( void )
+	{
+		::std::cout << "Windows" << ::std::endl;
+		app_type = new T1();
+	}
+	~Windows()
+	{
+		::std::cout << "dtor Windows" << ::std::endl;
+		delete app_type;
+	}
+	void add( Menu& m) {        app_type->add( m ); }
+	int  run()         { return app_type->run();    }
+private:
+	T1 * app_type;
+};
+
+class DOS {
+public:
+	DOS( int )
+	{
+		::std::cout << "DOS Template" << ::std::endl;
+		fflush(stdout);
+	}
+	DOS( void )
+	{
+		::std::cout << "DOS" << ::std::endl;
+		fflush(stdout);
+	}
+};
+
+class English {
+public:
+private:
+};
+
+class German {
+public:
+private:
+};
+
+template <typename T1>
+class Ascii: public T1 {
+	static_assert(
+		(::std::is_base_of< English, T1 >::value == false) ||
+		(::std::is_base_of< German , T1 >::value == false),
+		PL_ASSERT_APPLICATION_ASCII);
+public:
+private:
+};
+
+template <typename T1>
+class Wide: public T1 {
+	static_assert(
+		(::std::is_base_of< English, T1 >::value == false) ||
+		(::std::is_base_of< German , T1 >::value == false),
+		PL_ASSERT_APPLICATION_ASCII);
+public:
+private:
+};
+
+template <typename T1, typename T2>
+class Application : public T1 {
+	static_assert(
+		(::std::is_base_of< Windows< Desktop< Normal >>, T2 >::value == false) ||
+		(::std::is_base_of< Windows< Desktop< MDI    >>, T2 >::value == false) ||
+		
+		(::std::is_base_of< Windows< Client < FTP    >>, T2 >::value == false) ||
+		(::std::is_base_of< Windows< Server < FTP    >>, T2 >::value == false) ||
+		
+		(::std::is_base_of< Ascii< English >, T1 >::value == false) ||
+		(::std::is_base_of< Ascii< German  >, T1 >::value == false) ||
+		
+		(::std::is_base_of< Wide < English >, T1 >::value == false) ||
+		(::std::is_base_of< Wide < German  >, T1 >::value == false) ||
+		
+		(::std::is_base_of< DOS, T2 >::value == false),
+		PL_ASSERT_APPLICATION);
+public:
+	Application( int argc, ::std::vector< ::std::string > argv )
+	{
+		::std::cout << "Application Template: " <<
+		::std::endl << "argc: " << argc <<
+		::std::endl << "argv: " <<
+		::std::endl ;
+		
+		sub_system = new T2();
+	//	out_stream.open( 
+	}
+	Application(void)
+	{
+		::std::cout << "Application" << ::std::endl;
+	}
+	bool operator << ( ::std::string s ) {
+		//out_stream << s;
+		return true;
+	}
+	~Application()
+	{
+		::std::cout << "dtor Application" << ::std::endl;
+		delete sub_system;
+	}
+	void add( Menu& m )
+	{
+		sub_system->add( m );
+	}
 	
-	InitCommonControls();
-	
-	HMODULE hInstance = GetModuleHandle(NULL);
+	int run(void)
+	{
+		int result = 0;
+		result = sub_system->run();
 
-    wc.cbSize         = sizeof(WNDCLASSEX);
-    wc.style          = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc    = WndProc;
-    wc.cbClsExtra     = 0;
-    wc.cbWndExtra     = 0;
-    wc.hInstance      = hInstance;
-    wc.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground  = (HBRUSH)(COLOR_WINDOW+2);
-	wc.lpszMenuName   = MAKEINTRESOURCE(IDR_MYMENU);
-    wc.lpszClassName  = g_szClassName;
-	wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+		return result;
+	}
+private:
+	T2 * sub_system;
+};
 
-    if(!RegisterClassEx(&wc))
-    {
-        MessageBox(NULL, "Window Registration Failed!", "Error!",
-        MB_ICONEXCLAMATION | MB_OK);
-        return 0;
-    }
-	
-    hwnd = CreateWindowEx(
-        WS_EX_CLIENTEDGE,
-        g_szClassName,
-        "dBase4Windows (c) 2023 Jens Kallup",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-        NULL, NULL, hInstance, NULL);
-    if (hwnd == NULL)
-    {
-        MessageBox(NULL, "Window Creation Failed!", "Error!",
-        MB_ICONEXCLAMATION | MB_OK);
-
-        throw PL_Exception_Application(
-		"Window Creation Failed!");
-    }
-	
-	hwndToolBar   = DoCreateToolBar(
-		hwnd,
-		nullptr,
-		hInstance);
-
-	hwndStatusBar = DoCreateStatusBar(
-		hwnd,
-		nullptr,
-		hInstance,
-		3);
-
-	hwndRegister = DoCreateRegisterWindow(
-		hwnd,
-		nullptr,
-		hInstance);
-	
-    ShowWindow( hwnd         , SW_SHOWNORMAL );
-	ShowWindow( hwndToolBar  , SW_SHOWNORMAL );
-	ShowWindow( hwndStatusBar, SW_SHOWNORMAL );
-	
-	ShowWindow( hwndRegister , SW_SHOWNORMAL );
-
-    UpdateWindow( hwnd );
-
-    while(GetMessage(&Msg, NULL, 0, 0) > 0)
-    {
-        TranslateMessage( &Msg );
-        DispatchMessage ( &Msg );
-    }
-    return Msg.wParam;
-}
+}	// namespace: prolog
 
 // ---------------------------------------------------------------------
 // test case entry point ...
 // ---------------------------------------------------------------------
-int WINAPI
+BOOL WINAPI
 WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -6831,6 +6416,7 @@ WinMain(
 	::std::vector< ::std::string > argv_vec;
 	
 	int output = 0;
+	int result = 0;
 
 	try {
 		LPWSTR *szArglist;
@@ -6866,10 +6452,30 @@ WinMain(
 		if (argv_vec.size() < 2) {
 			//app_lang = 2;	// <-- todo
 			
-			Application< Desktop >( argv_vec );
-			Application< Console >( argv_vec );
+			//Application< Desktop >( argv_vec );
+			//Application< Console >( argv_vec );
 			
-			return SUCCESS;
+			#define WinApp( x )          \
+				using namespace prolog;  \
+				Application< Ascii< German >, Windows< Desktop< x > >>
+
+			// --------------------
+			// create window:
+			// --------------------
+			WinApp(Normal) win_app ( argv_vec.size(), argv_vec );
+			
+			// create menu:
+			Menu menuBar;
+			
+			menuBar.add( "File"  );
+			menuBar.add( "Edit"  );
+			menuBar.add( "Tools" );
+			
+			// add menu bar to application:
+			win_app.add( menuBar );
+
+			// message loop
+			result = win_app.run();
 		}
 
 		for (int arg = 1; arg < argv_vec.size(); ++arg)
@@ -6917,6 +6523,11 @@ WinMain(
 			break;
 			}
 		}
+		
+		// --------------------
+		// create DOS window
+		// --------------------
+		init_con_app ( argv_vec, "dbase.prg", 2 );
 
 		// --------------------------------------------
 		// first, check, if user has give output file:
@@ -6942,10 +6553,7 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "exe")
 			{
-				Deskrop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 2 );
-				
+				init_con_app ( argv_vec, item, 2 );
 				return 0;
 			}
 			// -------------------------------------------------------
@@ -6953,10 +6561,7 @@ WinMain(
 			// -------------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "asm")
 			{
-				Desktop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 3 );
-				
+				init_con_app ( argv_vec, item, 3 );
 				return 0;
 			}
 			// -----------------------------------------------------
@@ -6964,10 +6569,7 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "for")
 			{
-				Desktop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 4 );
-
+				init_con_app ( argv_vec, item, 4 );
 				return 0;
 			}
 			// -----------------------------------------------------
@@ -6975,10 +6577,7 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pl")
 			{
-				Desktop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 5 );
-				
+				init_con_app ( argv_vec, item, 5 );
 				return 0;
 			}
 			// -----------------------------------------------------
@@ -6986,10 +6585,7 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "pas")
 			{
-				Desktop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 6 );
-
+				init_con_app ( argv_vec, item, 6 );
 				return 0;
 			}
 			// -----------------------------------------------------
@@ -6997,10 +6593,7 @@ WinMain(
 			// -----------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "cc")
 			{
-				Desktop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 7 );
-
+				init_con_app ( argv_vec, item, 7 );
 				return 0;
 			}
 			// -------------------------------------------------------
@@ -7008,10 +6601,7 @@ WinMain(
 			// -------------------------------------------------------
 			if (item.substr(item.find_last_of(".") + 1) == "prg")
 			{
-				Desktop  win ;
-				Console  con ( );
-				init_con_app ( con, argv_vec, item, 8 );
-				
+				init_con_app ( argv_vec, item, 8 );
 				return 0;
 			}
 
@@ -7029,7 +6619,7 @@ WinMain(
 	// exception, coming from command line error:
 	// -------------------------------------------
 	catch (PL_Exception_CommandLine& e) {
-		STDCOUT
+		::std::cout
 		<< locale_str( 10 )
 		<< std::endl
 		<< locale_str( 12 ) << e.what()
@@ -7042,7 +6632,7 @@ WinMain(
 	// -------------------------------------------
 	catch (PL_Exception_ParserError& e)
 	{
-		STDCOUT
+		::std::cout
 		<< locale_str( 13 ) << e.line () << std::endl
 		<< locale_str( 14 ) << std::endl
 		<< locale_str( 12 ) << e.what()
@@ -7060,7 +6650,7 @@ WinMain(
 	}
 	catch (PL_Exception& e)
 	{
-		STDCOUT
+		::std::cout
 		<< locale_str( 11 ) << e.line() << std::endl
 		<< locale_str( 12 ) << e.what() << std::endl;
 
@@ -7071,183 +6661,10 @@ WinMain(
 	// -------------------------------------------
 	catch (...)
 	{
-		STDCOUT
+		::std::cout
 		<< locale_str( 1 )
 		<< std::endl;
 
-		return 1;
-	}	return 0;
-}
-
-#endif
-
-// ---------------------------------------------------------------------
-// sanity namespace to avoid overlapping other library function's ...
-// ---------------------------------------------------------------------
-namespace prolog {
-// ---------------------------------------------------------------------
-// for customize the compiler output ...
-// ---------------------------------------------------------------------
-# define ENGLISH 1
-# define GERMAN  2
-# define LANGUAGE  ENGLISH
-
-// ---------------------------------------------------------------------
-// static assert compiler output:
-// ---------------------------------------------------------------------
-#if LANGUAGE == ENGLISH
-# define PL_ASSERT_APPLICATION         "T1 must be of <DOS> or <Windows>"
-# define PL_ASSERT_APPLICATION_WINDOWS "T1 must be of <Desktop> or <Server>"
-#elif LANGUAGE == GERMAN
-# define PL_ASSERT_APPLICATION         "T1 Typ muss <DOS> oder <Windows> sein"
-# define PL_ASSERT_APPLICATION_WINDOWS "T1 Typ muss <Desktop> oder <Server> sein"
-#endif
-
-// ---------------------------------------------------------------------
-// forward declaration ...
-// ---------------------------------------------------------------------
-template <typename T1> class Application;
-template <typename T1> class Server;
-template <typename T1> class Desktop;
-template <typename T1> class Windows;
-
-// window classes:
-class DOS;
-class MDI;
-class Normal;
-
-// server classes:
-class FTP;
-
-class FTP {
-public:
-	FTP(int) {
-	}
-	FTP(void) {
-	}
-private:
-};
-
-template <typename T1>
-class Server {
-	static_assert(
-	::std::is_base_of< FTP, T1>::value ||
-	PL_ASSERT_APPLICATION_WINDOWS);
-public:
-	Server(int)
-	{
-		::std::cout << "Server Windows Template" << ::std::endl;
-		fflush(stdout);
-	}
-	Server( void )
-	{
-		::std::cout << "Server" << ::std::endl;
-		fflush(stdout);
-	}
-private:
-	T1 * server_type;
-};
-
-class Normal {
-public:
-};
-
-class MDI {
-public:
-};
-
-template <typename T1>
-class Desktop {
-	static_assert(
-		::std::is_base_of< Normal, T1>::value ||
-		::std::is_base_of< MDI   , T1>::value ||
-		PL_ASSERT_APPLICATION_WINDOWS);
-public:
-	Desktop(int)
-	{
-		::std::cout << "Desktop Windows Template" << ::std::endl;
-		fflush(stdout);
-	}
-	Desktop( void )
-	{
-		::std::cout << "Desktop" << ::std::endl;
-	}
-private:
-	T1 * window_type;
-};
-
-template <typename T1>
-class Windows {
-	static_assert(
-		::std::is_base_of< Desktop< Normal >, T1>::value ||
-		::std::is_base_of< Desktop< MDI    >, T1>::value ||
-		::std::is_base_of< Server < FTP    >, T1>::value ,
-		PL_ASSERT_APPLICATION_WINDOWS);
-public:
-	Windows( int )
-	{
-		::std::cout << "Windows Template" << ::std::endl;
-	}
-	Windows( void )
-	{
-		::std::cout << "Windows" << ::std::endl;
-		app_type = new T1();
-	}
-private:
-	T1 *app_type;
-};
-
-class DOS {
-public:
-	DOS( int )
-	{
-		::std::cout << "DOS Template" << ::std::endl;
-		fflush(stdout);
-	}
-	DOS( void )
-	{
-		::std::cout << "DOS" << ::std::endl;
-		fflush(stdout);
-	}
-};
-
-template <typename T1>
-class Application {
-	static_assert(
-		(::std::is_base_of< Windows< Desktop< Normal >>, T1 >::value == false) ||
-		(::std::is_base_of< Windows< Desktop< MDI    >>, T1 >::value == false) ||
-		(::std::is_base_of< Windows< Server < FTP    >>, T1 >::value == false) ||
-		(::std::is_base_of< DOS                        , T1 >::value == false) ,
-		PL_ASSERT_APPLICATION);
-public:
-	Application( int argc, char **argv )
-	{
-		::std::cout << "Application Template: "
-		<< ::std::endl << "argc: " << argc
-		<< ::std::endl << "argv: " << argv[0]
-		<< ::std::endl ;
-		sub_system = new T1();
-	}
-	Application(void)
-	{
-		::std::cout << "Application" << ::std::endl;
-	}
-	::std::ostream& operator << ( ::std::ostream& os ) {
-		return os;
-	}
-private:
-	T1 *sub_system;
-};
-
-}	// namespace: prolog
-
-int main(int argc, char **argv)
-{
-	using namespace prolog;
-
-	Application< Windows< Server < FTP    > >> srv_app( argc, argv );
-	Application< Windows< Desktop< Normal > >> win_app( argc, argv );
-	Application< DOS                         > dos_app( argc, argv );
-
-	return SUCCESS;
+		return FALSE;
+	}	return TRUE;
 }

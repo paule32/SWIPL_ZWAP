@@ -18,3 +18,8 @@
 
 // Menu: Help
 # define ID_HELP_ABOUT 9010
+
+
+// Bitmap: close
+# define IDBMP_CLOSE 10000
+# define IDBMP_OPEN  10001

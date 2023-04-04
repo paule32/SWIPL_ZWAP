@@ -1,19 +1,6 @@
 # include <windows.h>
 # include "resource.h"
 
-IDR_MYMENU MENU
-BEGIN
-    POPUP "&File"
-    BEGIN
-        MENUITEM "E&xit", ID_FILE_EXIT
-    END
-
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "&About ...", ID_HELP_ABOUT
-    END
-END
-
 IDD_ABOUT DIALOG DISCARDABLE 0, 0, 239, 66
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "My About Box"
@@ -24,3 +11,6 @@ BEGIN
     GROUPBOX        "About this program...",IDC_STATIC,7,7,225,52
     CTEXT           "An example program showing how to use dBase\r\n\r\nby Jens Kallup", IDC_STATIC,16,18,144,33
 END
+
+IDBMP_OPEN  BITMAP "..\\..\\img\\open.bmp"
+IDBMP_CLOSE BITMAP "..\\..\\img\\close.bmp"

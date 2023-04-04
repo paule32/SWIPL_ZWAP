@@ -18,7 +18,7 @@ g++ -std=c++17 -m64 -mconsole -o prolog64.exe prolog.o dwarf.o  \
 	-static                                                 \
 	-L. -L../../lib -ltvision64  -lxbase -ldwarf64 -lz64    \
 	-lintl -lstdc++ -lwinpthread -liconv -limagehlp         \
-	-lcomctl32
+	-lcomctl32 -lgdi32
 
 strip prolog64.exe
 
