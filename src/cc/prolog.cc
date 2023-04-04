@@ -2950,8 +2950,8 @@ public:
 			case cmAppQuit:
 			{
 				if (messageBox( locale_str( 16 ).c_str(), mfYesButton | mfNoButton ) == 12)
-					delete _app;
-				//TObject::destroy(this);
+				//	delete _app;
+				TObject::destroy(this);
 			}
 			break;
 
@@ -5547,7 +5547,8 @@ init_con_app(
 	try {
 		if (flag == 2) {
 			PL_globalHolder.PL_language = app_lang;
-			PL_Executable prg ( app ); prg.PL_parseFile ( item );
+			PL_Executable prg ( app );
+			//prg.PL_parseFile ( item );
 			app->run();
 			return;
 		}
@@ -6450,7 +6451,9 @@ WinMain(
 		// -i<input file> -o<output file>
 		// ----------------------------------------
 		if (argv_vec.size() < 2) {
-			//app_lang = 2;	// <-- todo
+			app_lang = 1;	// <-- todo
+			
+			#ifdef WINDOWS_APPLICATION
 			
 			//Application< Desktop >( argv_vec );
 			//Application< Console >( argv_vec );
@@ -6476,6 +6479,15 @@ WinMain(
 
 			// message loop
 			result = win_app.run();
+			
+			#else
+			// --------------------
+			// create DOS window
+			// --------------------
+			init_con_app ( argv_vec, "dbase.prg", 2 );
+			
+			return TRUE;
+			#endif
 		}
 
 		for (int arg = 1; arg < argv_vec.size(); ++arg)
@@ -6524,11 +6536,6 @@ WinMain(
 			}
 		}
 		
-		// --------------------
-		// create DOS window
-		// --------------------
-		init_con_app ( argv_vec, "dbase.prg", 2 );
-
 		// --------------------------------------------
 		// first, check, if user has give output file:
 		// --------------------------------------------

@@ -5,7 +5,7 @@ rm -rf prolog64.hlp
 ./tvhc.exe prolog64.txt prolog64.hlp help.h
 windres resource.rc -o resource.o
 
-g++ -std=c++17 -m64 -mconsole -O2 -DDEBUG			\
+g++ -std=c++17 -m64 -mconsole -O2 -DDEBUG -DWINDOWS_APPLICATION \
 	-I. -I../../inc -I../../inc/tvision -I../../inc/dwarf	\
 	-I/e/projekte/xbase64-4.1.0/src/include 		\
 	-I/e/projekte/xbase64-4.1.0/build/linux64/include	\
