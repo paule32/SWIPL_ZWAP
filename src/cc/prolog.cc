@@ -5860,7 +5860,6 @@ public:
 		}
 	}
 	
-	#define IDC_MAIN_EDIT	102	
 	static LRESULT CALLBACK
 	windowProc(
 		HWND   _hwnd,
@@ -5869,6 +5868,11 @@ public:
 		LPARAM lParam)
 	{
 		HBITMAP hBitmap;
+		HDC     hdcMem;
+		HBITMAP bimp;
+		HDC     hdc;
+		HBRUSH  menuBrush;
+		HBRUSH  clientBrush;
 
 		switch (_msg)
 		{
@@ -5877,6 +5881,10 @@ public:
 				// remove border icons (close, max/min)
 				SetWindowLong(_hwnd, GWL_STYLE,
 				GetWindowLong(_hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
+				
+				hdcMem = CreateCompatibleDC(hdc);
+				
+				clientBrush = CreateSolidBrush( RGB( 0, 100, 255 ) );
 			}
 			break;
 			case WM_PAINT:
@@ -5884,10 +5892,7 @@ public:
 				PAINTSTRUCT ps;
 				RECT rect;
 				
-				HDC    hdc = GetDC( _hwnd );
-				
-				HBRUSH clientBrush = CreateSolidBrush( RGB( 0, 100, 255 ) );
-				HBRUSH menuBrush   = CreateSolidBrush( RGB( 0,  10, 200 ) );
+				hdc = GetDC( _hwnd );
 				
 				HFONT  hFont = CreateFont(
 					-MulDiv(11, GetDeviceCaps(hdc, LOGPIXELSY), 72),
@@ -5905,15 +5910,16 @@ public:
 				);
 				
 				hdc = BeginPaint  ( _hwnd, &ps   );
-					GetClientRect ( _hwnd, &rect );
-					FillRect(hdc, &rect, clientBrush);
-
 					// menu bar
 					if (menu_ptr != nullptr)
 					{
+						GetClientRect ( _hwnd, &rect );
+						
 						rect.top = 0;
 						rect.left = 0;
 						rect.bottom = 34;
+						
+						menuBrush  = CreateSolidBrush( RGB( 0,  10, 200 ) );
 						FillRect(hdc, &rect, menuBrush);
 						//
 						SelectFont  ( hdc, hFont);
@@ -5935,11 +5941,10 @@ public:
 							xp += strSize.cx + 14;
 						}
 					}
+					DeleteObject( menuBrush   );
 
 				EndPaint(_hwnd, &ps);
-				
-				DeleteObject( clientBrush );
-				DeleteObject( menuBrush   );
+
 				DeleteObject( hFont       );
 			}
 			break;
@@ -5971,8 +5976,7 @@ public:
 			case WM_NCPAINT:
 			{
 				RePaintWindow(_hwnd, wParam, lParam);
-				
-				// close button
+
 				RECT    rcwin;
 				HDC hdc = GetDCEx(   _hwnd, 0, DCX_WINDOW|DCX_USESTYLE);
 				GetWindowRect    (   _hwnd, &rcwin );
@@ -5980,6 +5984,75 @@ public:
 					(LPPOINT)&rcwin,
 					(sizeof(RECT)  /
 					 sizeof(POINT)));
+				{
+					RECT    temp; 
+					int    r,g,b;
+					
+					int r1 = 255, g1 =   0, b1 = 0;
+					int r2 = 255, g2 = 255, b2 = 0;
+
+					// title bar gradient:
+					hdcMem = CreateCompatibleDC(hdc);
+					bimp   = CreateCompatibleBitmap(hdc,rcwin.right,32);
+					
+					for (int i = 0; i < rcwin.right; i++)
+					{
+						r = r1 + (i * (r2-r1) / rcwin.right);
+						g = g1 + (i * (g2-g1) / rcwin.right);
+						b = b1 + (i * (b2-b1) / rcwin.right);
+
+						temp.left    = i;
+						temp.top     = 1; 
+						temp.right   = i + 1;
+						temp.bottom  = 32;
+						
+						HBRUSH color = CreateSolidBrush(RGB(r, g, b));
+						SelectObject( hdcMem, bimp);
+						FillRect    ( hdcMem, &temp, color);
+						DeleteBrush ( color );
+					}
+				}
+				
+				// window title
+				if (window_title.size() > 0)
+				{
+					HFONT   hFont = CreateFont(
+						-MulDiv(11, GetDeviceCaps(hdc, LOGPIXELSY), 72),
+						0,0,0,
+						FW_BOLD,	// font weight
+						FALSE,		// italic ?
+						FALSE,		// underline ?
+						FALSE,		// strike-out ?
+						ANSI_CHARSET, 
+						OUT_TT_PRECIS,
+						CLIP_DEFAULT_PRECIS,
+						DEFAULT_QUALITY, 
+						FF_SWISS,
+						TEXT("Arial")
+					);
+					
+					SelectFont  ( hdcMem, hFont);
+					SetBkMode   ( hdcMem, TRANSPARENT );
+					SetTextColor( hdcMem, RGB(255,255,255));
+					TextOutA( hdcMem, 15,9,
+						window_title.c_str(),
+						window_title.size());
+					
+					SetBkMode   ( hdcMem, TRANSPARENT );
+					SetTextColor( hdcMem, RGB(0,0,0));
+					TextOutA( hdcMem, 14,8,
+						window_title.c_str(),
+						window_title.size());
+					
+					DeleteObject(hFont);
+				}
+				
+				BitBlt(hdc,0,0,	rcwin.right,32, hdcMem, 0, 0, SRCCOPY);
+					
+				DeleteBitmap( bimp );
+				DeleteDC    ( hdcMem );
+				
+				// close button
 				HBITMAP arrow = (HBITMAP) LoadImageA(
 					GetModuleHandle(NULL),
 					MAKEINTRESOURCE(IDBMP_CLOSE),
@@ -5990,6 +6063,7 @@ public:
 				HDC hdcMem = CreateCompatibleDC(hdc);
 				SelectObject(hdcMem, arrow);
 				BitBlt(hdc, rcwin.right-32, 1, 32, 32, hdcMem, 0, 0, SRCCOPY);
+				
 				DeleteDC(hdcMem);
 				return 0;
 			}
@@ -6094,6 +6168,8 @@ public:
 			break;
 			case WM_DESTROY:
 			{
+				DeleteObject( clientBrush );
+				
 				PostQuitMessage(0);
 			}
 			break;
@@ -6108,6 +6184,8 @@ public:
 	{
 		menu_ptr = &m;
 	}
+	
+	static void setTitle( ::std::string s) { window_title = s; }
 
 	static HWND getWindowHandle() { return hwnd; }
 
@@ -6117,6 +6195,8 @@ public:
 	static HMODULE    hinstance;
 	
 	static Menu *     menu_ptr;
+	
+	static ::std::string window_title;
 };
 
 WNDCLASSEX WindowGlobals::wc;
@@ -6126,57 +6206,74 @@ HWND       WindowGlobals::hwnd = 0;
 HMODULE    WindowGlobals::hinstance;
 Menu *     WindowGlobals::menu_ptr = nullptr;
 
+::std::string WindowGlobals::window_title = "";
+
 class RegisterWindow {
 public:
+	RegisterWindow( void ) {
+		RegisterWindow( ::std::string("tool") );
+	}
+	
 	RegisterWindow( ::std::string class_name )
 	{
+		::std::stringstream win_type;
+		win_type << "RegisterWindow_" << ++intWinGlobals;
+		
 		InitCommonControls();
 		
-		wg                    = new WindowGlobals;
-		wg->hinstance         = GetModuleHandle(NULL);
-		
-		wg->wc.cbSize         = sizeof(WNDCLASSEX);
-		wg->wc.style          = CS_HREDRAW | CS_VREDRAW;
-		wg->wc.lpfnWndProc    = wg->windowProc;
-		wg->wc.cbClsExtra     = 0;
-		wg->wc.cbWndExtra     = 0;
-		wg->wc.hInstance      = wg->hinstance;
-		wg->wc.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
-		wg->wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
-		wg->wc.hbrBackground  = (HBRUSH)CreateSolidBrush(RGB( 0, 100, 255));
-		wg->wc.lpszMenuName   = NULL;
-		wg->wc.lpszClassName  = class_name.c_str();
-		wg->wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
-
-		if (!::RegisterClassEx(&wg->wc))
-			throw PL_Exception_Application(
-			"Window Registration Failed!" );
-			
-		wg->hwnd = CreateWindowEx(
-			WS_EX_CLIENTEDGE,
-			class_name.c_str(),
-			"dBase4Windows (c) 2023 Jens Kallup",
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-			CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-			nullptr, nullptr, wg->hinstance,
-			nullptr);
-		if (wg->hwnd == nullptr)
+		// windows application ...
 		{
-			MessageBox(nullptr, "Window Creation Failed!", "Error!",
-			MB_ICONEXCLAMATION | MB_OK);
+			wg                    = new WindowGlobals;
+			wg->hinstance         = GetModuleHandle(NULL);
+					
+			wg->wc.cbSize         = sizeof(WNDCLASSEX);
+			wg->wc.style          = CS_HREDRAW | CS_VREDRAW;
+			wg->wc.lpfnWndProc    = wg->windowProc;
+			wg->wc.cbClsExtra     = 0;
+			wg->wc.cbWndExtra     = 0;
+			wg->wc.hInstance      = wg->hinstance;
+			wg->wc.hIcon          = LoadIcon  ( NULL, IDI_APPLICATION);
+			wg->wc.hCursor        = LoadCursor( NULL, IDC_ARROW);
+			wg->wc.hbrBackground  = (HBRUSH)CreateSolidBrush(RGB( 0, 100, 255));
+			wg->wc.lpszMenuName   = NULL;
+			wg->wc.lpszClassName  = class_name.c_str();
+			wg->wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
 
-			throw PL_Exception_Application(
-			"Window Creation Failed!");
+			if (!::RegisterClassEx(&wg->wc))
+				throw PL_Exception_Application(
+				"Window Registration Failed!" );
+				
+			wg->hwnd = CreateWindowEx(
+				WS_EX_CLIENTEDGE,
+				class_name.c_str(),
+				"dBase4Windows (c) 2023 Jens Kallup",
+				WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+				CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+				nullptr, nullptr, wg->hinstance,
+				nullptr);
+			if (wg->hwnd == nullptr)
+			{
+				MessageBox(nullptr, "Window Creation Failed!", "Error!",
+				MB_ICONEXCLAMATION | MB_OK);
+
+				throw PL_Exception_Application(
+				"Window Creation Failed!");
+			}
 		}
-	}
-	RegisterWindow( void ) {
-		RegisterWindow( ::std::string("RegisterWindow_1") );
 	}
 	~RegisterWindow()
 	{
 		delete wg;
 	}
 	void add( Menu& m) { getWinGlobals()->add_menu( m ); }
+	void setTitle( ::std::string s) {
+		getWinGlobals()->setTitle( s );
+		SetWindowTextA(
+			getWinGlobals()->
+			getWindowHandle(),
+			s.c_str()
+		);
+	}
 	int  run()
 	{
 		int result = 0;
@@ -6197,6 +6294,96 @@ private:
 };
 int RegisterWindow::intWinGlobals = 0;
 
+static LRESULT CALLBACK
+chooseProc(
+	HWND   hwndParent,
+	UINT   msg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+	switch (msg)
+	{
+		case WM_CREATE:
+		{
+			HWND englishButtonTui, germanButtonTui;
+			HWND englishButtonGui, germanButtonGui;
+			
+			if ((englishButtonTui = CreateWindow(
+				"button",
+				"English Text-User-Interface",
+				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+				20,20, 420, 50,
+				hwndParent, nullptr,
+				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
+				nullptr)) == nullptr) {
+
+				MessageBox(nullptr, "Window Creation Failed!", "Error!",
+				MB_ICONEXCLAMATION | MB_OK);
+
+				throw PL_Exception_Application(
+				"Window Creation Failed!");
+			}
+			if ((englishButtonGui = CreateWindow(
+				"button",
+				"English Graphical-User-Interface",
+				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+				20,80, 420, 50,
+				hwndParent, nullptr,
+				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
+				nullptr)) == nullptr) {
+
+				MessageBox(nullptr, "Window Creation Failed!", "Error!",
+				MB_ICONEXCLAMATION | MB_OK);
+
+				throw PL_Exception_Application(
+				"Window Creation Failed!");
+			}
+			//
+			if ((germanButtonTui = CreateWindow(
+				"button",
+				"Deutsch textual-Oberfläche",
+				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+				20,160, 420, 50,
+				hwndParent, nullptr,
+				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
+				nullptr)) == nullptr) {
+
+				MessageBox(nullptr, "Window Creation Failed!", "Error!",
+				MB_ICONEXCLAMATION | MB_OK);
+
+				throw PL_Exception_Application(
+				"Window Creation Failed!");
+			}
+			if ((germanButtonGui = CreateWindow(
+				"button",
+				"Deutsch graphische-Oberfläche",
+				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+				20,220, 420, 50,
+				hwndParent, nullptr,
+				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
+				nullptr)) == nullptr) {
+
+				MessageBox(nullptr, "Window Creation Failed!", "Error!",
+				MB_ICONEXCLAMATION | MB_OK);
+
+				throw PL_Exception_Application(
+				"Window Creation Failed!");
+			}
+		}
+		break;
+		case WM_CLOSE:	{
+			DestroyWindow( hwndParent );
+		}
+		break;
+		case WM_DESTROY: {
+			PostQuitMessage(0);
+		}
+		break;
+		default:
+		return DefWindowProc(hwndParent, msg, wParam, lParam);
+	}	return 0;
+}
+
 class Normal {
 public:
 	Normal( void )
@@ -6204,19 +6391,67 @@ public:
 		::std::cout << "Normal" <<
 		::std::endl ;
 		
-		RegisterWindow::intWinGlobals += 1;
-		::std::stringstream win_type;
-		win_type << "RegisterWindow_" << RegisterWindow::intWinGlobals;
+		InitCommonControls();
 		
-		regwin = new RegisterWindow( win_type.str().c_str() );
+		// choose application type ...
+		{
+			WNDCLASSEX _wc;
+			HWND       _hwnd;
+			MSG        _msg;
+					
+			_wc.cbSize         = sizeof(WNDCLASSEX);
+			_wc.style          = CS_HREDRAW | CS_VREDRAW;
+			_wc.lpfnWndProc    = chooseProc;
+			_wc.cbClsExtra     = 0;
+			_wc.cbWndExtra     = 0;
+			_wc.hInstance      = GetModuleHandle(  NULL );
+			_wc.hIcon          = LoadIcon  ( NULL, IDI_APPLICATION);
+			_wc.hCursor        = LoadCursor( NULL, IDC_ARROW);
+			_wc.hbrBackground  = (HBRUSH)CreateSolidBrush(RGB( 0, 100, 255));
+			_wc.lpszMenuName   = NULL;
+			_wc.lpszClassName  = "towindow";
+			_wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
+
+			if (!::RegisterClassEx(&_wc))
+				throw PL_Exception_Application(
+				"jjjWindow Registration Failed!" );
+				
+			_hwnd = CreateWindowEx(
+				WS_EX_CLIENTEDGE,
+				"towindow",
+				"dBase4Windows (c) 2023 Jens Kallup",
+				WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+				CW_USEDEFAULT, CW_USEDEFAULT, 480, 350,
+				nullptr, nullptr, GetModuleHandle( NULL ),
+				nullptr);
+			if (_hwnd == nullptr)
+			{
+				MessageBox(nullptr, "hhhhhWindow Creation Failed!", "Error!",
+				MB_ICONEXCLAMATION | MB_OK);
+
+				throw PL_Exception_Application(
+				"aaaaWindow Creation Failed!");
+			}
+			ShowWindow(_hwnd, SW_SHOWNORMAL);
+			while(GetMessage(&_msg, nullptr, 0, 0) > 0) {
+				TranslateMessage( &_msg );
+				DispatchMessage ( &_msg );
+			}
+			delete this;
+		}
+		
+		regwin = new RegisterWindow();
 	}
 	~Normal()
 	{
 		delete regwin;
 	}
 
-	void add( Menu& m) {        regwin->add( m ); }
-	int  run()         { return regwin->run();    }
+	void add( Menu& m)              { regwin->add( m );    }
+	void setMenu ( Menu& m)         { regwin->add( m );    }
+	void setTitle( ::std::string s) { regwin->setTitle(s); }
+	
+	int  run() { return regwin->run(); }
 
 private:
 	RegisterWindow * regwin;
@@ -6260,8 +6495,11 @@ public:
 	{
 		delete window_type;
 	}
-	void add( Menu& m) {        window_type->add( m ); }
-	int  run()         { return window_type->run();    }
+	void add( Menu& m)              {        window_type->add( m );    }
+	void setMenu ( Menu& m )        {        window_type->add( m );    }
+	void setTitle( ::std::string s) {        window_type->setTitle(s); }
+	
+	int  run()                      { return window_type->run();       }
 private:
 	T1 * window_type;
 };
@@ -6282,7 +6520,6 @@ public:
 	}
 	Windows( void )
 	{
-		::std::cout << "Windows" << ::std::endl;
 		app_type = new T1();
 	}
 	~Windows()
@@ -6290,8 +6527,11 @@ public:
 		::std::cout << "dtor Windows" << ::std::endl;
 		delete app_type;
 	}
-	void add( Menu& m) {        app_type->add( m ); }
-	int  run()         { return app_type->run();    }
+	void add( Menu& m)              { app_type->add( m );    }
+	void setMenu ( Menu& m)         { app_type->add(m);      }
+	void setTitle( ::std::string s) { app_type->setTitle(s); }
+	
+	int  run() { return app_type->run();  }
 private:
 	T1 * app_type;
 };
@@ -6381,11 +6621,9 @@ public:
 		::std::cout << "dtor Application" << ::std::endl;
 		delete sub_system;
 	}
-	void add( Menu& m )
-	{
-		sub_system->add( m );
-	}
-	
+	void add( Menu& m )              { sub_system->add( m );    }
+	void setTitle( ::std::string s ) { sub_system->setTitle(s); }
+
 	int run(void)
 	{
 		int result = 0;
@@ -6466,6 +6704,7 @@ WinMain(
 			// create window:
 			// --------------------
 			WinApp(Normal) win_app ( argv_vec.size(), argv_vec );
+			win_app.setTitle("dBase Win (c) 2023 by Jens Kallup - paule32");
 			
 			// create menu:
 			Menu menuBar;
