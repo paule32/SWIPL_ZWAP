@@ -7,10 +7,10 @@ echo "done."
 
 # compile the locale.eng creator: createLang.exe
 echo "create locale compiler:"
-g++ -O2 -o createLang.exe createLang.cc
+g++ -std=c++17 -O2 -o createLang.exe createLang.cc
 strip createLang.exe
-./createLang.exe locale.eng.txt locale.eng
-#./createLang.exe locale.deu.txt locale.deu
+echo "english:" && ./createLang.exe locale.eng.txt locale.eng
+echo "german: " && ./createLang.exe locale.deu.txt locale.deu
 echo "done."
 
 # create the Turbo Vision help file

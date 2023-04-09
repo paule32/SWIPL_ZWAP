@@ -1,0 +1,123 @@
+prolog64
+Standard Ausnahme
+Anwendungs - Ausnahme
+kann nicht geöffnet werden:
+kann Anwendungs-Sprache nicht ermitteln
+nur eine Ausgabe-Datei unerstützt
+nicht bekannte Option.
+keine Ausgabe-Datei angegeben
+kann Eingabe-Datei nicht öffnen: 
+kann Parser anhand der Erweiterung der Eingabe-Datei ermitteln.
+Kommandozeilen-Fehler
+Zeile : 
+Grund : 
+Parser Fehler in Zeile: 
+Compiler: fehlgeschlagen
+Möchten Sie die Anwendung beenden ?
+Möchten Sie die Anwendung beenden ?\nDies kann etwas dauern...
+Abbrechen
+Hilfe
+Neu
+~L~aden
+Hilfe-Datei konnte nicht geöffnet werden.
+~P~rojekt-Name:
+Fehler:\nAnsicht konnte nicht erstellt werden
+noch nicht implementiert
+Neu
+dBASE Katalog:
+Öffnen
+~N~ame
+~F1~ Hilfe
+~F3~ Öffnen
+~F10~ Menü
+Eingabe-Datei: Lese-Fehler.
+Kommentar wurde nicht abgeschlossen
+Parser-Fehler
+Anwendungen
+Tabelle
+Etiketten
+Formulare
+Abfragen
+Reporte
+ASCII Tabelle
+~D~atei
+~Ö~ffnen...
+~S~peichern
+~V~erz. wechseln...
+Beenden
+~F~enster
+~V~erschieben
+~N~ächstes
+Vorhergehendes
+~S~chließen
+~H~ilfe
+~I~nhalt
+~O~nline Hilfe
+~Ü~ber...
+dBASE neue Tabelle:
+~T~ablle-Name:
+Feld-Name:
+Feld-Typ:
+Feld-Länge:
+Feld-Auflö.:
+Hinzufügen
+Löschen
+Speichern
+Liste fokusiert
+Feld existiert bereits
+Feld darf nicht leer sein
+Field-Name darf nicht leer sein
+Field-Typ  darf nicht leer sein
+Field-Länge darf nicht leer sein
+Field-Prec. darf nicht leer sein
+Datentyp unbekannt.
+Fehler: 
+Allgemeine Ausnahme aufgetretten
+Kommentar wurde nicht abgeschlossen
+Anweisung ist nicht gültig.
+Kommandozeichenfolge ist ein reserviertes Schlüsselwort
+Semikolon erwartet
+Neues Projekt
+Datei kann nicht geöffnet werden: '
+ Dezimal: 
+kein Tabellen-Name vergeben
+kann Datentabelle nicht anlegen
+Windows System Fehler:
+Datenbank System Fehler:
+Tabellen-Informationen geschrieben
+Datei-Informationen können nicht abgerufen werden:\n%s
+Datei-Name ist ein Verzeichnis, und keine Datenbank-Datei
+Daten-Datei existiert bereits\nSoll diese überschrieben werden ?
+möchten Sie das aktuelle Tabellen-Feld löschen ?
+Datensatz-Bezeichner darf nicht leer sein
+kein Datenfeld vorhanden, das abgespeichert werden kann
+Tabelle existiert bereits im Datenbank Katalog !\n möchten Sie diese über ersetzen ?
+interner Datensatz-Lösch-Fehler
+interner Fehler: keine Datei für diesen Zugriff vorhanden.
+Signal-Handler Fehler: 
+Fehler: Datenbank:
+XB_INVALID_DATA
+XB_INVALID_FIELD_NAME
+XB_INVALID_FIELD_NO
+XB_INVALID_FIELD_TYPE
+interner Speicher-Fehler
+Fehler !
+Fenster konnte nicht registriert werden !
+Neues\nProjekt
+Neuer\nBericht
+Neu\nSQL
+Neues\nFormular
+benutzdefi.\nBericht
+Daten Modul
+benutzdefi.\nFormulat
+Neues\nEttiket
+Neues\nMenü
+Neues\nPopup-Menü
+Neues\nProgramm
+Neue\nTabelle
+Tabellen
+Alle
+Abfragen
+Formulare
+Programme
+locale zeichenkette

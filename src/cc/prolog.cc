@@ -409,167 +409,126 @@ void ApplicationFuncTUI (prolog::Normal *ptr, int);
 void ApplicationFuncGUI (prolog::Normal *ptr, int);
 
 // ---------------------------------------------------------------------
-// locale string's (english):
+// for customize the compiler output ...
 // ---------------------------------------------------------------------
-class locale_eng {
-private:
-	::std::vector< ::std::string > eng_locale = {
-		"prolog64",                             // 0000
-		"default exception",                    // 0001
-		"Application Exception.",               // 0002
-		"Can not open:",                        // 0003
-		"can not get app language",             // 0004
-		"only one output supported.",           // 0005
-		"unknown option.",                      // 0006
-		"no output file given.",                // 0007
-		"can not open input file: ",            // 0008
-		"could not determine parser on "        //
-		"file extension.",                      // 0009
-		"Command line Error",                   // 0010
-		"line  : ",                             // 0011
-		"reason: ",                             // 0012
-		"parser error in line: ",               // 0013
-		"compiler: FAIL.",                      // 0014
-		"Would You Exit the Application ?",     // 0015
-		"Did you would really like exit the "   //
-		"Application ?\n"                       //
-		"This can take awhile ...",             // 0016
-		"Cancel",                               // 0017
-		"Help",                                 // 0018
-		"New",                                  // 0019
-		"~L~oad",                               // 0020
-		"Could not open help file",             // 0021
-		"~P~roject name:",                      // 0022
-		"Error:\nCould not create view.",       // 0023
-		"not yet implemented",                  // 0024
-		"create",                               // 0025
-		"dBASE Catalog:",                       // 0026
-		"Open File",                            // 0027
-		"~N~ame",                               // 0028
-		"~F1~ Help",                            // 0029
-		"~F3~ Open",                            // 0030
-		"~F10~ Menu",                           // 0031
-		"input file read error",                // 0032
-		"unterminated comment",                 // 0033
-		"parser error",                         // 0034
-		"Applications",                         // 0035
-		"Data",                                 // 0036
-		"Labels",                               // 0037
-		"Forms",                                // 0038
-		"Queries",                              // 0039
-		"Reports",                              // 0040
-		"ASCII Chart",                          // 0041
-		
-		"~F~ile",                               // 0042
-		"~O~pen...",                            // 0043
-		"~S~ave",                               // 0044
-		"~C~hange directory...",                // 0045
-		"E~x~it",                               // 0046
-				
-		"~W~indow",                             // 0047
-		"~M~ove",                               // 0048
-		"~N~ext",                               // 0049
-		"~P~rev",                               // 0050
-		"~C~lose",                              // 0051
-				
-		"~H~elp",                               // 0052
-		"~I~ndex",                              // 0053
-		"~O~nline Help",                        // 0054
-		
-		"~A~bout...",                           // 0055
-		
-		"dBASE new file:",                      // 0056
-		"~T~able name:",                        // 0057
-		"Field name:",                          // 0058
-		"Field type:",                          // 0059
-		"Field length:",                        // 0060
-		"Field prec.:",                         // 0061
-		
-		"Add Field",                            // 0062
-		"Del Field",                            // 0063
-		"Save Table",                           // 0064
-		"Active Focus",                         // 0065
-		"Field already exists",                 // 0066
-		"Empty fields not allowed",             // 0067
-		
-		"Empty Field name not allowed",         // 0068
-		"Empty Field type not allowed",         // 0069
-		"Empty Field length not allowed",       // 0070
-		"Empty Field prec. not allowed",        // 0071
-		
-		"data type unknown",                    // 0072
-		"Error: ",                              // 0073
-		"common exception occured.",            // 0074
-		"comment not terminated.",              // 0075
-		"unknown keyword found.",               // 0076
-		"identifier as keywords not allowed.",  // 0077
-		"semicolon expected",                   // 0078
-		"New Project",                          // 0079
-		"Failed to open file '",                // 0080
-		
-		" Decimal: ",                           // 0081
-		"no table name available",              // 0082
-		"can't create data base file",          // 0083
-		
-		"Windows System Error:",                // 0084
-		"Database Systen Error:",               // 0085
-		"database information writen",          // 0086
-		"can not get information for data "
-		"file:\n%s",                            // 0087
-		"given file is a directory, not a"
-		"database file",                        // 0088
-		"a file with this name already exists\n"
-		"would you override it ?",              // 0089
-		"would you realy delete the current "
-		"data record ?",                        // 0090
-		"data record is empty - not allowed",   // 0091
-		"no data record available for save",    // 0092
-		"table already exists in the database "
-		"catalog !\nwould you replace it ?",    // 0093
-		
-		"internal field delete error",          // 0094
-		"internal error - no such table file "
-		"available on storage disk",            // 0095
-		
-		"signal handler error: ",               // 0096
-		
-		"Error: data-base:",                    // 0097
-		"XB_INVALID_DATA",                      // 0098
-		"XB_INVALID_FIELD_NAME",                // 0099
-		"XB_INVALID_FIELD_NO",                  // 0100
-		"XB_INVALID_FIELD_TYPE",                // 0101
-		
-		"internal memory error",                // 0102
-		"Error !",                              // 0103
-		"Register Window Creation Failed !",    // 0104
-		
-		"New\nProject",                         // 0105
-		"New\nReport",                          // 0106
-		"New\nSQL",                             // 0107
-		"New\nForm",                            // 0108
-		"Custom\nReport",                       // 0109
-		"Data Module",                          // 0110
-		"Custom Form",                          // 0111
-		"New\nLabel",                           // 0112
-		"New\nMenue",                           // 0113
-		"New\nPopup",                           // 0114
-		"New\nProgram",                         // 0115
-		"New\nTable",                           // 0116
-		"Table's",                              // 0117
-		"All",                                  // 0118
-		"Querie's",                             // 0119
-		"Form's",                               // 0120
-		"Program's",                            // 0121
+# define ENGLISH 1
+# define GERMAN  2
 
-		"locale string"
-	};
+#ifndef LANGUAGE
+# define LANGUAGE  ENGLISH
+#endif
+
+// ---------------------------------------------------------------------
+// locale string's (english/german):
+// ---------------------------------------------------------------------
+class locale_reader {
 public:
-	::std::string
-	message(int32_t which) {
+	::std::vector< ::std::string > array_locale;
+	
+	locale_reader( ::std::string fileIN)
+	{
+		// open input binary file ...
+		FILE *in = fopen(fileIN.c_str(),"rb");
+		if (!in) {
+			fprintf(stderr,"can not open input file: %s", fileIN.c_str());
+			fflush (stderr);
+			exit(1);
+		}
+
+		// header
+		uint32_t version;
+		uint8_t  locaver;
+		fread(&version, 1, sizeof(uint32_t), in);
+		fread(&locaver, 1, sizeof(uint8_t ), in);
+		
+		// check version
+		if (version != 20230409) {
+			fprintf(stderr,"can not read binary locale.");
+			fflush (stderr);
+			fclose(in);
+			exit(1);
+		}
+		
+		// check language
+		#if 0
+		if (locaver == ENGLISH) { app_lang = ENGLISH; } else
+		if (locaver == GERMAN ) { app_lang = GERMAN;  } else {
+			fprintf(stderr,"could not get locale language.");
+			fflush (stderr);
+			fclose(in);
+			exit(1);
+		}
+		#endif
+
+		// if no item found, then do nothing
+		uint32_t numitems;
+		fread(&numitems, 1, sizeof(uint32_t), in);
+		if (numitems < 1) {
+			fprintf(stderr,"no items found.");
+			fflush (stderr);
+			fclose(in);
+			exit(1);
+		}
+		
+		fprintf(stdout,"items: %d\n",numitems);
+		
+		int header_size  = sizeof( uint32_t );  // items
+			header_size += sizeof( uint32_t );  // version
+			header_size += sizeof( uint8_t  );  // locaver
+			
+			header_size += numitems * sizeof( uint32_t );  // len
+			header_size += numitems * sizeof( uint32_t );  // pos
+			
+		// items found, then read it in
+		::std::vector< uint32_t > apos;
+		::std::vector< uint32_t > alen;
+
+		char * buffer  = new char[256];
+		char * puffer  = new char[256];
+
+		int    pos = 0;
+		int    len = 0;
+
+		for (int i = 0; i < numitems; i++) {
+			fread(&len, 1, sizeof(uint32_t), in);
+			apos.push_back( len );
+		}
+		for (int i = 0; i < numitems; i++) {
+			fread(&pos, 1, sizeof(uint32_t), in);
+			alen.push_back( pos );
+		}
+		
+		fseek(in, header_size, SEEK_SET);
+		int poo = header_size;
+
+		array_locale.clear ();
+		
+		for (int i = 0; i < numitems; i++) {
+			pos = alen.at( i );
+			len = apos.at( i );
+			
+			fseek(in,poo,0);
+			fread(buffer, 1, len, in);
+			buffer[len] = 0x00;
+			poo += len + 1;
+
+			sprintf(puffer, "%s",   buffer );
+			array_locale.push_back( puffer );
+		}
+		
+		delete buffer;
+		delete puffer;
+		
+		// no needed anymore
+		fclose(in);	
+	}
+	locale_reader() { }
+
+	::std::string message(uint32_t which) {
 		::std::stringstream ss;
 		::std::string r;
 
-		ss  << eng_locale.at( which )
+		ss  << array_locale.at( which )
 			<< ::std::endl;
 			
 		ss.str().erase(
@@ -595,211 +554,17 @@ public:
 			r += ch;
 		}	return r;
 	}
-	locale_eng() {}
-};
-
-// ---------------------------------------------------------------------
-// locale string's (german):
-// ---------------------------------------------------------------------
-class locale_deu {
-private:
-	::std::vector< ::std::string > deu_locale = {
-		"prolog64",                                  // 0000
-		"Standard-Ausnahme",                         // 0001
-		"Anwendungs-Ausnahme",                       // 0002
-		"kann nicht geöffnet werden:",               // 0003
-		"kann Anwendungs-Sprache nicht ermitteln",   // 0004
-		"nur eine Ausgabe-Datei unerstützt",         // 0005
-		"nicht bekannte Option.",                    // 0006
-		"keine Ausgabe-Datei angegeben",             // 0007
-		"kann Eingabe-Datei nicht öffnen: ",         // 0008
-		"kann Parser anhand der Erweiterung "        //
-		"der Eingabe-Datei ermitteln.",              // 0009
-		"Kommandozeilen-Fehler",                     // 0010
-		"Zeile : ",                                  // 0011
-		"Grund : ",                                  // 0012
-		"Parser Fehler in Zeile: ",                  // 0013
-		"Compiler: fehlgeschlagen",                  // 0014
-		"Möchten Sie die Anwendung beenden ?",       // 0015
-		"Möchten Sie die Anwendung beenden ?\n"      //
-		"Dies kann etwas dauern...",                 // 0016
-		"Abbrechen",                                 // 0017
-		"Hilfe",                                     // 0018
-		"Neu",                                       // 0019
-		"~L~aden",                                   // 0020
-		"Hilfe-Datei konnte nicht geöffnet werden.", // 0021
-		"~P~rojekt-Name:",                           // 0022
-		"Fehler:\nAnsicht konnte nicht erstellt "    //
-		"werden",                                    // 0023
-		"noch nicht implementiert",                  // 0024
-		"Neu",                                       // 0025
-		"dBASE Katalog:",                            // 0026
-		"Öffnen",                                    // 0027
-		"~N~ame",                                    // 0028
-		"~F1~ Hilfe",                                // 0029
-		"~F3~ Öffnen",                               // 0030
-		"~F10~ Menü",                                // 0031
-		"Eingabe-Datei: Lese-Fehler.",               // 0032
-		"Kommentar wurde nicht abgeschlossen",       // 0033
-		"Parser-Fehler",                             // 0034
-		"Anwendungen",                               // 0035
-		"Tabelle",                                   // 0036
-		"Etiketten",                                 // 0037
-		"Formulare",                                 // 0038
-		"Abfragen",                                  // 0039
-		"Reporte",                                   // 0040
-		"ASCII Tabelle",                             // 0041
-		
-		"~D~atei",                                   // 0042
-		"~Ö~ffnen...",                               // 0043
-		"~S~peichern",                               // 0044
-		"~V~erz. wechseln...",                       // 0045
-		"Beenden",                                   // 0046
-				
-		"~F~enster",                                 // 0047
-		"~V~erschieben",                             // 0048
-		"~N~ächstes",                                // 0049
-		"Vorhergehendes",                            // 0050
-		"~S~chließen",                               // 0051
-				
-		"~H~ilfe",                                   // 0052
-		"~I~nhalt",                                  // 0053
-		"~O~nline Hilfe",                            // 0054
-		
-		"~Ü~ber...",                                 // 0055
-		
-		"dBASE neue Tabelle:",                       // 0056
-		"~T~ablle-Name:",                            // 0057
-		"Feld-Name:",                                // 0058
-		"Feld-Typ:",                                 // 0059
-		"Feld-Länge:",                               // 0060
-		"Feld-Auflö.:",                              // 0061
-
-		"Hinzufügen",                                // 0062
-		"Löschen",                                   // 0063
-		"Speichern",                                 // 0064
-		"Liste fokusiert",                           // 0065
-		"Feld existiert bereits",                    // 0066
-		"Feld darf nicht leer sein",                 // 0067
-
-		"Field-Name darf nicht leer sein",           // 0068
-		"Field-Typ  darf nicht leer sein",           // 0069
-		"Field-Länge darf nicht leer sein",          // 0070
-		"Field-Prec. darf nicht leer sein",          // 0071
-		
-		"Datentyp unbekannt.",                       // 0072
-		"Fehler: ",                                  // 0073
-		"Allgemeine Ausnahme aufgetretten",          // 0074
-		"Kommentar wurde nicht abgeschlossen",       // 0075
-		"Anweisung ist nicht gültig.",               // 0076
-		"Kommandozeichenfolge ist ein reserviertes "
-		"Schlüsselwort",                             // 0077
-		"Semikolon erwartet",                        // 0078
-		"Neues Projekt",                             // 0079
-		"Datei kann nicht geöffnet werden: '",       // 0080
-		
-		" Dezimal: ",                                // 0081
-		"kein Tabellen-Name vergeben",               // 0082
-		"kann Datentabelle nicht anlegen",           // 0083
-		
-		"Windows System Fehler:",                    // 0084
-		"Datenbank System Fehler:",                  // 0085
-		"Tabellen-Informationen geschrieben",        // 0086
-		"Datei-Informationen können nicht "
-		"abgerufen werden:\n%s",                     // 0087
-		"Datei-Name ist ein Verzeichnis, und "
-		"keine Datenbank-Datei",                     // 0088
-		"Daten-Datei existiert bereits\n"
-		"Soll diese überschrieben werden ?",         // 0089
-		"möchten Sie das aktuelle Tabellen-Feld "
-		"löschen ?",                                 // 0090
-		"Datensatz-Bezeichner darf nicht leer "
-		"sein",                                      // 0091
-		"kein Datenfeld vorhanden, das abge"
-		"speichert werden kann",                     // 0092
-		"Tabelle existiert bereits im Datenbank "
-		"Katalog !\n möchten Sie diese über"
-		"ersetzen ?",                                // 0093
-		
-		"interner Datensatz-Lösch-Fehler",           // 0094
-		"interner Fehler: keine Datei für diesen "
-		"Zugriff vorhanden.",                        // 0095
-		
-		"Signal-Handler Fehler: ",                   // 0096
-		
-		"Fehler: Datenbank:",                        // 0097
-		"XB_INVALID_DATA",                           // 0098
-		"XB_INVALID_FIELD_NAME",                     // 0099
-		"XB_INVALID_FIELD_NO",                       // 0100
-		"XB_INVALID_FIELD_TYPE",                     // 0101
-
-		"interner Speicher-Fehler",                  // 0102
-		"Fehler !",                                  // 0103
-		"Fenster konnte nicht registriert werden !", // 0104
-
-		"Neues\nProjekt",                            // 0105
-		"Neuer\nBericht",                            // 0106
-		"Neu\nSQL",                                  // 0107
-		"Neues\nFormular",                           // 0108
-		"benutzdefi.\nBericht",                      // 0109
-		"Daten Modul",                               // 0110
-		"benutzdefi.\nFormulat",                     // 0111
-		"Neues\nEttiket",                            // 0112
-		"Neues\nMenü",                               // 0113
-		"Neues\nPopup-Menü",                         // 0114
-		"Neues\nProgramm",                           // 0115
-		"Neue\nTabelle",                             // 0116
-		"Tabellen",                                  // 0117
-		"Alle",                                      // 0118
-		"Abfragen",                                  // 0119
-		"Formulare",                                 // 0120
-		"Programme",                                 // 0121
-		
-		"locale zeichenkette"
-	};
-
-public:
-	::std::string
-	message(int32_t which) {
-		::std::stringstream ss;
-		::std::string r;
-
-		ss  << deu_locale.at( which )
-			<< ::std::endl;
-			
-		ss.str().erase(
-		ss.str().size()-1,1);
-
-		// ----------------------------------
-		// replace german umlauts ...
-		// ----------------------------------
-		for (int i  = 0; i < ss.str().length()-1; ++i)
-		{
-			int ch  = ss.str().c_str()[i];
-			
-			if (ch == 'Ä') { r += 0x8E; } else
-			if (ch == 'Ü') { r += 0x9A; } else
-			if (ch == 'Ö') { r += 0x99; } else
-			
-			if (ch == 'ü') { r += 0x81; } else
-			if (ch == 'ä') { r += 0x84; } else
-			if (ch == 'ö') { r += 0x94; } else
-			
-			if (ch == 'ß') { r += 0xE1; } else
-			
-			r += ch;
-		}	return r;
-	}
-	locale_deu() {}
 };
 
 ::std::string
 locale_str(int32_t which)
 {
-	if (app_lang == 1) { locale_eng l; return l.message( which ); } else
-	if (app_lang == 2) { locale_deu l; return l.message( which ); }
+	::std::string result = "";
 	
-	return "";
+	if (app_lang == 1) { locale_reader l( "locale.eng" ); result = l.message( which ); } else
+	if (app_lang == 2) { locale_reader l( "locale.deu" ); result = l.message( which ); } else
+	                   { locale_reader l( "locale.eng" ); result = l.message( which ); }
+	return result;
 }
 
 uint32_t PL_line_row = 1;	// PL parser row number
@@ -933,16 +698,6 @@ class PL_Exception_Application     : public PL_Exception { using PL_Exception::P
 class PL_Exception_Windows         : public PL_Exception { using PL_Exception::PL_Exception; };
 class PL_Exception_DataBase        : public PL_Exception { using PL_Exception::PL_Exception; };
 class PL_Exception_DataBaseWarning : public PL_Exception { using PL_Exception::PL_Exception; };
-
-// ---------------------------------------------------------------------
-// for customize the compiler output ...
-// ---------------------------------------------------------------------
-# define ENGLISH 1
-# define GERMAN  2
-
-#ifndef LANGUAGE
-# define LANGUAGE  ENGLISH
-#endif
 
 // ---------------------------------------------------------------------
 // static assert compiler output:

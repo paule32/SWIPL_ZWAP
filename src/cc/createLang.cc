@@ -21,6 +21,8 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <strings.h>
+# include <wchar.h>
+# include <locale.h>
 
 // ---------------------------------------------------------------------
 // c++ header
@@ -32,13 +34,15 @@
 
 int main(int argc, char **argv)
 {
+	setlocale(LC_ALL, "de_DE.UTF-8");
+
 	// check argv - output file ?
 	if (argc < 3) {
 		fprintf(stderr,"no output, and input file given !");
 		fflush (stderr);
 		return 1;
 	}
-	
+
 	// open input text file ....
 	FILE *in = fopen(argv[1],"r");
 	if (!in) {
@@ -49,14 +53,14 @@ int main(int argc, char **argv)
 	
 	::std::vector< ::std::string > str_data;
 	::std::string sid;
-	char c;
-	while ((c = fgetc(in)) != EOF) {
-		if (c == '\n') {
+	wint_t wc;
+	while ((wc = fgetwc(in)) != WEOF) {
+		if (wc == '\n') {
 			str_data.push_back(sid);
 			sid = "";
 			continue;
 		}
-		sid += c;
+		sid += wc;
 	}
 	
 	::std::cout << "lines: " << str_data.size() << ::std::endl;
@@ -70,6 +74,11 @@ int main(int argc, char **argv)
 		fflush (stderr);
 		return 1;
 	}
+
+	// number of items
+	::std::vector< uint32_t > apos;
+	for (auto &item: str_data)
+	apos.push_back( item.size());
 	
 	// header
 	uint32_t version = 20230409;
@@ -77,27 +86,34 @@ int main(int argc, char **argv)
 	fwrite(&version, 1, sizeof(uint32_t),out);
 	fwrite(&locaver, 1, sizeof(uint8_t ),out);
 	
-	::std::vector< uint32_t > apos;
+	uint32_t header_size  = apos.size() * sizeof( uint32_t );  // items
+		     header_size +=               sizeof( uint32_t );  // version
+		     header_size +=               sizeof( uint8_t  );  // locaver
 	
-	for (auto &item: str_data) {
-		apos.push_back( item.size() );
-	}
-	
-	// number of items
-	uint32_t numi = apos.size();
-	fwrite(&numi, 1, sizeof(uint32_t), out);
+	uint32_t numitems = apos.size();
+	fwrite(&numitems, 1, sizeof(uint32_t), out);
 	
 	// position in file + header size
-	int fpo = 0;
-	for (int i = 0; i < apos.size(); ++i) {
-		fpo += ftell(out);
-		fpo += apos.at(i);
-		fwrite( &fpo, 1, sizeof(uint32_t), out);
+	uint32_t pos = header_size;
+	uint32_t poo = 0;
+
+	// the size
+	for (auto &item: apos) {
+		poo = item;
+		fwrite( &poo, 1, sizeof(uint32_t), out);
+	}
+	// the offset
+	pos = header_size;
+	for (auto &item: str_data) {
+		fwrite( &pos, 1, sizeof(uint32_t), out);
+		pos += item.size();
 	}
 	
 	// data
+	char dummy = 0x0;
 	for (auto &item: str_data) {
 		fwrite( item.c_str(), 1, item.size(), out);
+		fwrite( &dummy,1,1,out);
 	}
 
 	fclose(out);
