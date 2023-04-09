@@ -288,6 +288,9 @@ class TDialog;
 
 # define MAX_LEN 64
 
+// ---------------------------------------------------------------------
+// collection class for list boxes (Turbo Vision)
+// ---------------------------------------------------------------------
 class LB_Collection: public TCollection {
 public:
 	LB_Collection(short lim, short delta):
@@ -387,6 +390,7 @@ template <typename T1>              class IO_Stream;    // in/out stream
 
 class ConsoleApplication;
 class Console;
+class Normal;
 class Html;
 class Ftp;
 
@@ -394,6 +398,14 @@ class PL_Exception_Application;
 class PL_Exception_Windows;
 
 static ConsoleApplication * _app = nullptr;
+
+// ---------------------------------------------------------------------
+// anonym func pointer to start user application from intro window ...
+// ---------------------------------------------------------------------
+::std::function<void(prolog::Normal *, int) > ApplicationFuncExePtr;
+
+void ApplicationFuncTUI (prolog::Normal *ptr, int);
+void ApplicationFuncGUI (prolog::Normal *ptr, int);
 
 // ---------------------------------------------------------------------
 // locale string's (english):
@@ -5661,7 +5673,6 @@ PL_STREAM_FILE() {
 // window classes:
 class DOS;
 class MDI;
-class Normal;
 
 template <typename T1>
 class IO_Stream {
@@ -6301,6 +6312,12 @@ chooseProc(
 	WPARAM wParam,
 	LPARAM lParam)
 {
+	// intro button id
+	# define BTNID_ENG_TUI 2001
+	# define BTNID_ENG_GUI 2002
+	# define BTNID_DEU_TUI 2003
+	# define BTNID_DEU_GUI 2004
+	
 	switch (msg)
 	{
 		case WM_CREATE:
@@ -6313,7 +6330,8 @@ chooseProc(
 				"English Text-User-Interface",
 				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 				20,20, 420, 50,
-				hwndParent, nullptr,
+				hwndParent,
+				(HMENU) BTNID_ENG_TUI,
 				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
 				nullptr)) == nullptr) {
 
@@ -6328,7 +6346,8 @@ chooseProc(
 				"English Graphical-User-Interface",
 				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 				20,80, 420, 50,
-				hwndParent, nullptr,
+				hwndParent,
+				(HMENU) BTNID_ENG_GUI,
 				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
 				nullptr)) == nullptr) {
 
@@ -6344,7 +6363,8 @@ chooseProc(
 				"Deutsch textual-Oberfläche",
 				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 				20,160, 420, 50,
-				hwndParent, nullptr,
+				hwndParent,
+				(HMENU) BTNID_DEU_TUI,
 				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
 				nullptr)) == nullptr) {
 
@@ -6359,7 +6379,8 @@ chooseProc(
 				"Deutsch graphische-Oberfläche",
 				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 				20,220, 420, 50,
-				hwndParent, nullptr,
+				hwndParent,
+				(HMENU) BTNID_DEU_GUI,
 				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
 				nullptr)) == nullptr) {
 
@@ -6368,6 +6389,49 @@ chooseProc(
 
 				throw PL_Exception_Application(
 				"Window Creation Failed!");
+			}
+		}
+		break;
+		case WM_COMMAND:
+		{
+			int btnID = LOWORD(wParam);
+			switch (btnID)
+			{
+				case BTNID_ENG_TUI:
+				{
+					app_lang = ENGLISH;
+					ApplicationFuncExePtr = ApplicationFuncTUI;
+					SendMessage( hwndParent, WM_CLOSE, 0,0 );
+				}
+				break;
+				case BTNID_ENG_GUI:
+				{
+					app_lang = ENGLISH;
+					ApplicationFuncExePtr = ApplicationFuncGUI;
+					SendMessage( hwndParent, WM_CLOSE, 0,0 );
+				}
+				break;
+				case BTNID_DEU_TUI:
+				{
+					app_lang = GERMAN;
+					ApplicationFuncExePtr = ApplicationFuncTUI;
+					SendMessage( hwndParent, WM_CLOSE, 0,0 );
+				}
+				break;
+				case BTNID_DEU_GUI:
+				{
+					app_lang = GERMAN;
+					ApplicationFuncExePtr = ApplicationFuncGUI;
+					SendMessage( hwndParent, WM_CLOSE, 0,0 );
+				}
+				break;
+				default:
+				{
+					app_lang = ENGLISH;
+					ApplicationFuncExePtr = ApplicationFuncTUI;
+					SendMessage( hwndParent, WM_CLOSE, 0,0 );
+				}
+				break;
 			}
 		}
 		break;
@@ -6437,10 +6501,13 @@ public:
 				TranslateMessage( &_msg );
 				DispatchMessage ( &_msg );
 			}
-			delete this;
+			
+			// -----------------------------------
+			// depend on button id-click, start
+			// ptr function/gui or tui ...
+			// -----------------------------------
+			ApplicationFuncExePtr(this, app_lang);
 		}
-		
-		regwin = new RegisterWindow();
 	}
 	~Normal()
 	{
@@ -6452,8 +6519,6 @@ public:
 	void setTitle( ::std::string s) { regwin->setTitle(s); }
 	
 	int  run() { return regwin->run(); }
-
-private:
 	RegisterWindow * regwin;
 };
 
@@ -6635,6 +6700,24 @@ private:
 	T2 * sub_system;
 };
 
+
+::std::vector< ::std::string > argv_vec;
+
+void ApplicationFuncTUI(Normal *ptr, int lang)
+{
+	::std::cout << "starting tui... " << lang << ::std::endl;
+	delete ptr;
+	init_con_app( argv_vec, "dbase.prg", 2 );
+	exit(1);
+}
+
+void ApplicationFuncGUI(Normal *ptr, int lang)
+{
+	::std::cout << "starting gui..." << lang << ::std::endl;
+	ptr->regwin = new RegisterWindow();
+	delete ptr;
+}
+
 }	// namespace: prolog
 
 // ---------------------------------------------------------------------
@@ -6652,7 +6735,6 @@ WinMain(
 	::std::vector< ::std::string > iput_file;
 	::std::string                  oput_file;
 	::std::string                  s0;
-	::std::vector< ::std::string > argv_vec;
 	
 	int output = 0;
 	int result = 0;
