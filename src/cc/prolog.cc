@@ -190,6 +190,7 @@
 # include <cctype>
 # include <iomanip>
 # include <regex>
+# include <functional>
 
 // ---------------------------------------------------------------------
 // Windows header stuff ...
@@ -6305,6 +6306,44 @@ private:
 };
 int RegisterWindow::intWinGlobals = 0;
 
+static HWND
+CreateButton(
+	HWND parentw,
+	int x, int y,
+	int w, int h, int id, ::std::string bt)
+{
+	HWND  buttonHWND;
+	HMENU btnId = reinterpret_cast<HMENU>(id);
+	
+	if ((buttonHWND = CreateWindow(
+		"button",
+		bt.c_str(),
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+		x, y, w, h,  parentw, btnId,
+		(HINSTANCE)GetWindowLongPtr(parentw, GWLP_HINSTANCE),
+		nullptr)) == nullptr) {
+
+		MessageBox(nullptr, "Window Creation Failed!", "Error!",
+		MB_ICONEXCLAMATION | MB_OK);
+
+		throw PL_Exception_Application(
+		"Window Creation Failed!");
+	}
+	return buttonHWND;
+}
+
+static void
+CallUserApplication(
+	HWND hwndParent,
+	int  lang,
+	int  bthID,
+	::std::function<void(Normal *, int)> func)
+{
+	app_lang = lang;
+	ApplicationFuncExePtr = func;
+	SendMessage( hwndParent, WM_CLOSE, 0,0 );
+}
+
 static LRESULT CALLBACK
 chooseProc(
 	HWND   hwndParent,
@@ -6322,74 +6361,10 @@ chooseProc(
 	{
 		case WM_CREATE:
 		{
-			HWND englishButtonTui, germanButtonTui;
-			HWND englishButtonGui, germanButtonGui;
-			
-			if ((englishButtonTui = CreateWindow(
-				"button",
-				"English Text-User-Interface",
-				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-				20,20, 420, 50,
-				hwndParent,
-				(HMENU) BTNID_ENG_TUI,
-				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
-				nullptr)) == nullptr) {
-
-				MessageBox(nullptr, "Window Creation Failed!", "Error!",
-				MB_ICONEXCLAMATION | MB_OK);
-
-				throw PL_Exception_Application(
-				"Window Creation Failed!");
-			}
-			if ((englishButtonGui = CreateWindow(
-				"button",
-				"English Graphical-User-Interface",
-				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-				20,80, 420, 50,
-				hwndParent,
-				(HMENU) BTNID_ENG_GUI,
-				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
-				nullptr)) == nullptr) {
-
-				MessageBox(nullptr, "Window Creation Failed!", "Error!",
-				MB_ICONEXCLAMATION | MB_OK);
-
-				throw PL_Exception_Application(
-				"Window Creation Failed!");
-			}
-			//
-			if ((germanButtonTui = CreateWindow(
-				"button",
-				"Deutsch textual-Oberfläche",
-				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-				20,160, 420, 50,
-				hwndParent,
-				(HMENU) BTNID_DEU_TUI,
-				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
-				nullptr)) == nullptr) {
-
-				MessageBox(nullptr, "Window Creation Failed!", "Error!",
-				MB_ICONEXCLAMATION | MB_OK);
-
-				throw PL_Exception_Application(
-				"Window Creation Failed!");
-			}
-			if ((germanButtonGui = CreateWindow(
-				"button",
-				"Deutsch graphische-Oberfläche",
-				WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-				20,220, 420, 50,
-				hwndParent,
-				(HMENU) BTNID_DEU_GUI,
-				(HINSTANCE)GetWindowLongPtr(hwndParent, GWLP_HINSTANCE),
-				nullptr)) == nullptr) {
-
-				MessageBox(nullptr, "Window Creation Failed!", "Error!",
-				MB_ICONEXCLAMATION | MB_OK);
-
-				throw PL_Exception_Application(
-				"Window Creation Failed!");
-			}
+			CreateButton(hwndParent, 20, 20, 420,50, BTNID_ENG_TUI, "English Text-User-Interface");
+			CreateButton(hwndParent, 20, 80, 420,50, BTNID_ENG_GUI, "English Graphical-User-Interface");
+			CreateButton(hwndParent, 20,160, 420,50, BTNID_DEU_TUI, "Deutsch textual-Oberfläche");
+			CreateButton(hwndParent, 20,220, 420,50, BTNID_DEU_GUI, "Deutsch graphische-Oberfläche");
 		}
 		break;
 		case WM_COMMAND:
@@ -6397,41 +6372,11 @@ chooseProc(
 			int btnID = LOWORD(wParam);
 			switch (btnID)
 			{
-				case BTNID_ENG_TUI:
-				{
-					app_lang = ENGLISH;
-					ApplicationFuncExePtr = ApplicationFuncTUI;
-					SendMessage( hwndParent, WM_CLOSE, 0,0 );
-				}
-				break;
-				case BTNID_ENG_GUI:
-				{
-					app_lang = ENGLISH;
-					ApplicationFuncExePtr = ApplicationFuncGUI;
-					SendMessage( hwndParent, WM_CLOSE, 0,0 );
-				}
-				break;
-				case BTNID_DEU_TUI:
-				{
-					app_lang = GERMAN;
-					ApplicationFuncExePtr = ApplicationFuncTUI;
-					SendMessage( hwndParent, WM_CLOSE, 0,0 );
-				}
-				break;
-				case BTNID_DEU_GUI:
-				{
-					app_lang = GERMAN;
-					ApplicationFuncExePtr = ApplicationFuncGUI;
-					SendMessage( hwndParent, WM_CLOSE, 0,0 );
-				}
-				break;
-				default:
-				{
-					app_lang = ENGLISH;
-					ApplicationFuncExePtr = ApplicationFuncTUI;
-					SendMessage( hwndParent, WM_CLOSE, 0,0 );
-				}
-				break;
+				case BTNID_ENG_TUI: CallUserApplication(hwndParent, ENGLISH, btnID, ApplicationFuncTUI); break;
+				case BTNID_ENG_GUI: CallUserApplication(hwndParent, ENGLISH, btnID, ApplicationFuncGUI); break;
+				//
+				case BTNID_DEU_TUI: CallUserApplication(hwndParent, GERMAN , btnID, ApplicationFuncTUI); break;
+				case BTNID_DEU_GUI: CallUserApplication(hwndParent, GERMAN , btnID, ApplicationFuncGUI); break;
 			}
 		}
 		break;

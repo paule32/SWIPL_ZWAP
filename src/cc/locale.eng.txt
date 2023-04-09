@@ -1,0 +1,123 @@
+prolog64
+default exception
+Application Exception.
+Can not open:
+can not get app language
+only one output supported.
+unknown option.
+no output file given.
+can not open input file: 
+could not determine parser on file extension.
+Command line Error
+line  : 
+reason: 
+parser error in line: 
+compiler: FAIL.
+Would You Exit the Application ?
+Did you would really like exit the Application ?\nThis can take awhile ...
+Cancel
+Help
+New
+~L~oad
+Could not open help file
+~P~roject name:
+Error:\nCould not create view.
+not yet implemented
+create
+dBASE Catalog:
+Open File
+~N~ame
+~F1~ Help
+~F3~ Open
+~F10~ Menu
+input file read error
+unterminated comment
+parser error
+Applications
+Data
+Labels
+Forms
+Queries
+Reports
+ASCII Chart
+~F~ile
+~O~pen...
+~S~ave
+~C~hange directory...
+E~x~it
+~W~indow
+~M~ove
+~N~ext
+~P~rev
+~C~lose
+~H~elp
+~I~ndex
+~O~nline Help
+~A~bout...
+dBASE new file:
+~T~able name:
+Field name:
+Field type:
+Field length:
+Field prec.:
+Add Field
+Del Field
+Save Table
+Active Focus
+Field already exists
+Empty fields not allowed
+Empty Field name not allowed
+Empty Field type not allowed
+Empty Field length not allowed
+Empty Field prec. not allowed
+data type unknown
+Error: 
+common exception occured.
+comment not terminated.
+unknown keyword found.
+identifier as keywords not allowed.
+semicolon expected
+New Project
+Failed to open file '
+Decimal: 
+no table name available
+can't create data base file
+Windows System Error:
+Database Systen Error:
+database information writen
+can not get information for data file:\n%s
+given file is a directory, not a database file
+a file with this name already exists\nwould you override it ?
+would you realy delete the current data record ?
+data record is empty - not allowed
+no data record available for save
+table already exists in the database catalog !\nwould you replace it ?
+internal field delete error
+internal error - no such table file available on storage disk
+signal handler error: 
+Error: data-base:
+XB_INVALID_DATA
+XB_INVALID_FIELD_NAME
+XB_INVALID_FIELD_NO
+XB_INVALID_FIELD_TYPE
+internal memory error
+Error !
+Register Window Creation Failed !
+New\nProject
+New\nReport
+New\nSQL
+New\nForm
+Custom\nReport
+Data Module
+Custom Form
+New\nLabel
+New\nMenue
+New\nPopup
+New\nProgram
+New\nTable
+Table's
+All
+Querie's
+Form's
+Program's
+locale string
