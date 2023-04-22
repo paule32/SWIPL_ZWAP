@@ -225,6 +225,7 @@
 # define Uses_TLabel
 # define Uses_TCheckBoxes
 # define Uses_TDrawBuffer
+# define Uses_TEditWindow
 # define Uses_TRect
 # define Uses_TKeys
 # define Uses_TSItem
@@ -245,6 +246,7 @@
 # define Uses_TScreen
 # define Uses_TEditor
 # define Uses_TMemo
+# define Uses_TIndicator
 # define Uses_TStreamable
 # define Uses_TStreamableClass
 # define Uses_TStringCollection
@@ -260,6 +262,8 @@
 # include <tvision/help.h>
 
 # include "help.h"
+
+#define maxLines 65530
 
 inline int SUCCESS() { return 0; }
 inline int FAILURE() { return 1; }
@@ -1520,6 +1524,154 @@ public:
 		}
 	};
 
+	class TInterior : public TScroller {
+	public:
+		TInterior(
+			const TRect& bounds,
+			TScrollBar *aVScrollBar,
+			TScrollBar *aHScrollBar ):
+			TScroller ( bounds, aHScrollBar, aVScrollBar )
+		{
+			growMode = gfGrowHiX | gfGrowHiY;
+			options  = options   | ofFramed;
+			setLimit ( maxLineLength, maxLines );
+		}
+
+		void draw()
+		{
+			ushort color = getColor  (0x0301);
+			char *lines  = new char[maxLines];
+			TDrawBuffer b;
+
+			::std::string s1;
+			::std::string s2;
+			
+			for( int i = 0; i < size.y; i++ )
+			{
+				b.moveChar( 0, ' ', color, size.x );
+
+				int j = delta.y + i;
+				if (lines[j])
+				{
+					s2 = lines[j];
+					if (delta.x > s2.size()) {
+						s1.at(0) = EOS;
+					}	else {
+						s1 = s1.substr( 1 + delta.x, size.x );
+						s1.at(size.x) = EOS;
+						
+						//strncpy(s, lines[j] + delta.x, size.x);
+						//s[size.x] = EOS;
+					}
+					b.moveStr(0, s1.c_str(), color);
+				}
+				writeLine( 0, i, size.x, 1, b);
+			}
+		}
+	};
+
+	class PL_LineGutter: public TView
+	{
+	public:
+		PL_LineGutter( const TRect& r): TView(r) { }
+
+		void draw()
+		{
+			ushort color = getColor(6);
+			TDrawBuffer b;
+			char buffer[8];
+			
+			for( int i = 1; i < 100; i++ )
+			{
+				sprintf(buffer,"%6d", i);
+
+				b.moveChar( 0, ' ', color, 8 );
+				b.moveStr ( 0, buffer, color );
+				writeLine ( 0, i-1, 8, 10, b );
+			}
+		}
+		/*
+		virtual void handleEvent( TEvent &event ) {
+			TView :: handleEvent( event );
+		}*/
+	};
+	
+	class PL_dBaseNewApplication: public TWindow {
+	public:
+		PL_dBaseNewApplication():
+			TWindow(TRect(0, 0, 74, 22), "opos", wnNoNumber),
+			TWindowInit( &PL_dBaseNewApplication::initFrame)
+		{
+			TRect r = TRect( 0,0, 21,22 );
+			TInterior *leftInterior = makeInterior( r, True );
+
+			r = TRect( 20,0, 74,22 );
+			TInterior *rightInterior = makeInterior( r, False );
+		}
+
+		virtual void handleEvent( TEvent &event ) {
+			TWindow::handleEvent( event );
+		}
+		
+		TInterior* makeInterior(
+			const TRect& bounds,
+			Boolean left)
+		{
+			TRect r = TRect(
+				bounds.b.x-1,
+				bounds.a.y+1,
+				bounds.b.x,
+				bounds.b.y-1 );
+
+			TScrollBar *hScrollBar = new TScrollBar( r );
+			if( hScrollBar == 0 ) {
+				::std::cout << "vScrollbar init error" <<
+				::std::endl;
+				::exit(1);
+			}
+
+			hScrollBar->options |= ofPostProcess;
+			if( left )
+				hScrollBar->growMode = gfGrowHiY;
+			insert ( hScrollBar );
+
+			r = TRect(
+				bounds.a.x+2,
+				bounds.b.y-1,
+				bounds.b.x-2,
+				bounds.b.y );
+
+			TScrollBar *vScrollBar = new TScrollBar( r );
+			if( vScrollBar == 0 )
+			{
+				::std::cout << "hScrollbar init error" <<
+				::std::endl;
+				::exit(1);
+			}
+			
+			vScrollBar->options |= ofPostProcess;
+			if( left )
+				vScrollBar->growMode = (gfGrowHiY | gfGrowLoY);
+			insert ( vScrollBar );
+			
+			if (!left) {
+				auto *memo = new TMemo(
+					TRect(28,1, 22+22+22+6,21),
+					vScrollBar,
+					hScrollBar,
+					new TIndicator(TRect(40,13,20,24)),65530);
+				insert( memo );
+				
+				auto *gutt = new PL_LineGutter(
+					TRect(21,1, 27,21));
+				insert( gutt );
+			}
+			
+			r = bounds;
+			r.grow( -1, -1 );
+			return new TInterior( r, hScrollBar, vScrollBar ); 
+		}
+	};
 	class PL_dBaseNewFile: public TDialog {
 	private:		
 		TScrollBar    * sb_1         = nullptr;
@@ -2391,8 +2543,14 @@ public:
 				return;
 			}
 			else if (event.message.command == cmDBASE_app) {
+				auto  * d = new PL_dBaseNewApplication( );
+				TView * p = TProgram::application->validView( d );
+				if (!p) {
+					delete d;
+					throw PL_Exception_Application( "init error" );
+				}
+				TProgram::deskTop->insert(d);
 				clearEvent(event);
-				auto *dlg = new PL_dBaseNewFile("application", 7);
 				return;
 			}
 			clearEvent( event );
