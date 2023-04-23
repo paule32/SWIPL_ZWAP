@@ -121,3 +121,6 @@ Querie's
 Form's
 Program's
 locale string
+Ok
+File-Name:
+New File

@@ -846,7 +846,10 @@ const unsigned cmDBASE_query        = 501;
 const unsigned cmDBASE_form         = 502;
 const unsigned cmDBASE_report       = 503;
 const unsigned cmDBASE_label        = 504;
-const unsigned cmDBASE_app          = 505;
+
+const unsigned cmDBASE_app          = 560;
+const unsigned cmDBASE_app_file     = 561;
+const unsigned cmDBASE_app_cancel   = 562;
 
 const unsigned cmDBASE_add_field    = 506;
 const unsigned cmDBASE_del_field    = 507;
@@ -1559,9 +1562,6 @@ public:
 					}	else {
 						s1 = s1.substr( 1 + delta.x, size.x );
 						s1.at(size.x) = EOS;
-						
-						//strncpy(s, lines[j] + delta.x, size.x);
-						//s[size.x] = EOS;
 					}
 					b.moveStr(0, s1.c_str(), color);
 				}
@@ -1570,30 +1570,114 @@ public:
 		}
 	};
 
-	class PL_LineGutter: public TView
-	{
-	public:
-		PL_LineGutter( const TRect& r): TView(r) { }
+	class PL_NewFileInputDialog: public TDialog {
+	private:
+		TInputLine  * file_name = nullptr;
+		TRect         r;
+		::std::string input_name;
 
-		void draw()
+	private:
+		void init()
 		{
-			ushort color = getColor(6);
-			TDrawBuffer b;
-			char buffer[8];
-			
-			for( int i = 1; i < 100; i++ )
-			{
-				sprintf(buffer,"%6d", i);
+			insert( new TButton ( TRect( 20,6, 37,8 ), locale_str(  17 ).c_str(), cmDBASE_app_file  , bfDefault ));
+			insert( new TButton ( TRect(  2,6, 12,8 ), locale_str( 123 ).c_str(), cmDBASE_app_cancel, bfNormal  ));
 
-				b.moveChar( 0, ' ', color, 8 );
-				b.moveStr ( 0, buffer, color );
-				writeLine ( 0, i-1, 8, 10, b );
+			file_name = new TInputLine( TRect( 3,3, 30,4 ), 64);
+			//file_name->setData( (void*)input_name.c_str() );
+			insert( file_name );
+			
+			insert( new TLabel( TRect( 3,2, 9,3 ), locale_str( 124 ).c_str(), file_name));
+		}
+	public:
+		PL_NewFileInputDialog():
+			TWindowInit( &PL_NewFileInputDialog::initFrame ),
+			TDialog ( TRect( 3,4, 42,12), locale_str( 125 ).c_str()) {
+
+			flags &= ~(wfGrow | wfZoom);
+			growMode  = 0;
+			
+			eventMask = evMouseDown | evKeyboard | evCommand | evBroadcast;
+			options   = ofCentered  | ofSelectable;
+
+			input_name = "lolo";
+			init();
+		}
+		~PL_NewFileInputDialog() {
+		}
+		
+		virtual void
+		handleEvent( TEvent &event )
+		{
+			TDialog::handleEvent(event);
+			switch (event.message.command) {
+				case cmHelp:
+				{
+					clearEvent(event);
+					messageBox( "helper help", mfInformation | mfOKButton );
+					return;
+				}
+				break;
+				case cmDBASE_app_file:
+				{
+					clearEvent(event);
+					messageBox( "app file", mfInformation | mfOKButton );
+					return;
+				}
+				break;
+				case cmDBASE_app_cancel:
+				{
+					clearEvent(event);
+					TObject::destroy( this );
+					return;
+				}
+				break;
 			}
 		}
-		/*
-		virtual void handleEvent( TEvent &event ) {
-			TView :: handleEvent( event );
-		}*/
+	};
+	
+	class PL_dBaseNewApplication;
+	class PL_dBaseSourceMemoEditor: public TEditor {
+	private:
+		PL_dBaseNewApplication * into;
+		TStaticText * control = nullptr;
+		TScrollBar  * vscroll;
+		TScrollBar  * hscroll;
+	public:
+		PL_dBaseSourceMemoEditor(
+			PL_dBaseNewApplication * intero,
+			const TRect& bounds,
+			TScrollBar * vsb,
+			TScrollBar * hsb,
+			TIndicator * ind,  uint32_t len) :
+			TEditor(bounds,vsb,hsb,ind, len) ,
+			hscroll(hsb),
+			vscroll(vsb),
+			into   ( intero ) {
+		}
+
+		void handleEvent( TEvent& event ) {
+			if ( event.what != evKeyDown || event.keyDown.keyCode != kbTab ) {
+				if (control != nullptr)
+				TObject::destroy(control);
+			
+				TEditor::handleEvent(event);
+				TRect r( getExtent() );
+				char  buff[32];
+				
+				sprintf(buff, " %d : %d",
+					curPos.x + 1,
+					curPos.y + 1);
+
+				control = new TStaticText(
+				TRect(
+					r.a.x+22,
+					r.b.y+1,
+					r.a.x+32,
+					r.b.y+2),
+				buff);
+				into->insert(control);
+			}
+		}
 	};
 	
 	class PL_dBaseNewApplication: public TWindow {
@@ -1623,48 +1707,58 @@ public:
 				bounds.b.x,
 				bounds.b.y-1 );
 
-			TScrollBar *hScrollBar = new TScrollBar( r );
-			if( hScrollBar == 0 ) {
+			TScrollBar *vScrollBar = new TScrollBar( r );
+			if( vScrollBar == 0 ) {
 				::std::cout << "vScrollbar init error" <<
 				::std::endl;
 				::exit(1);
 			}
 
-			hScrollBar->options |= ofPostProcess;
+			vScrollBar->options |= ofPostProcess;
 			if( left )
-				hScrollBar->growMode = gfGrowHiY;
-			insert ( hScrollBar );
+				vScrollBar->growMode = gfGrowHiY;
+			insert ( vScrollBar );
 
-			r = TRect(
-				bounds.a.x+2,
-				bounds.b.y-1,
-				bounds.b.x-2,
-				bounds.b.y );
+			if (!left) {
+				r = TRect(
+					bounds.a.x+14,
+					bounds.b.y-1,
+					bounds.b.x-2,
+					bounds.b.y );
+			}	else {
+				r = TRect(
+					bounds.a.x+2,
+					bounds.b.y-1,
+					bounds.b.x-2,
+					bounds.b.y );
+			}
 
-			TScrollBar *vScrollBar = new TScrollBar( r );
-			if( vScrollBar == 0 )
+			TScrollBar *hScrollBar = new TScrollBar( r );
+			if( hScrollBar == 0 )
 			{
 				::std::cout << "hScrollbar init error" <<
 				::std::endl;
 				::exit(1);
 			}
 			
-			vScrollBar->options |= ofPostProcess;
+			hScrollBar->options |= ofPostProcess;
 			if( left )
-				vScrollBar->growMode = (gfGrowHiY | gfGrowLoY);
-			insert ( vScrollBar );
+				hScrollBar->growMode = (gfGrowHiY | gfGrowLoY);
+			insert ( hScrollBar );
 			
 			if (!left) {
-				auto *memo = new TMemo(
-					TRect(28,1, 22+22+22+6,21),
-					vScrollBar,
+				auto *memo = new PL_dBaseSourceMemoEditor(
+					this,
+					TRect(23,1, 22+22+22+6,21),
 					hScrollBar,
-					new TIndicator(TRect(40,13,20,24)),65530);
+					vScrollBar,
+					new TIndicator(TRect(
+						bounds.a.x+2,
+						bounds.b.y-1,
+						bounds.a.x+12,
+						bounds.b.y)),
+					65255000);
 				insert( memo );
-				
-				auto *gutt = new PL_LineGutter(
-					TRect(21,1, 27,21));
-				insert( gutt );
 			}
 			
 			r = bounds;
@@ -2182,6 +2276,19 @@ public:
 	private:
 		::std::string fileName;
 		
+		ushort execDialog( TDialog *d )
+		{
+			TView *p = TProgram::application->validView( d );
+			if (!p)
+			return cmCancel; else
+			{
+				ushort res  = TProgram::deskTop->execView( p );
+				//if  (  res == cmCancel)
+				//TObject::destroy( p );
+				return res;
+			}
+		}
+		
 		void createNewFileDialog(::std::string s, int flag)
 		{
 			auto  * d = new PL_dBaseNewFile(s, flag);
@@ -2543,14 +2650,16 @@ public:
 				return;
 			}
 			else if (event.message.command == cmDBASE_app) {
-				auto  * d = new PL_dBaseNewApplication( );
-				TView * p = TProgram::application->validView( d );
+				auto  * d = new PL_NewFileInputDialog( );
+				TView * p =   ( PL_NewFileInputDialog *)
+				TProgram::application->validView( d );
 				if (!p) {
-					delete d;
-					throw PL_Exception_Application( "init error" );
+					::std::string sz;
+					sz = locale_str( 23 ).c_str();
+					throw PL_Exception_Application( sz.c_str() );
 				}
-				TProgram::deskTop->insert(d);
 				clearEvent(event);
+				TProgram::deskTop->insert(d);
 				return;
 			}
 			clearEvent( event );

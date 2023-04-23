@@ -121,3 +121,6 @@ Abfragen
 Formulare
 Programme
 locale zeichenkette
+Ok
+Dateiname:
+Neue Datei
