@@ -338,6 +338,9 @@ LB_Collection * xdbf_sc_4 = nullptr;
 ::std::vector< ::std::string > xdbf_vec_3;
 ::std::vector< ::std::string > xdbf_vec_4;
 
+::std::string xbDBASE_app_file_name;
+TInputLine  * xbDBASE_app_file_input = nullptr;
+
 // ---------------------------------------------------------------------
 // error handling
 // ---------------------------------------------------------------------
@@ -474,7 +477,7 @@ public:
 			exit(1);
 		}
 		
-		fprintf(stdout,"items: %d\n",numitems);
+		//fprintf(stdout,"items: %d\n",numitems);
 		
 		int header_size  = sizeof( uint32_t );  // items
 			header_size += sizeof( uint32_t );  // version
@@ -1572,26 +1575,23 @@ public:
 
 	class PL_NewFileInputDialog: public TDialog {
 	private:
-		TInputLine  * file_name = nullptr;
 		TRect         r;
-		::std::string input_name;
-
 	private:
 		void init()
 		{
-			insert( new TButton ( TRect( 20,6, 37,8 ), locale_str(  17 ).c_str(), cmDBASE_app_file  , bfDefault ));
-			insert( new TButton ( TRect(  2,6, 12,8 ), locale_str( 123 ).c_str(), cmDBASE_app_cancel, bfNormal  ));
+			insert( new TButton ( TRect( 20,6, 37,8 ), locale_str(  17 ).c_str(), cmDBASE_app_cancel, bfNormal ));
+			insert( new TButton ( TRect(  2,6, 12,8 ), locale_str( 123 ).c_str(), cmDBASE_app_file  , bfDefault));
 
-			file_name = new TInputLine( TRect( 3,3, 30,4 ), 64);
-			//file_name->setData( (void*)input_name.c_str() );
-			insert( file_name );
+			xbDBASE_app_file_input = new TInputLine( TRect( 3,3, 30,4 ), 64);
+			xbDBASE_app_file_input->setData( (void*)xbDBASE_app_file_name.c_str());
 			
-			insert( new TLabel( TRect( 3,2, 9,3 ), locale_str( 124 ).c_str(), file_name));
+			insert( xbDBASE_app_file_input );
+			insert( new TLabel( TRect( 3,2, 9,3 ), locale_str( 124 ).c_str(), xbDBASE_app_file_input ));
 		}
 	public:
 		PL_NewFileInputDialog():
 			TWindowInit( &PL_NewFileInputDialog::initFrame ),
-			TDialog ( TRect( 3,4, 42,12), locale_str( 125 ).c_str()) {
+			TDialog ( TRect( 3,4, 42,13), locale_str( 125 ).c_str()) {
 
 			flags &= ~(wfGrow | wfZoom);
 			growMode  = 0;
@@ -1599,13 +1599,13 @@ public:
 			eventMask = evMouseDown | evKeyboard | evCommand | evBroadcast;
 			options   = ofCentered  | ofSelectable;
 
-			input_name = "lolo";
+			xbDBASE_app_file_name = "program.pas";
 			init();
 		}
 		~PL_NewFileInputDialog() {
 		}
 		
-		virtual void
+		void
 		handleEvent( TEvent &event )
 		{
 			TDialog::handleEvent(event);
@@ -1620,7 +1620,29 @@ public:
 				case cmDBASE_app_file:
 				{
 					clearEvent(event);
-					messageBox( "app file", mfInformation | mfOKButton );
+					
+					xdbf_lbc_6 = new LB_Collection(5,5);
+					xbDBASE_app_file_input->getData( (void*)xbDBASE_app_file_name.c_str());
+
+					xdbf_lbc_6->insert( newStr( xbDBASE_app_file_name.c_str() ));
+					xdbf_lb_6 ->newList(xdbf_lbc_6);
+					
+					::std::vector<
+					::std::string> example { "abc", "1236", "testung" };
+
+					::std::ofstream dBaseDataOutputFile("./prolog64.data", ::std::ios::binary);
+					
+					uint16_t len;
+					uint8_t  dummy = 0x00;
+					
+					for (auto &item: example) {
+						len = item.size();
+						dBaseDataOutputFile.write( reinterpret_cast<const char *>(&len),  sizeof( uint16_t ) );
+						dBaseDataOutputFile.write( reinterpret_cast<const char *>(item.c_str()), item.size() );
+						dBaseDataOutputFile.write( reinterpret_cast<const char *>(&dummy), sizeof( uint8_t ) );
+					}	dBaseDataOutputFile.close();
+					
+					TObject::destroy( this );
 					return;
 				}
 				break;
@@ -1636,31 +1658,49 @@ public:
 	};
 	
 	class PL_dBaseNewApplication;
-	class PL_dBaseSourceMemoEditor: public TEditor {
+	class PL_dBaseSourceMemoEditor {
 	private:
 		PL_dBaseNewApplication * into;
 		TStaticText * control = nullptr;
 		TScrollBar  * vscroll;
 		TScrollBar  * hscroll;
-	public:
-		PL_dBaseSourceMemoEditor(
-			PL_dBaseNewApplication * intero,
-			const TRect& bounds,
-			TScrollBar * vsb,
-			TScrollBar * hsb,
-			TIndicator * ind,  uint32_t len) :
-			TEditor(bounds,vsb,hsb,ind, len) ,
-			hscroll(hsb),
-			vscroll(vsb),
-			into   ( intero ) {
-		}
+		
+		TEditWindow * openEditor(const TRect& r, const char *fileName)
+		{
+			TView * p = TProgram::application->validView( new TEditWindow( r, fileName, wnNoNumber ) );
+			deskTop->insert(p);
 
+			return (TEditWindow *)p;
+		}
+	public:
+		PL_dBaseSourceMemoEditor( const TRect& bounds, const char *fileName )
+		{
+
+			::std::vector< ::std::string > sourceText = {
+"program test;",
+"begin",
+"end.",
+""
+};
+::std::stringstream srcText;
+for (auto &line: sourceText)
+srcText << line << ::std::endl;
+messageBox(srcText.str().c_str(),mfInformation|mfOKButton); 
+messageBox(fileName,mfInformation|mfOKButton); 
+			FILE *outf = ::fopen(fileName,"w");
+			::fprintf( outf, "%s", srcText.str().c_str() );
+			::fclose(outf);
+			
+			openEditor( bounds, fileName);
+		}
+/*
 		void handleEvent( TEvent& event ) {
 			if ( event.what != evKeyDown || event.keyDown.keyCode != kbTab ) {
 				if (control != nullptr)
 				TObject::destroy(control);
 			
-				TEditor::handleEvent(event);
+				//TEditWindow::handleEvent(event);
+				
 				TRect r( getExtent() );
 				char  buff[32];
 				
@@ -1677,13 +1717,25 @@ public:
 				buff);
 				into->insert(control);
 			}
-		}
+		}*/
 	};
 	
 	class PL_dBaseNewApplication: public TWindow {
+	private:
+		PL_dBaseSourceMemoEditor * memoEditor = nullptr;
 	public:
+		PL_dBaseNewApplication(const char * fileName ):
+			TWindow(TRect(0, 0, 74, 22), fileName, wnNoNumber),
+			TWindowInit( &PL_dBaseNewApplication::initFrame)
+		{
+			TRect r = TRect( 0,0, 21,22 );
+			TInterior *leftInterior  = makeInterior( r, True );
+
+			r = TRect( 20,0, 74,22 );
+			TInterior *rightInterior = makeInterior( r, False );
+		}
 		PL_dBaseNewApplication():
-			TWindow(TRect(0, 0, 74, 22), "opos", wnNoNumber),
+			TWindow(TRect(0, 0, 74, 22), "unnamed.pas", wnNoNumber),
 			TWindowInit( &PL_dBaseNewApplication::initFrame)
 		{
 			TRect r = TRect( 0,0, 21,22 );
@@ -1747,7 +1799,8 @@ public:
 			insert ( hScrollBar );
 			
 			if (!left) {
-				auto *memo = new PL_dBaseSourceMemoEditor(
+				char fileName[128] = "program.pas";
+				memoEditor = new PL_dBaseSourceMemoEditor( TRect(23,1, 22+22+22+6,21), fileName ); /*
 					this,
 					TRect(23,1, 22+22+22+6,21),
 					hScrollBar,
@@ -1757,8 +1810,8 @@ public:
 						bounds.b.y-1,
 						bounds.a.x+12,
 						bounds.b.y)),
-					65255000);
-				insert( memo );
+					652550);
+				insert( memoEditor );*/
 			}
 			
 			r = bounds;
@@ -2358,6 +2411,7 @@ public:
 			
 			xdbf_lbc_5->insert( newStr("Hello") );
 			
+			/*
 			xdbf_lbc_6->insert( newStr("A1") );
 			xdbf_lbc_6->insert( newStr("B-1") );
 			xdbf_lbc_6->insert( newStr("CCC") );
@@ -2371,6 +2425,7 @@ public:
 			xdbf_lbc_6->insert( newStr("ההההüüüü") );
 			xdbf_lbc_6->insert( newStr("######") );
 			xdbf_lbc_6->insert( newStr("qwerty") );
+			*/
 
 			xdbf_lb_1 = new TListBox( TRect(x,7,   18, 16), 1, sb_1 ); x += 17;
 			xdbf_lb_2 = new TListBox( TRect(x,7, x+15, 16), 1, sb_2 ); x += 17;
@@ -2594,8 +2649,15 @@ public:
 					if ((xdbf_lb_6->state & sfFocused) != 0) {
 						xdbf_lb_6->getText(buffer,
 						xdbf_lb_6->focused, MAX_LEN);
-						
-						messageBox(buffer,mfInformation|mfOKButton);
+
+						auto  * d = new PL_dBaseNewApplication( buffer );
+						TView * p = TProgram::application->validView( d );
+						if (!p) {
+							::std::string sz;
+							sz = locale_str( 23 ).c_str();
+							throw PL_Exception_Application( sz.c_str() );
+						}
+						//TProgram::deskTop->insert(d);
 						return;
 					}
 				}
