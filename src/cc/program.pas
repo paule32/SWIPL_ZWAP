@@ -1,4 +1,3 @@
 program test;
 begin
 end.
-

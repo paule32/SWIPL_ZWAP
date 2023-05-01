@@ -387,6 +387,22 @@ extern "C" int test_dwarf2(void);
 // ---------------------------------------------------------------------
 namespace prolog {
 
+// signature of the generated function
+typedef void (*_func)(void*);
+void FuncPt(void * addr)
+{
+	char buffer[112];
+	sprintf(buffer, "==> %u\n==> %lu\n==> %llu",addr,addr,addr);
+	messageBox(buffer,mfError|mfOKButton);
+	/*::std::cout << "this is a test" <<
+	::std::endl ;*/
+}
+
+
+void calledFunc1(void*f) noexcept {	messageBox("hallo duda"  , mfInformation|mfOKButton); }
+void calledFunc2(void*f) noexcept {	messageBox("tudel dei da", mfInformation|mfOKButton); }
+
+
 // ---------------------------------------------------------------------
 // forward declaration's ...
 // ---------------------------------------------------------------------
@@ -839,6 +855,8 @@ const unsigned cmHelp               = 204;
 const unsigned cmHelpIndex          = 205;
 const unsigned cmHelpOnline         = 206;
 
+const unsigned cmCompileRun         = 207;
+
 const unsigned cmAppQuit            = 300;
 
 const unsigned cmLoadData           = 401;
@@ -892,6 +910,7 @@ static struct DialogData {
 	ushort checkButtons1Data;
 } *newData;
 
+::TEditWindow * editWin;
 // ---------------------------------------------------------------------
 // the main console application class ...
 // ---------------------------------------------------------------------
@@ -1657,67 +1676,54 @@ public:
 		}
 	};
 	
-	class PL_dBaseNewApplication;
-	class PL_dBaseSourceMemoEditor {
-	private:
-		PL_dBaseNewApplication * into;
-		TStaticText * control = nullptr;
-		TScrollBar  * vscroll;
-		TScrollBar  * hscroll;
-		
-		TEditWindow * openEditor(const TRect& r, const char *fileName)
-		{
-			TView * p = TProgram::application->validView( new TEditWindow( r, fileName, wnNoNumber ) );
-			deskTop->insert(p);
-
-			return (TEditWindow *)p;
-		}
+	class MyMemoEditor: public TEditWindow {
 	public:
-		PL_dBaseSourceMemoEditor( const TRect& bounds, const char *fileName )
+		MyMemoEditor(
+			const TRect & bounds,
+			const char  * fileName):
+			TWindowInit( &MyMemoEditor::initFrame ),
+			TEditWindow(bounds,fileName,wnNoNumber)
 		{
-
-			::std::vector< ::std::string > sourceText = {
-"program test;",
-"begin",
-"end.",
-""
-};
-::std::stringstream srcText;
-for (auto &line: sourceText)
-srcText << line << ::std::endl;
-messageBox(srcText.str().c_str(),mfInformation|mfOKButton); 
-messageBox(fileName,mfInformation|mfOKButton); 
-			FILE *outf = ::fopen(fileName,"w");
-			::fprintf( outf, "%s", srcText.str().c_str() );
-			::fclose(outf);
-			
-			openEditor( bounds, fileName);
 		}
-/*
-		void handleEvent( TEvent& event ) {
-			if ( event.what != evKeyDown || event.keyDown.keyCode != kbTab ) {
-				if (control != nullptr)
-				TObject::destroy(control);
-			
-				//TEditWindow::handleEvent(event);
-				
-				TRect r( getExtent() );
-				char  buff[32];
-				
-				sprintf(buff, " %d : %d",
-					curPos.x + 1,
-					curPos.y + 1);
-
-				control = new TStaticText(
-				TRect(
-					r.a.x+22,
-					r.b.y+1,
-					r.a.x+32,
-					r.b.y+2),
-				buff);
-				into->insert(control);
+		void handleEvent( TEvent &event )
+		{
+			TWindow::handleEvent( event );
+			if (event.what == evKeyboard)
+			{
+				if (event.keyDown.keyCode == kbEsc)     // #27 - Escape
+				{
+					clearEvent(event);
+					TObject::destroy(this);
+					return;
+				}
 			}
-		}*/
+		}
+	};
+	class PL_dBaseSourceMemoEditor {
+	public:
+		PL_dBaseSourceMemoEditor(
+			const TRect & bounds,
+			const char  * fileName ) {
+			::std::vector< ::std::string > sourceText = {
+				"program test;",
+				"begin",
+				"end."
+			};
+			::std::stringstream srcText;
+			for (auto &line: sourceText)
+			srcText << line << ::std::endl;
+		
+			messageBox(srcText.str().c_str(),mfInformation|mfOKButton);
+			messageBox(fileName,mfInformation|mfOKButton);
+
+			FILE *outf = ::fopen(fileName,"w");
+			::fprintf( outf,"%s", srcText.str().c_str() );
+			::fclose ( outf );
+			
+			editWin   = new MyMemoEditor( bounds, fileName );
+			TView * p = TProgram::application->validView( editWin );
+			deskTop->insert(p);
+		}
 	};
 	
 	class PL_dBaseNewApplication: public TWindow {
@@ -1800,18 +1806,7 @@ messageBox(fileName,mfInformation|mfOKButton);
 			
 			if (!left) {
 				char fileName[128] = "program.pas";
-				memoEditor = new PL_dBaseSourceMemoEditor( TRect(23,1, 22+22+22+6,21), fileName ); /*
-					this,
-					TRect(23,1, 22+22+22+6,21),
-					hScrollBar,
-					vScrollBar,
-					new TIndicator(TRect(
-						bounds.a.x+2,
-						bounds.b.y-1,
-						bounds.a.x+12,
-						bounds.b.y)),
-					652550);
-				insert( memoEditor );*/
+				memoEditor = new PL_dBaseSourceMemoEditor( TRect(23,1, 22+22+22+6,21), fileName );
 			}
 			
 			r = bounds;
@@ -2988,6 +2983,18 @@ messageBox(fileName,mfInformation|mfOKButton);
 		}
 	};
 
+// A simple error handler implementation, extend according to your needs.
+class MyErrorHandler : public ErrorHandler {
+public:
+	void handleError(Error err, const char* message, BaseEmitter* origin) override {
+		char buffer[512];
+		sprintf(buffer,"AsmJit error: %s", message);
+		messageBoxRect(
+			TRect(10,7,60,19),
+			buffer,
+			mfError|mfOKButton);
+	}
+};
 	ushort
 	MessageBox(::std::string txt, ushort aOptions) {
 		return messageBox(txt.c_str(), aOptions);
@@ -3046,9 +3053,85 @@ messageBox(fileName,mfInformation|mfOKButton);
 
 			case cmAppQuit:
 			{
-				if (messageBox( locale_str( 16 ).c_str(), mfYesButton | mfNoButton ) == 12)
+				if (messageBox( locale_str( 16 ).c_str(), mfYesButton | mfNoButton ) == 12) {
 				//	delete _app;
-				TObject::destroy(this);
+					clearEvent(event);
+					TObject::destroy(this);
+				}
+			}
+			break;
+
+			case cmCompileRun:
+			{
+				clearEvent(event);
+
+				try {
+
+_func fun = &FuncPt;
+fun(&fun);
+
+::asmjit::JitRuntime       rt;	// Runtime specialized for JIT code excution
+::asmjit::CodeHolder     code;	// Holds code and relocation information
+::asmjit::StringLogger logger;
+
+::asmjit::Error err = kErrorOk;
+
+code.init(
+	rt.environment(),
+	rt.cpuFeatures()
+);
+code.setLogger(&logger);
+
+::x86::Compiler cc(&code);
+::x86::Builder  cb(&code);
+
+::x86::Gp x = cc.newInt32("x");
+
+FuncNode * node = cc.addFunc(FuncSignatureT<void,void*>(CallConvId::kHost));
+node->setArg(0, x);
+node->setArg(0, x);
+
+InvokeNode * inode1;
+cc.invoke( & inode1,imm((void*)calledFunc1), FuncSignatureT<void, void*>(CallConvId::kStdCall));
+inode1->setArg(0, x);
+inode1->setRet(0, x);
+
+InvokeNode * inode2;
+cc.invoke( & inode2,imm((void*)calledFunc2), FuncSignatureT<void, void*>(CallConvId::kStdCall));
+inode2->setArg(0, x);
+inode2->setRet(0, x);
+
+cc.ret();
+cc.endFunc();
+
+cc.finalize();
+
+::asmjit::String content = move(logger.content());
+::std::string output(content.data());
+
+// output code
+messageBoxRect(
+	TRect(10,4,60,29),
+	output.c_str(),
+	mfError|mfOKButton);
+
+// call asmjit code
+void *__func = nullptr;
+rt.add(&__func, &code);
+
+typedef void (*Func)(void*);
+Func func = ptr_as_func<Func>(__func);
+func(&fun);
+
+				}
+				catch (exception& e) {
+					::std::string ex = e.what();
+					messageBoxRect(
+						TRect(10,7,60,19),
+						ex.c_str(),
+						mfError|mfOKButton);
+				}
+				return;
 			}
 			break;
 
@@ -3119,9 +3202,10 @@ messageBox(fileName,mfInformation|mfOKButton);
 		r.a.y = r.b.y - 1;
 		return new ::TStatusLine( r,
 			*new ::TStatusDef( 0, 0xFFFF ) +
-			*new ::TStatusItem( locale_str( 29 ).c_str(), kbF1,  cmHelp       ) +
-			*new ::TStatusItem( locale_str( 30 ).c_str(), kbF3,  cmNewProject ) +
-			*new ::TStatusItem( locale_str( 31 ).c_str(), kbF10, cmMenu       ) +
+			*new ::TStatusItem( locale_str(  29 ).c_str(), kbF1,  cmHelp       ) +
+			*new ::TStatusItem( locale_str(  30 ).c_str(), kbF3,  cmNewProject ) +
+			*new ::TStatusItem( locale_str(  31 ).c_str(), kbF10, cmMenu       ) +
+			*new ::TStatusItem( locale_str( 126 ).c_str(), kbF2 , cmCompileRun ) +
 
 			*new ::TStatusItem( 0,  kbAltX,     cmAppQuit) +
 			*new ::TStatusItem( 0,  kbShiftDel, cmCut    ) +
@@ -6540,7 +6624,7 @@ public:
 	}
 	~Normal()
 	{
-		delete regwin;
+		//delete regwin;
 	}
 
 	void add( Menu& m)              { regwin->add( m );    }
