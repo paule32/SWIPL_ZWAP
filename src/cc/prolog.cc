@@ -179,6 +179,8 @@
 # include <cstdlib> 		// for: ::std::itoa
 # include <exception>
 # include <vector>
+# include <variant>
+# include <map>
 # include <algorithm>
 # include <iterator>
 # include <ctime>
@@ -402,6 +404,49 @@ void FuncPt(void * addr)
 void calledFunc1(void*f) noexcept {	messageBox("hallo duda"  , mfInformation|mfOKButton); }
 void calledFunc2(void*f) noexcept {	messageBox("tudel dei da", mfInformation|mfOKButton); }
 
+struct parserDBaseArgs {
+	uint32_t		arg_type;
+	void*			arg_addr;
+	uint32_t		arg_int;
+	::std::string	arg_str;
+}	parserDBaseArgsTable[3] = {
+	//
+	{ 1, (void*)calledFunc1, 0, "" },
+	{ 1, (void*)calledFunc2, 0, "" },
+	{ 0, 0, 0, "" }
+};
+::std::map< ::std::string, parserDBaseArgs > funContainer;
+
+void initParserDBaseFunctions()
+{
+	funContainer.emplace( "calledFunc1", parserDBaseArgsTable[0] );
+	funContainer.emplace( "calledFunc2", parserDBaseArgsTable[1] );
+}
+void addFunc(::x86::Compiler& cc, ::std::string funcName)
+{
+	bool found = false;
+	for (auto &item: funContainer)
+	{
+		if (!strcmp(item.first.c_str(),funcName.c_str()))
+		{
+			::x86::Gp x = cc.newInt32("x");
+			
+			InvokeNode * inode1;
+			cc.invoke( & inode1,imm(
+			(void*)item.second.arg_addr),
+			FuncSignatureT<void, void*>(CallConvId::kStdCall));
+			
+			inode1->setArg(0, x);
+			inode1->setRet(0, x);
+			
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	messageBox("internal function not found.",
+	mfError|mfOKButton);
+}
 
 // ---------------------------------------------------------------------
 // forward declaration's ...
@@ -2995,6 +3040,7 @@ public:
 			mfError|mfOKButton);
 	}
 };
+
 	ushort
 	MessageBox(::std::string txt, ushort aOptions) {
 		return messageBox(txt.c_str(), aOptions);
@@ -3066,62 +3112,53 @@ public:
 				clearEvent(event);
 
 				try {
+					funContainer.clear();
+					initParserDBaseFunctions();
+					
+					::asmjit::JitRuntime       rt;	// Runtime specialized for JIT code excution
+					::asmjit::CodeHolder     code;	// Holds code and relocation information
+					::asmjit::StringLogger logger;
 
-_func fun = &FuncPt;
-fun(&fun);
+					::asmjit::Error err = kErrorOk;
 
-::asmjit::JitRuntime       rt;	// Runtime specialized for JIT code excution
-::asmjit::CodeHolder     code;	// Holds code and relocation information
-::asmjit::StringLogger logger;
+					code.init(
+						rt.environment(),
+						rt.cpuFeatures()
+					);
+					code.setLogger(&logger);
 
-::asmjit::Error err = kErrorOk;
+					::x86::Compiler cc(&code);
+					::x86::Builder  cb(&code);
 
-code.init(
-	rt.environment(),
-	rt.cpuFeatures()
-);
-code.setLogger(&logger);
+					::x86::Gp x = cc.newInt32("x");
+					
+					FuncNode * node = cc.addFunc(FuncSignatureT<void,void*>(CallConvId::kHost));
+					node->setArg(0, x);
+					node->setArg(0, x);
 
-::x86::Compiler cc(&code);
-::x86::Builder  cb(&code);
+					addFunc(cc, "calledFunc1");
+					addFunc(cc, "calledFunc2");
+					
+					cc.ret();
+					cc.endFunc();
 
-::x86::Gp x = cc.newInt32("x");
+					cc.finalize();
 
-FuncNode * node = cc.addFunc(FuncSignatureT<void,void*>(CallConvId::kHost));
-node->setArg(0, x);
-node->setArg(0, x);
+					::asmjit::String content = move(logger.content());
 
-InvokeNode * inode1;
-cc.invoke( & inode1,imm((void*)calledFunc1), FuncSignatureT<void, void*>(CallConvId::kStdCall));
-inode1->setArg(0, x);
-inode1->setRet(0, x);
+					// output code
+					messageBoxRect(
+						TRect(10,4,60,29),
+						content.data(),
+						mfError|mfOKButton);
 
-InvokeNode * inode2;
-cc.invoke( & inode2,imm((void*)calledFunc2), FuncSignatureT<void, void*>(CallConvId::kStdCall));
-inode2->setArg(0, x);
-inode2->setRet(0, x);
+					// call asmjit code
+					void *__func = nullptr;
+					rt.add(&__func, &code);
 
-cc.ret();
-cc.endFunc();
-
-cc.finalize();
-
-::asmjit::String content = move(logger.content());
-::std::string output(content.data());
-
-// output code
-messageBoxRect(
-	TRect(10,4,60,29),
-	output.c_str(),
-	mfError|mfOKButton);
-
-// call asmjit code
-void *__func = nullptr;
-rt.add(&__func, &code);
-
-typedef void (*Func)(void*);
-Func func = ptr_as_func<Func>(__func);
-func(&fun);
+					typedef void (*Func)(void*);
+					Func func = ptr_as_func<Func>(__func);
+					func(&func);
 
 				}
 				catch (exception& e) {
