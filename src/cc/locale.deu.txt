@@ -125,3 +125,5 @@ Ok
 Dateiname:
 Neue Datei
 ~F2~ Start
+falsches Kommentar-Format
+Kommentar wurde nicht abgeschloßen

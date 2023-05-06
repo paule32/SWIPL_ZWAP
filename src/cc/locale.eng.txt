@@ -125,3 +125,5 @@ Ok
 File-Name:
 New File
 ~F2~ Run
+wrong comment format
+unterminated comment
