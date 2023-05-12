@@ -126,4 +126,17 @@ Dateiname:
 Neue Datei
 ~F2~ Start
 falsches Kommentar-Format
-Kommentar wurde nicht abgeschloßen
+unbekanntes Zeichen gefunden.
+Syntax Fehler
+fd ist kein gültiger Datei-Beschreiber für Lese-Zugriff
+Zugriff verweigert.
+Zu viele Dateien in der Anwendung geöffnet
+Zu viele System-Dateien gegenwärtig geöffnet
+Zu wenig Speicher vorhanden, um die Operation auszuführen
+Das angegebene Verzeichnis existiert bereits
+Ein oder mehrere Verzeichnisse existieren nicht - es wird nur das letzte Verzeichnis in der Liste erstellt
+Betriebs-System Fehler
+Spalte:
+Modulname nicht abgeschlossen. Haben Sie ein ';' vergessen ?
+'module' erwartet
+unerwartetes Zeichen gelesen

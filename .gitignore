@@ -56,3 +56,6 @@ src/cc/source.hpp
 src/cc/libasmjit.dll
 src/cc/libdwarf.dll
 src/cc/libxbase64.dll
+src/cc/oo
+src/cc/yy.prg
+src/cc/system.pas

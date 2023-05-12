@@ -27,7 +27,7 @@ echo "done."
 echo "create prolog64, this can take a while..."
 g++ -std=c++17 -m64 -mconsole -O2 -DRELEASE -DWINDOWS_APPLICATION \
 	-DASMJIT_BUILD_RELEASE -DASMJIT_NO_AARCH32                \
-	-DASMJIT_NO_AARCH64                                       \
+	-DASMJIT_NO_AARCH64 -DASMJIT_STATIC                       \
 	-I. -I../../inc -I../../inc/tvision -I../../inc/dwarf  	  \
 	-I../../inc/asmjit                                        \
 	-I/e/projekte/xbase64-4.1.0/src/include 	          \
@@ -39,11 +39,11 @@ g++ -std=c++17 -m64 -mconsole -O2 -DRELEASE -DWINDOWS_APPLICATION \
 # combine all together
 g++ -std=c++17 -m64 -mconsole -o prolog64.exe prolog.o dwarf.o    \
 	resource.o                                                \
-	-L. -L../../lib -L../../lib/mingw -ltvision \
-	-lasmjit.dll   \
-	-lxbase64.dll  \
-	-ldwarf.dll    \
-	-lz64 -lintl -lstdc++ -lwinpthread -liconv -limagehlp   \
+	-DASMJIT_BUILD_RELEASE -DASMJIT_NO_AARCH32                \
+	-DASMJIT_NO_AARCH64 -DASMJIT_STATIC                       \
+	-static -L. -L../../lib -L../../lib/mingw -ltvision       \
+	-lasmjit64 -lxbase64 -ldwarf64                            \
+	-lz64 -lintl -lstdc++ -lwinpthread -liconv -limagehlp     \
 	-lcomctl32 -lgdi32
 
 strip prolog64.exe

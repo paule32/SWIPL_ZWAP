@@ -143,6 +143,8 @@
 # include <getopt.h>
 # include <limits.h>
 # include <signal.h>
+# include <dirent.h>
+# include <errno.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 
@@ -178,6 +180,7 @@
 # include <codecvt>
 # include <cstdlib> 		// for: ::std::itoa
 # include <exception>
+# include <string_view>
 # include <vector>
 # include <variant>
 # include <map>
@@ -393,11 +396,6 @@ extern "C" int test_dwarf2(void);
 // ---------------------------------------------------------------------
 namespace prolog
 {
-// ---------------------------------------------------------------------
-// some stuff for source code test's ...
-// ---------------------------------------------------------------------
-# include "source.hpp"
-
 	class PL_Exception_Application;
 	class PL_Exception_Windows;
 
@@ -589,7 +587,7 @@ namespace prolog
 		struct PL_ASTList_Node * next;
 	} *pl_head, *pl_tail, * pl_ptr ;
 
-// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
 	//! \class  PL_ASTList
 	//! \since  Version 0.0.1
 	//! \author paule32
@@ -851,10 +849,10 @@ namespace prolog
 
 	public:
 		template <typename T1>
-		PL_Exception( T1 msg, uint32_t line = 1):
+		PL_Exception( T1 msg, uint32_t line = 1, uint32_t column = 1):
 			_message( msg ),
 			_line_row(line),
-			_line_col(PL_line_col)
+			_line_col(column)
 			{}
 		PL_Exception():
 			_message( locale_str( 2 ) ),
@@ -866,10 +864,8 @@ namespace prolog
 		const throw() {
 			return _message.c_str();
 		}
-		const uint32_t line()
-		const throw() {
-			return _line_row;
-		}
+		const uint32_t line  () const throw() { return _line_row; }
+		const uint32_t column() const throw() { return _line_col; }
 	};
 
 	// ---------------------------------------------------------------------
@@ -991,8 +987,8 @@ namespace prolog
 
 		::std::vector< ::std::string > PL_pascal_keywords = {
 			"define", "endif",
-			"unit", "library", "program",
-			"interface", "implementation",
+			"unit", "library", "program", "module", "import",
+			"interface", "implementation", "namespace",
 			"var", "const",
 			"begin", "end", "exit", "result",
 			"procedure", "function",
@@ -1055,14 +1051,14 @@ namespace prolog
 		//! \return keine - freies Objekt mit null-Zeiger.
 		//! \~endGerman
 		~PL_parser() {
-			DEBUGSTR("dtor: ~PL_parser ()")
 		}
 
 		//-- FUNCTION DEFINITIONS ---------------------------------
 		uint16_t PL_getch()
 		{
+			PL_lookaheadPosition += 1;
 			PL_lookaheadChar =
-			PL_source.str().c_str()[++PL_lookaheadPosition];
+			PL_source.str().c_str()[PL_lookaheadPosition];
 			PL_line_col += 1;
 
 			return PL_lookaheadChar;
@@ -1070,20 +1066,25 @@ namespace prolog
 		
 		uint16_t PL_ungetch()
 		{
-			if (PL_lookaheadPosition < 1) {
+			if (PL_lookaheadPosition-1 <= 0) {
 				PL_lookaheadPosition = 0;
+				PL_line_col          = 1;
 				PL_lookaheadChar     =
 				PL_source.str().c_str()[PL_lookaheadPosition];
 				
-				char buffer[100];
-				sprintf(buffer,"---> %c",PL_source.str().c_str()[PL_lookaheadPosition]);
-				messageBox(buffer,mfOKButton);
-			}	else {
+				//char buffer[100];
+				//sprintf(buffer,"---> %c",PL_source.str().c_str()[PL_lookaheadPosition]);
+				//messageBox(buffer,mfOKButton);
+			}	else
+			if (PL_lookaheadPosition-1 > 0) {
+				PL_lookaheadPosition -= 1;
+				PL_line_col          += 1;
 				PL_lookaheadChar     =
-				PL_source.str().c_str()[--PL_lookaheadPosition];
+				PL_source.str().c_str()[PL_lookaheadPosition];
 			}
 			
-			PL_line_col -= 1;
+			if ( --PL_line_col < 1)
+				   PL_line_col = 1;
 
 			return PL_lookaheadChar;
 		}
@@ -1114,10 +1115,11 @@ namespace prolog
 				PL_file_size  =
 				PL_source.tellp();
 				PL_source.seekp(0, ::std::ios::beg );
-				
 			}	else {
 				throw PL_Exception(
-				locale_str( 32 ).c_str(), PL_line_row);
+				locale_str( 32 ).c_str(),
+				PL_line_row,
+				PL_line_col);
 			}
 			
 			PL_ident = ::std::string("");
@@ -1130,18 +1132,20 @@ namespace prolog
 			PL_ungetch();
 
 			BEGIN_WHILE
-				PL_lookaheadChar = PL_getch();
+				PL_lookaheadChar =
+				PL_getch();
 				if (::std::isalnum(PL_lookaheadChar) ||
 					PL_lookaheadChar == '_') {
 					PL_ident +=
 					PL_lookaheadChar;
 					//printf("----> %c\n", PL_lookaheadChar);
 					continue;
-				}
-				else if (
-					PL_lookaheadChar == '\n') {
+				}	else
+				if (PL_lookaheadChar == '\n'
+				||	PL_lookaheadChar == '\r') {
 					PL_line_row += 1;
 					PL_line_col  = 1;
+					//messageBox(PL_ident.c_str(),mfOKButton);
 					break;
 				}
 				else if (PL_lookaheadChar == '\t') break;
@@ -1158,11 +1162,12 @@ namespace prolog
 		PL_check_white_spaces()
 		{
 			bool result = false;
-			if (PL_lookaheadChar == ' ' ||
-				PL_lookaheadChar == '\t') {
+			if (PL_lookaheadChar == ' '
+			||  PL_lookaheadChar == '\t') {
 				result = true;
-			}
-			else if (PL_lookaheadChar == '\n') {
+			}	else
+			if (PL_lookaheadChar == '\n'
+			||  PL_lookaheadChar == '\r') {
 				PL_line_row += 1;
 				PL_line_col  = 1;
 				result = true;
@@ -1227,7 +1232,9 @@ namespace prolog
 						END_WHILE
 					}	else {
 						throw PL_Exception_ParserError(
-						locale_str( 24 ).c_str());
+						locale_str( 24 ).c_str(),
+						PL_line_row,
+						PL_line_col);
 					}
 				}
 				else if (PL_check_white_spaces())
@@ -1261,7 +1268,8 @@ namespace prolog
 				if (!(PL_lookaheadChar = PL_getch()))
 					throw PL_Exception(
 					locale_str( 24 ).c_str(),
-					PL_line_row);
+					PL_line_row,
+					PL_line_col);
 				
 				if (PL_lookaheadChar == '*')
 				{	PL_nestedComment += 1;
@@ -1271,7 +1279,9 @@ namespace prolog
 						
 						if (!(PL_lookaheadChar = PL_getch()))
 						throw PL_Exception(
-						locale_str( 33 ).c_str(),PL_line_row);
+						locale_str( 33 ).c_str(),
+						PL_line_row,
+						PL_line_col);
 					
 						if (PL_lookaheadChar == '\n') {
 							PL_line_row += 1;
@@ -1283,7 +1293,9 @@ namespace prolog
 						{
 							if (!(PL_lookaheadChar = PL_getch()))
 							throw PL_Exception(
-							locale_str( 33 ).c_str(),PL_line_row);
+							locale_str( 33 ).c_str(),
+							PL_line_row,
+							PL_line_col);
 							
 							if (PL_lookaheadChar == '*') {
 								PL_nestedComment += 1;
@@ -1295,7 +1307,9 @@ namespace prolog
 						{
 							if (!(PL_lookaheadChar = PL_getch()))
 							throw PL_Exception(
-							locale_str( 33 ).c_str(),PL_line_row);
+							locale_str( 33 ).c_str(),
+							PL_line_row,
+							PL_line_col);
 						
 							if (  PL_lookaheadChar == '/') {
 							if (++PL_nestedComment < 1)
@@ -1307,90 +1321,84 @@ namespace prolog
 					// todo
 					throw PL_Exception(
 					locale_str( 24 ).c_str(),
-					PL_line_row);
+					PL_line_row,
+					PL_line_col);
 				}
 			}
 		}
 
-		//! \fn     void PL_skip_comment_pas(void)
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_skip_comment_cpp(void)
-		//! \~English
-		//! \brief  This function member is related to the Pascal Parser.
-		//!         Here, we deal with Pascal comment's.
-		//! \param  nothing - void.
-		//! \return nothing - void.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Diese C++ Funktion wird im Pascal Parser verwendet.
-		//!         Es werden nomale Pascal, und C++ Kommentare behandelt.
-		//! \param  keine - void.
-		//! \return keine - void.
-		//! \~endGerman
-		uint16_t PL_skip_comment_pas_A(void)
+		uint16_t PL_get_ident()
 		{
-			messageBox("pas comment A",mfOKButton);
+			PL_lookaheadChar =
+			PL_getch();
+				
+			if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+			||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+			||   (PL_lookaheadChar == '_') )
+			{     PL_ident.push_back(PL_lookaheadChar);
+				BEGIN_WHILE
+					PL_lookaheadChar =
+					PL_getch();
+					if (PL_lookaheadChar == '\n'
+					||  PL_lookaheadChar == '\r') {
+						PL_line_row += 1;
+						PL_line_col  = 1;
+						break;
+					}	else
+					if (PL_lookaheadChar == ' '
+					||  PL_lookaheadChar == '\t') {
+						break;
+					}	else
+					if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+					||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+					||  ((PL_lookaheadChar >= '0') && (PL_lookaheadChar <= '9'))
+					||   (PL_lookaheadChar == '_') )
+					{	  PL_ident.push_back(PL_lookaheadChar);
+						  continue;
+					}	  else {
+						  PL_lookaheadChar =
+						  PL_ungetch();
+						  break;
+					}
+				END_WHILE
+			}
+
+			return PL_lookaheadChar;
+		}
+		
+		void PL_skip_comment_pas_A(void)
+		{
 			uint16_t PL_result = 0;
 			PL_comment_open += 1;
 			BEGIN_WHILE
 				PL_lookaheadChar =
 				PL_getch();
+
+				if (PL_lookaheadChar == ' '
+				||  PL_lookaheadChar == '\t') {
+					continue;
+				}	else
 				if (PL_lookaheadChar == '\n'
 				||  PL_lookaheadChar == '\r') {
 					PL_line_row += 1;
 					PL_line_col  = 1;
 					continue;
-				}
+				}	else
 				if (PL_lookaheadChar == '*') {
 					PL_lookaheadChar =
 					PL_getch();
 					if (PL_lookaheadChar == ')') {
-						messageBox("pas com done",mfOKButton);
 						PL_comment_open -= 1;
 						break;
-					}	else {
-						continue;
 					}
 				}
 			END_WHILE
-			
-			label1:
-			PL_lookaheadChar =
-			PL_getch();
-			
-			if (PL_lookaheadChar == ' '
-			||  PL_lookaheadChar == '\t') {
-				goto label1;
-			}	else
-			if (PL_lookaheadChar == '\n'
-			||  PL_lookaheadChar == '\r') {
-				PL_line_row += 1;
-				PL_line_col  = 1;
-				goto label1;
-			}	else
-			if (PL_lookaheadChar == '(') {
-				PL_lookaheadChar =
-				PL_getch();
-				if (PL_lookaheadChar == '*') {
-					PL_comment_open  += 1;
-					PL_lookaheadChar  = PL_skip_comment_pas_A();
-				}	else {
-					messageBox("no pas comment", mfOKButton);
-				}
-			}
-			if (PL_comment_open > 0) {
-				throw PL_Exception_ParserError(
-				locale_str( 128 ).c_str(),PL_line_row);
-			}
-			
-			return PL_lookaheadChar;
 		}
 		
 		uint16_t PL_skip_comment_pas(void)
 		{
-			messageBox("pas comment",mfOKButton);
-			uint16_t PL_result = 0;
+				   uint16_t PL_result     = 0;
+			static uint16_t PL_in_comment = 0;
 
 			BEGIN_WHILE
 				PL_lookaheadChar =
@@ -1400,53 +1408,70 @@ namespace prolog
 				// {$define}
 				if (PL_lookaheadChar == '{')
 				{
+					lab2:
+					PL_in_comment    =  1;
 					PL_nestedComment += 1;
 					PL_lookaheadChar =
 					PL_getch();
-				
+
 					if (PL_lookaheadChar == '$') {
 						PL_ident = "";
 						PL_lookaheadChar =
 						PL_parse_ident();
 							
-						cout << "comm: " << PL_ident << endl;
-						
 						if (PL_lookaheadChar == TOK_IDENT) {
-							cout << "PL: " << PL_ident << endl;
 							PL_ident = "";
 							continue;
 						}	else
 						if (PL_lookaheadChar == '}') {
+							PL_in_comment     = 0;
 							PL_nestedComment -= 1;
 							if (PL_nestedComment > 0)
 							continue; else
 							break;
 						}	else
-						if (PL_lookaheadChar == '\n'
-						||  PL_lookaheadChar == '\r') {
+						if (PL_lookaheadChar == 0x0a
+						||  PL_lookaheadChar == 0x0d) {
 							PL_line_row += 1;
 							PL_line_col  = 1;
 							continue;
 						}
 					}	else
 					if (PL_lookaheadChar == '}') {
-						PL_nestedComment -= 1;
-						if (PL_nestedComment > 0)
-						continue; else
+						messageBox("zuzzuu",mfOKButton);
+						PL_in_comment    = 0;
+						PL_lookaheadChar =
+						PL_getch();
 						break;
+					}	else
+					if (PL_lookaheadChar == 0x0a
+					||  PL_lookaheadChar == 0x0d) {
+						PL_line_col  = 1;
+						PL_line_row += 1;
+						goto lab2;
+					}	else {
+						goto lab2;
 					}
 				}	else
-				if (PL_lookaheadChar == '\n'
-				||  PL_lookaheadChar == '\r') {
+				if (PL_lookaheadChar == '}') {
+					if (PL_in_comment > 0) {
+						PL_in_comment = 0;
+						continue;
+					}	else {
+						throw PL_Exception_ParserError(
+						"no open comment",
+						PL_line_row,
+						PL_line_col);
+					}
+				}	else
+				if (PL_lookaheadChar == 0x0a
+				||  PL_lookaheadChar == 0x0d) {
 					PL_line_row += 1;
 					PL_line_col  = 1;
-					messageBox("neueline",mfOKButton);
 					continue;
 				}	else
-				if (PL_lookaheadChar == '\t') {
-					continue;
-				}	else
-				if (PL_lookaheadChar == ' ') {
+				if (PL_lookaheadChar == '\t'
+				||  PL_lookaheadChar == ' ') {
 					continue;
 				}	else
 				// (* comment *)
@@ -1492,7 +1517,9 @@ namespace prolog
 					}	else {
 						messageBox("plexc 34",mfOKButton);
 						throw PL_Exception_ParserError(
-						locale_str( 34 ).c_str());
+						locale_str( 34 ).c_str(),
+						PL_line_row,
+						PL_line_col);
 					}
 				}	else {
 					PL_lookaheadChar =
@@ -1509,58 +1536,63 @@ namespace prolog
 			BEGIN_WHILE
 				PL_lookaheadChar =
 				PL_getch();
-			
+
 				if (PL_lookaheadChar == '/') {
 					PL_ungetch();
 					PL_lookaheadChar  =
-					PL_skip_comment_cpp  (); }
+					PL_skip_comment_cpp  (); } else
 					
 				if (PL_lookaheadChar == '{') {
 					PL_ungetch();
 					PL_lookaheadChar  =
-					PL_skip_comment_pas  (); }
-					
+					PL_skip_comment_pas();
+					break;
+				}	else
 				if (PL_lookaheadChar == '(') {
 					PL_lookaheadChar =
 					PL_getch();
 					if (PL_lookaheadChar == '*') {
-						PL_lookaheadChar  =
 						PL_skip_comment_pas_A();
 						continue;
 					}
-					throw PL_Exception_ParserError(
-					locale_str( 127 ).c_str());
-				}
-			
+					if (PL_comment_open > 0) {
+						throw PL_Exception_ParserError(
+						locale_str( 75 ).c_str(),
+						PL_line_row,
+						PL_line_col);
+					}	continue;
+				}	else			
 				if (PL_lookaheadChar == '\n'
 				||  PL_lookaheadChar == '\r') {
 					PL_line_row += 1;
 					PL_line_col  = 1;
 					continue;
-				}
+				}	else
 				if (PL_lookaheadChar == ' ' ) continue; else
 				if (PL_lookaheadChar == '\t') continue; else
 			
 				if (PL_lookaheadChar == '}' ) {
-				if (PL_nestedComment  > 0)
-					PL_nestedComment -= 1; else
+					if (  PL_nestedComment  > 0)
+						  PL_nestedComment -= 1; else
 					throw PL_Exception_ParserError(
-					locale_str( 33 ).c_str());
+					locale_str( 33 ).c_str(),
+					PL_line_row,
+					PL_line_col);
 				}	else
-				if (PL_lookaheadChar == ';') {
-					result = ';';
+				if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+				||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+				||   (PL_lookaheadChar == '_') )
+				{
+					PL_ident = "";
+					result = PL_lookaheadChar;
+					PL_ident.push_back(PL_lookaheadChar);
 					break;
-				}
-				
-				if (::std::isalnum(
-					PL_lookaheadChar) ||
-					PL_lookaheadChar  == '_') {
-
+				}	else {
 					result = PL_lookaheadChar;
 					break;
 				}
-				else break;
 			END_WHILE
+			result = PL_lookaheadChar;
 			return result;
 		}
 		
@@ -1582,23 +1614,63 @@ namespace prolog
 		}
 	};	// PL_parser
 
-	// -----------------------------------------------------------------------
-	//! \class  PL_LoParser
-	//! \since  Version 0.0.1
-	//! \author paule32
-	//! \~English
-	//! \brief  A class for PL - Pascal Parser Projects.
-	//! \~endEnglish
-	//! \~German
-	//! \brief  Die Parser Klasse, für PL - Pascal Projekte.
-	//! \~endGerman
-	// -----------------------------------------------------------------------
+	bool check_namespace(::std::string name)
+	{
+		bool result = false;
+		DIR * dir = opendir(name.c_str());
+		if (dir) {  // exist's
+			messageBox("dir exists",mfOKButton);
+			closedir(dir);
+		}
+		switch (errno) {
+			case EACCES:
+				throw PL_Exception_Windows(
+				locale_str( 131 ).c_str(),PL_line_row);
+			break;
+			case EBADF:
+				throw PL_Exception_Windows(
+				locale_str( 130 ).c_str(),PL_line_row);
+			break;
+			case EMFILE:
+				throw PL_Exception_Windows(
+				locale_str( 132 ).c_str(),PL_line_row);
+			break;
+			case ENFILE:
+				throw PL_Exception_Windows(
+				locale_str( 133 ).c_str(),PL_line_row);
+			break;
+			case ENOMEM:
+				throw PL_Exception_Windows(
+				locale_str( 134 ).c_str(),PL_line_row);
+			break;
+			case ENOENT:
+			{
+				if (!CreateDirectory(name.c_str(),0)) {
+					switch (GetLastError()) {
+						case ERROR_ALREADY_EXISTS:
+							throw PL_Exception_Windows(
+							locale_str( 135 ).c_str(),PL_line_row);
+						break;
+						case ERROR_PATH_NOT_FOUND:
+							throw PL_Exception_Windows(
+							locale_str( 136 ).c_str(),PL_line_row);
+						break;
+					}
+				}
+				messageBox("dir erstellt",mfOKButton);
+				return true;
+			}
+			break;
+			default:
+			break;
+		}
+		return result;
+	}
 	class PL_LoParser: public PL_parser
 	{
 	public:
 		class PL_ASTList * ast;
 
-	public:
 		//-- CONSTRUCTORS DEFINITIONS -----------------------------
 
 		PL_LoParser() {
@@ -1609,6 +1681,84 @@ namespace prolog
 		}
 
 		//-- FUNCTION DEFINITIONS ---------------------------------
+		void PL_handle_module()
+		{
+			char buffer[100];
+			sprintf(buffer,"==> %s", PL_ident.c_str());
+			messageBox(buffer,mfOKButton);
+		}
+
+		void check_module()
+		{
+			PL_ident = "";
+			PL_lookaheadChar =
+			PL_handle_pas_white_spaces();
+
+			if(((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+			|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+			||  (PL_lookaheadChar == '_') )
+			{
+				PL_ident = "";
+				PL_ident.push_back(PL_lookaheadChar);
+				PL_lookaheadChar =
+				PL_get_ident();
+				
+				if (PL_ident.size() > 0)
+				{	if (PL_ident == "module")
+					{
+						PL_ident = "";
+						PL_lookaheadChar =
+						PL_handle_pas_white_spaces();
+
+						if(((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+						|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+						||  (PL_lookaheadChar == '_') )
+						{
+							PL_ident = "";
+							PL_ident.push_back(PL_lookaheadChar);
+							PL_lookaheadChar =
+							PL_get_ident();
+
+							lab3:
+							PL_lookaheadChar =
+							PL_handle_pas_white_spaces();
+
+							if (PL_lookaheadChar == ' '
+							||  PL_lookaheadChar == '\t') {
+								goto lab3;
+							}	else
+							if (PL_lookaheadChar == 0x0a
+							||  PL_lookaheadChar == 0x0d) {
+								PL_line_col  = 1;
+								PL_line_row += 1;
+								goto lab3;
+							}
+
+//							char bu[100];
+//							sprintf(bu,"OO--> %c, %d", PL_lookaheadChar,PL_lookaheadChar);
+//							messageBox(bu,mfOKButton);
+							
+							if (PL_lookaheadChar == ';') {
+								PL_handle_module();
+							}	else {
+								throw PL_Exception_ParserError(
+								//"module name not terminated."
+								locale_str( 139 ).c_str(),
+								PL_line_row,
+								PL_line_col);
+							}
+						}
+					}	else {
+						throw PL_Exception_ParserError(
+						//"module expected",
+						locale_str( 140 ).c_str(),
+						PL_line_row,
+						PL_line_col);
+					}
+				}
+			}
+		}
+
 		void PL_handle_ident()
 		{
 			::std::transform(
@@ -1616,72 +1766,57 @@ namespace prolog
 			PL_ident.end(),
 			PL_ident.begin(), ::tolower);
 			
-			PL_ident.erase(0,1);
-
-			if (PL_check_pascal_keyword(PL_ident)) {
-				//cout << "ident1: " << PL_ident << endl;
-
-				if (PL_ident == "program") {
+			//messageBox(PL_ident.c_str(),mfOKButton);
+			
+			//if (!PL_check_pascal_keyword(PL_ident))
+			//throw PL_Exception_ParserError("ident as keyword not allowed.",PL_line_row);
+			
+			if (PL_ident.size() > 0)
+			{	
+				if (PL_ident == "namespace")
+				{
 					PL_ident = "";
-					PL_lookaheadChar = PL_handle_pas_white_spaces();
-					
-					if (PL_lookaheadChar == TOK_IDENT) {
-						//cout << "--> " << PL_ident << endl;
-						PL_ident = "";
-					}	else
-					if (::std::isalnum(
-						PL_lookaheadChar) ||
-						PL_lookaheadChar  == '_') {
-							
-						PL_ident =
-						PL_lookaheadChar;
-						PL_parse_ident();
-
-						PL_ident.erase(0,1);
-						if (PL_check_pascal_keyword(PL_ident)) {
-							throw PL_Exception_ParserError(
-							locale_str( 77 ).c_str() );
-						}
-						cout << "program => " << PL_ident << endl;
-						
-						PL_lookaheadChar = PL_handle_pas_white_spaces();
-						if (
-						PL_lookaheadChar != ';')
-						throw PL_Exception_ParserError(
-						locale_str( 78 ).c_str() );
-					}	else {
-						printf(">>%c<<\n",PL_lookaheadChar);
-					}
-				}	else
-				if (PL_ident == "LIBRARY") {
-					PL_ident = ::std::string("");
+					PL_lookaheadChar =
 					PL_handle_pas_white_spaces();
-					
-				}	else
-				if (PL_ident == "unit") {
-					PL_ident = "";
-					PL_lookaheadChar = PL_handle_pas_white_spaces();
-					
-					if (::std::isalnum(
-						PL_lookaheadChar) ||
-						PL_lookaheadChar  == '_') {
 
-						PL_ident =
-						PL_lookaheadChar;
-						PL_parse_ident();
-						
-						cout << "ident3: " << PL_ident << endl;
-					}	else {
-						printf(">>%c<<\n",PL_lookaheadChar);
+					if(((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+					|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+					||  (PL_lookaheadChar == '_') )
+					{	
+						PL_ident = "";
+						PL_ident.push_back(PL_lookaheadChar);
+						PL_lookaheadChar =
+						PL_get_ident();
+
+						if (PL_ident.size() > 0)
+						{	if (PL_ident == "pascal")
+							{	check_namespace( PL_ident.c_str());
+								check_module ();
+								return;
+							}	else
+							if (PL_ident == "dbase")
+							{	check_namespace( PL_ident.c_str());
+								check_module ();
+								return;
+							}	else {
+								throw PL_Exception_ParserError(
+								"pascal or dbase expected",
+								PL_line_row,
+								PL_line_col);
+							}
+						}	else {
+							throw PL_Exception_ParserError(
+							"pascal or dbase expected",
+							PL_line_row,
+							PL_line_col);
+						}
 					}
-				}	else
-				if (PL_lookaheadChar == TOK_IDENT) {
-					cout << "id: " << PL_ident << endl;
+				}	else {
+					throw PL_Exception_ParserError(
+					"namespace expected",
+					PL_line_row,
+					PL_line_col);
 				}
-			}	else {
-				throw PL_Exception_ParserError(
-				locale_str( 76 ).c_str(),
-				PL_line_row);
 			}
 		}
 		
@@ -1689,32 +1824,28 @@ namespace prolog
 		{
 				PL_prepare(filename);
 			BEGIN_WHILE
+				PL_lookaheadChar =
 				PL_handle_pas_white_spaces();
-				break;
-
-				if (::std::isalnum(
-					PL_lookaheadChar) ||
-					PL_lookaheadChar  == '_') {
-						
-					PL_ident =
-					PL_lookaheadChar;
-					PL_parse_ident();
-					
+				
+				if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+				||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+				||   (PL_lookaheadChar == '_') )
+				{
+					PL_ident = "";
+					PL_ungetch();
+					PL_get_ident();
 					PL_handle_ident();
-					continue;
-				}
+				}	else break;
 			END_WHILE
 			
-			if (PL_nestedComment > 0) {
-				throw PL_Exception_ParserError(
-				locale_str( 75 ).c_str(),
-				PL_line_row);
-			}	else {
-				char buffer[255];
-				sprintf(buffer, "Compile: OK\n"
-								"Lines  : %d", PL_line_row);
-				messageBox(buffer,mfOKButton);
-			}
+			if (PL_comment_open > 0)
+			throw PL_Exception_ParserError("comment not terminated.",
+			PL_line_row,PL_line_col);
+		
+			char buffer[255];
+			sprintf(buffer, "Compile: OK\n"
+							"Lines  : %d", PL_line_row);
+			messageBox(buffer,mfOKButton);
 		}
 	};
 
@@ -1964,8 +2095,8 @@ namespace prolog
 		ushort checkButtons1Data;
 	} *newData;
 
-	::TEditWindow * editWin;
-	::std::string   editWinBuffer;
+	::TEditWindow     * editWin;
+	::std::vector<char> editWindowBuffer;
 
 	// ---------------------------------------------------------------------
 	// the main console application class ...
@@ -2740,6 +2871,33 @@ namespace prolog
 				TWindowInit( &MyMemoEditor::initFrame ),
 				TEditWindow(bounds,fileName,wnNoNumber)
 			{
+				editWindowBuffer.clear();
+					
+				::std::wifstream input1("program.prg", std::ios::binary);
+				::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
+				
+				for (auto &item: filecon)
+				editWindowBuffer.push_back(item);
+			
+				char   *  buffer   = new char[filecon.size()];
+				uint32_t  pos      = 0;
+
+				for (auto &item: editWindowBuffer) {
+					if (pos >= filecon.size()) break;
+					
+					if (editWindowBuffer.at(pos) == 0x0a
+					||  editWindowBuffer.at(pos) == 0x0d) {
+						buffer[pos] = EOS;
+						continue;
+					}
+
+					buffer[pos+0] = editWindowBuffer.at(pos);
+					buffer[pos+1] = '\0';
+
+					pos += 1;
+				}
+				//messageBox(buffer,mfOKButton);
+				delete buffer;
 			}
 			void handleEvent( TEvent &event )
 			{
@@ -2750,6 +2908,12 @@ namespace prolog
 					{
 						clearEvent(event);
 						TObject::destroy(this);
+						return;
+					}	else
+					if (event.keyDown.keyCode == kbF1)      // F1  - Function key
+					{
+						clearEvent(event);
+						messageBox("getkey",mfInformation|mfOKButton);
 						return;
 					}
 				}
@@ -3447,9 +3611,11 @@ namespace prolog
 				
 				xdbf_lbc_5->insert( newStr("Hello") );
 				
+				
+				xdbf_lbc_6->insert( newStr("system.prg") );
+				xdbf_lbc_6->insert( newStr("program.prg") );
+				
 				/*
-				xdbf_lbc_6->insert( newStr("A1") );
-				xdbf_lbc_6->insert( newStr("B-1") );
 				xdbf_lbc_6->insert( newStr("CCC") );
 				xdbf_lbc_6->insert( newStr("dd") );
 				xdbf_lbc_6->insert( newStr("ee") );
@@ -4168,32 +4334,59 @@ namespace prolog
 
 					editWin->editor->save();
 					
-					FILE * fh = fopen("program.prg","r");
-					fseek(fh,0,SEEK_SET);
-					::std::wstring tmp;
-					wint_t wc;
-					while ((wc = fgetwc(fh)) != WEOF) {
-						tmp.push_back(wc);
-					}
-					::std::string str( tmp.begin(), tmp.end() );
-					int buflen  = str.size();
-					fclose(fh);
+					//FILE * fh = fopen("program.prg","r");
+					//fseek(fh,0,SEEK_SET);
+					
+					editWindowBuffer.clear();
+					
+					::std::wifstream input1("program.prg", std::ios::binary);
+					::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
+					
+					for (auto &item: filecon)
+					editWindowBuffer.push_back(item);
+					
+					//wint_t wc;
+					//while ((wc = fgetwc(fh)) != WEOF) {
+					//	editWindowBuffer.push_back(wc);
+					//}
+					//int buflen = editWindowBuffer.size();
+					//fclose(fh);
+					
+					editWin->draw();
 
 					// -------------------------------------------
 					// exception coming in context of PL parser:
 					// -------------------------------------------
 					try {
-						PL_LoParser *parser = new PL_LoParser;
-						parser->init();
+						auto * parser = new PL_LoParser();
 						parser->PL_parseFile("program.prg");
+					}
+					catch (PL_Exception_Windows& e)
+					{
+						::std::stringstream ss;ss
+						<< locale_str( 137 )             << ::std::endl
+						<< locale_str( 11  ) << e.line() << ::std::endl
+						<< locale_str( 12  ) << e.what() << ::std::endl;
+						
+						messageBoxRect(
+							TRect(10,4,60,20),
+							ss.str().c_str(),
+							mfError|mfOKButton
+						);
 					}
 					catch (PL_Exception_ParserError& e)
 					{
+						uint32_t line_row = e.line();
+						uint32_t line_col = e.column() - 1;
+
+						if (line_col < 1)
+							line_col = 1;
+
 						::std::stringstream ss;ss
-						<< locale_str( 13 ) << e.line () << std::endl
-						<< locale_str( 14 ) << std::endl
-						<< locale_str( 12 ) << e.what()
-						<< std::endl;
+						<< locale_str( 13 ) << line_row << ::std::endl
+						<< locale_str( 138) << line_col << ::std::endl
+						<< locale_str( 14 )             << ::std::endl
+						<< locale_str( 12 ) << e.what() << ::std::endl;
 						
 						// output code
 						messageBoxRect(
@@ -4549,199 +4742,6 @@ namespace prolog
 		//! \param keine.
 		//! \~endGerman
 		int inline PL_fail   () { return 1; }
-	};
-
-	// -----------------------------------------------------------------------
-	//! \class  PL_Executable
-	//! \since  Version 0.0.1
-	//! \author paule32
-	//! \~English
-	//! \brief  A class for PL - Pascal Parser Projects.
-	//! \~endEnglish
-	//! \~German
-	//! \brief  Die Parser Klasse, für PL - Pascal Projekte.
-	//! \~endGerman
-	// -----------------------------------------------------------------------
-	class PL_Executable: public PL_parser
-	{
-		void init() {
-			ast    = new PL_ASTList;
-		}
-
-	public:
-		PL_ASTList * ast;
-
-	public:
-		//-- CONSTRUCTORS DEFINITIONS -----------------------------
-		
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_Executable::PL_Executable(std::string&)
-		//! \see    PL_Executable::PL_Executable(std::string)
-		//! \see    PL_Executable::PL_Executable(char&)
-		//! \see    PL_Executable::PL_Executable()
-		//! \~English
-		//! \brief  This is the C++ constructor class for the Pascal Parser.
-		//! \param  ConsoleApplication& ptr - Pointer to the ConsoleApplication class.
-		//! \return internal used Object with Pointer to itself.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Dies ist der C++ Konstruktor für den Pascal Parser.
-		//! \param  ConsoleApplication& ptr - Zeiger auf ein zugewiesenes ConsoleApplication Objekt
-		//! \return internes Objekt auf diese Klasse.
-		//! \~endGerman
-		PL_Executable(ConsoleApplication&) {
-			DEBUGSTR("ctor: PL_Executable ConsoleApplication")
-			init();
-		}
-		PL_Executable(ConsoleApplication*) {
-			DEBUGSTR("ctor: PL_Executable ConsoleApplication")
-			init();
-		}
-
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_Executable::PL_Executable(std::string&)
-		//! \see    PL_Executable::PL_Executable(std::string)
-		//! \see    PL_Executable::PL_Executable(char&)
-		//! \see    PL_Executable::PL_Executable()
-		//! \~English
-		//! \brief  This is a C++ constructor class for the Pascal Parser.
-		//! \param  std::string& filename - file to parse.
-		//! \return internal used Object with Pointer to itself.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
-		//! \param  std::string& dateiname - Datei die der Parser abarbeiten soll.
-		//! \return internes Objekt auf diese Klasse.
-		//! \~endGerman
-		PL_Executable(std::string&) {
-			DEBUGSTR("ctor: PL_Executable std::string&")
-			init();
-		}
-		
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_Executable::PL_Executable(std::string&)
-		//! \see    PL_Executable::PL_Executable(char&)
-		//! \~English
-		//! \brief  This is a C++ constructor class for the Pascal Parser.
-		//! \param  std::string filename - file to parse.
-		//! \return internal used Object with Pointer to itself.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
-		//! \param  std::string dateiname - Datei die der Parser abarbeiten soll.
-		//! \return internes Objekt auf diese Klasse.
-		//! \~endGerman
-		PL_Executable(std::string) {
-			DEBUGSTR("ctor: PL_Executable std::string")
-			init();
-		}
-		
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_Executable::PL_Executable(std::string&)
-		//! \see    PL_Executable::PL_Executable(std::string)
-		//! \~English
-		//! \brief  This is a C++ constructor class for the Pascall Parser.
-		//! \param  char& filename - file to parse.
-		//! \return internal used Object with Pointer to itself.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
-		//! \param  char& dateiname - Datei die der Parser abarbeiten soll.
-		//! \return internes Objekt auf diese Klasse.
-		//! \~endGerman
-		PL_Executable(char&) {
-			DEBUGSTR("ctor: PL_Executable char&")
-			init();
-		}
-		
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_Executable::PL_Executable(std::string&)
-		//! \see    PL_Executable::PL_Executable(std::string)
-		//! \see    PL_Executable::PL_Executable(char&)
-		//! \~English
-		//! \brief  This is a C++ constructor class for the Pascal Parser.
-		//! \param  nothing - default constructor.
-		//! \return internal used Object with Pointer to itself.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Dies ist ein C++ Konstruktor für den Pascal Parser.
-		//! \param  keine - Standard Konstruktor.
-		//! \return internes Objekt auf diese Klasse.
-		//! \~endGerman
-		PL_Executable() {
-			DEBUGSTR("ctor: PL_Executable ()")
-			init();
-		}
-		
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \~English
-		//! \brief  This is a C++ de-structor for the Pascal Parser class clean-up.
-		//! \param  nothing - dtor's have no Argument's
-		//! \return nothing - free Object with null-Pointer
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Dies ist ein C++ De-struktor für die Pascal Parser Klassen-Bereinigung.
-		//! \param  keine - dtor's werden keine Argumente zugewiesen.
-		//! \return keine - freies Objekt mit null-Zeiger
-		//! \~endGerman
-		~PL_Executable() {
-			DEBUGSTR("dtor: ~PL_Executable ()")
-			delete ast;
-		}
-		
-		//-- FUNCTION DEFINITIONS ---------------------------------
-		void PL_handle_ident()
-		{
-			::std::transform(
-			PL_ident.begin(),
-			PL_ident.end(),
-			PL_ident.begin(), ::tolower);
-		}
-
-		uint16_t
-		PL_handle_for_white_spaces()
-		{
-			uint16_t result = 0;
-			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_getch();
-				
-				if (PL_lookaheadChar == 'c') {
-					if (PL_line_col < 2) {
-						BEGIN_WHILE
-						
-						END_WHILE
-					}
-				}
-			END_WHILE
-			return result;
-		}
-				
-		void PL_parseFile__(const ::std::string &filename )
-		{
-				PL_prepare(filename);
-			BEGIN_WHILE
-				PL_handle_for_white_spaces();
-
-				if (::std::isalnum(
-					PL_lookaheadChar) ||
-					PL_lookaheadChar  == '_') {
-						
-					PL_ident =
-					PL_lookaheadChar;
-					PL_parse_ident();
-					
-					PL_handle_ident();
-					continue;
-				}
-			END_WHILE
-		}
 	};
 
 	// ----------------------------------------------------------
@@ -5111,7 +5111,7 @@ namespace prolog
 		try {
 			if (flag == 2) {
 				PL_globalHolder.PL_language = app_lang;
-				PL_Executable prg ( app );
+				//PL_Executable prg ( app );
 				//prg.PL_parseFile ( item );
 				app->run();
 				return;
@@ -6310,6 +6310,7 @@ WinMain(
 
 			switch (s0.at(0)) {
 			case '-':
+			{
 				switch (s0.at(1)) {
 				case 'l': {  						// lang
 					switch (s0.at(2)) {
@@ -6340,6 +6341,7 @@ WinMain(
 					throw PL_Exception_CommandLine(
 					locale_str( 6 ).c_str());
 				break;
+				}
 			}
 			break;
 			default:
@@ -6491,7 +6493,7 @@ WinMain(
 		<< locale_str( 1 )
 		<< ::std::endl;
 		
-		MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
+		//MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
 
 		return FALSE;
 	}	return TRUE;

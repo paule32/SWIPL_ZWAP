@@ -126,4 +126,17 @@ File-Name:
 New File
 ~F2~ Run
 wrong comment format
-unterminated comment
+unknown character found.
+syntax Error
+fd is not a valid file descriptor openend for reading
+Permission denied.
+Too many file descriptors in use by process
+Too many files are currently open in the system
+Insufficient memory to complete the operation
+The specified directory already exists
+One or more intermediate directories do not exist; this function will only create the final directory in the path
+Operating-System Error
+column:
+module name not terminated. Did you forget: ';' ?
+'module' expected"
+unknown character found
