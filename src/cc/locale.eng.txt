@@ -138,5 +138,183 @@ One or more intermediate directories do not exist; this function will only creat
 Operating-System Error
 column:
 module name not terminated. Did you forget: ';' ?
-'module' expected"
+'module', 'library' or 'application' expected
 unknown character found
+'pascal', 'dbase', 'prolog' or 'lisp' expected
+can not create memo editor
+application name not terminated - may be a ';' is missing
+library name not terminated - may be a ';' is missing
+The operation completed successfully
+SUCCESS
+Incorrect function
+INVALID_FUNCTION
+The system cannot find the file specified
+FILE_NOT_FOUND
+The system cannot find the path specified
+PATH_NOT_FOUND
+The system cannot open the file
+TOO_MANY_OPEN_FILES
+Access is denied
+ACCESS_DENIED
+The handle is invalid.
+INVALID_HANDLE
+The storage control blocks were destroyed.
+ARENA_TRASHED
+Not enough memory resources are available to process this command
+NOT_ENOUGH_MEMORY
+The storage control block address is invalid
+INVALID_BLOCK
+The environment is incorrect
+BAD_ENVIRONMENT
+An attempt was made to load a program with an incorrect format
+BAD_FORMAT
+The access code is invalid
+INVALID_ACCESS
+The data is invalid
+INVALID_DATA
+Not enough storage is available to complete this operation
+OUTOFMEMORY
+The system cannot find the drive specified
+INVALID_DRIVE
+The directory cannot be removed
+CURRENT_DIRECTORY
+The system cannot move the file to a different disk drive
+NOT_SAME_DEVICE
+There are no more files
+NO_MORE_FILES
+The media is write protected
+WRITE_PROTECT
+The system cannot find the device specified
+BAD_UNIT
+The device is not ready
+NOT_READY
+The device does not recognize the command
+BAD_COMMAND
+Data error (cyclic redundancy check)
+CRC
+The program issued a command but the command length is incorrect
+BAD_LENGTH
+The drive cannot locate a specific area or track on the disk
+SEEK
+The specified disk or diskette cannot be accessed
+NOT_DOS_DISK
+The drive cannot find the sector requested
+SECTOR_NOT_FOUND
+The printer is out of paper
+OUT_OF_PAPER
+The system cannot write to the specified device
+WRITE_FAULT
+The system cannot read from the specified device
+READ_FAULT
+A device attached to the system is not functioning
+GEN_FAILURE
+The process cannot access the file because it is being used by another process
+SHARING_VIOLATION
+The process cannot access the file because another process has locked a portion of the file
+LOCK_VIOLATION
+The wrong diskette is in the drive. Insert %2 (Volume Serial Number: %3) into drive %1.
+WRONG_DISK
+Too many files opened for sharing
+SHARING_BUFFER_EXCEEDED
+:nil
+:nil
+Reached the end of the file
+HANDLE_EOF
+The disk is full
+HANDLE_DISK_FULL
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+The request is not supported
+NOT_SUPPORTED
+Windows cannot find the network path. Verify that the network path is correct and the destination computer is not busy or turned off. If Windows still cannot find the network path, contact your network administrator
+REM_NOT_LIST
+You were not connected because a duplicate name exists on the network. If joining a domain, go to System in Control Panel to change the computer name and try again. If joining a workgroup, choose another workgroup name
+DUP_NAME
+The network path was not found
+BAD_NETPATH
+The network is busy
+NETWORK_BUSY
+The specified network resource or device is no longer available
+DEV_NOT_EXIST
+The network BIOS command limit has been reached
+TOO_MANY_CMDS
+A network adapter hardware error occurred
+ADAP_HDW_ERR
+The specified server cannot perform the requested operation
+BAD_NET_RESP
+An unexpected network error occurred
+UNEXP_NET_ERR
+The remote adapter is not compatible
+AD_REM_ADAP
+The printer queue is full
+PRINTQ_FULL
+Space to store the file waiting to be printed is not available on the server
+NO_SPOOL_SPACE
+Your file waiting to be printed was deleted
+PRINT_CANCELLED
+The specified network name is no longer available
+NETNAME_DELETED
+Network access is denied
+NETWORK_ACCESS_DENIED
+The network resource type is not correct
+BAD_DEV_TYPE
+The network name cannot be found
+BAD_NET_NAME
+The name limit for the local computer network adapter card was exceeded
+TOO_MANY_NAMES
+The network BIOS session limit was exceeded
+TOO_MANY_SESS
+The remote server has been paused or is in the process of being started.
+SHARING_PAUSED
+No more connections can be made to this remote computer at this time because there are already as many connections as the computer can accept
+REQ_NOT_ACCEP
+The specified printer or disk device has been paused
+REDIR_PAUSED
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+The file exists
+FILE_EXISTS
+:nil
+:nil
+The directory or file cannot be created
+CANNOT_MAKE
+Fail on INT 24
+FAIL_I24
+Storage to process this request is not available
+OUT_OF_STRUCTURES
+The local device name is already in use
+ALREADY_ASSIGNED
+The specified network password is not correct
+INVALID_PASSWORD

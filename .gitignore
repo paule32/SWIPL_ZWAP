@@ -59,3 +59,5 @@ src/cc/libxbase64.dll
 src/cc/oo
 src/cc/yy.prg
 src/cc/system.pas
+src/cc/yy.cc
+src/cc/build64win.sh

@@ -157,7 +157,9 @@
 // ---------------------------------------------------------------------
 // debug information's by dwarf ...
 // ---------------------------------------------------------------------
-#include <dwarf.h>
+#ifdef DWARF_ENABLED
+# include <dwarf.h>
+#endif
 
 #ifdef _WIN32
 # include <io.h>
@@ -200,6 +202,7 @@
 // ---------------------------------------------------------------------
 // Windows header stuff ...
 // ---------------------------------------------------------------------
+#if defined(_WIN32)
 # include <windows.h>
 # include <windowsx.h>
 # include <process.h>
@@ -212,11 +215,13 @@
 
 # include "resource.h"
 
-#define IDM_CHARACTER    32771
-#define IDM_REGULAR      32772
-#define IDM_BOLD         32773
-#define IDM_ITALIC       32774
-#define IDM_UNDERLINE    32775
+# define IDM_CHARACTER    32771
+# define IDM_REGULAR      32772
+# define IDM_BOLD         32773
+# define IDM_ITALIC       32774
+# define IDM_UNDERLINE    32775
+
+#endif  // _WIN32
 
 // ---------------------------------------------------------------------
 // Turbo Vision for C++ ...
@@ -272,7 +277,7 @@
 
 # include "help.h"
 
-#define maxLines 65530
+# define maxLines 65530
 
 inline int SUCCESS() { return 0; }
 inline int FAILURE() { return 1; }
@@ -353,10 +358,15 @@ TInputLine  * xbDBASE_app_file_input = nullptr;
 // ---------------------------------------------------------------------
 // error handling
 // ---------------------------------------------------------------------
+#if defined(_WIN32)
 # define NULL_DEVICE_NAME "NUL"
+#else
+# define NULL_DEVICE_NAME "/dev/null"
+#endif	// _WIN32__
 
 static ::std::stringstream error_buffer;
 
+#ifndef FPE_INTDIV
 constexpr int FPE_INTDIV	= 1;
 constexpr int FPE_INTOVF	= 2;
 constexpr int FPE_FLTDIV	= 3;
@@ -376,7 +386,7 @@ constexpr int ILL_PRVREG	= 6;	// privileged register
 constexpr int ILL_COPROC	= 7;	// coprocessor error
 constexpr int ILL_BADSTK	= 8;	// internal stack error
 constexpr int ILL_BADIADDR	= 9;	// unimplemented instruction address
-
+#endif
 
 static uint8_t app_lang = 1;
 
@@ -399,6 +409,8 @@ namespace prolog
 	class PL_Exception_Application;
 	class PL_Exception_Windows;
 
+	::std::map< uint16_t, ::std::pair< uint32_t, uint32_t > > error_message;
+
 	// ---------------------------------------------------------------------
 	// for customize the compiler output ...
 	// ---------------------------------------------------------------------
@@ -419,7 +431,7 @@ namespace prolog
 	class locale_reader {
 	public:
 		::std::vector< ::std::string > array_locale;
-		
+
 		locale_reader( ::std::string fileIN)
 		{
 			// open input binary file ...
@@ -435,7 +447,7 @@ namespace prolog
 			uint8_t  locaver;
 			fread(&version, 1, sizeof(uint32_t), in);
 			fread(&locaver, 1, sizeof(uint8_t ), in);
-			
+
 			// check version
 			if (version != 20230409) {
 				fprintf(stderr,"can not read binary locale.");
@@ -443,7 +455,7 @@ namespace prolog
 				fclose(in);
 				exit(1);
 			}
-			
+
 			// check language
 			#if 0
 			if (locaver == ENGLISH) { app_lang = ENGLISH; } else
@@ -464,16 +476,16 @@ namespace prolog
 				fclose(in);
 				exit(1);
 			}
-			
+
 			//fprintf(stdout,"items: %d\n",numitems);
-			
+
 			int header_size  = sizeof( uint32_t );  // items
 				header_size += sizeof( uint32_t );  // version
 				header_size += sizeof( uint8_t  );  // locaver
-				
+
 				header_size += numitems * sizeof( uint32_t );  // len
 				header_size += numitems * sizeof( uint32_t );  // pos
-				
+
 			// items found, then read it in
 			::std::vector< uint32_t > apos;
 			::std::vector< uint32_t > alen;
@@ -492,16 +504,16 @@ namespace prolog
 				fread(&pos, 1, sizeof(uint32_t), in);
 				alen.push_back( pos );
 			}
-			
+
 			fseek(in, header_size, SEEK_SET);
 			int poo = header_size;
 
 			array_locale.clear ();
-			
+
 			for (int i = 0; i < numitems; i++) {
 				pos = alen.at( i );
 				len = apos.at( i );
-				
+
 				fseek(in,poo,0);
 				fread(buffer, 1, len, in);
 				buffer[len] = 0x00;
@@ -510,12 +522,12 @@ namespace prolog
 				sprintf(puffer, "%s",   buffer );
 				array_locale.push_back( puffer );
 			}
-			
+
 			delete buffer;
 			delete puffer;
-			
+
 			// no needed anymore
-			fclose(in);	
+			fclose(in);
 		}
 		locale_reader() { }
 
@@ -524,8 +536,8 @@ namespace prolog
 			::std::string r;
 
 			ss  << array_locale.at( which )
-				<< ::std::endl;
-				
+			    << ::std::endl;
+
 			ss.str().erase(
 			ss.str().size()-1,1);
 
@@ -535,17 +547,17 @@ namespace prolog
 			for (int i  = 0; i < ss.str().length()-1; ++i)
 			{
 				int ch  = ss.str().c_str()[i];
-				
+
 				if (ch == 'Ä') { r += 0x8E; } else
 				if (ch == 'Ü') { r += 0x9A; } else
 				if (ch == 'Ö') { r += 0x99; } else
-				
+
 				if (ch == 'ü') { r += 0x81; } else
 				if (ch == 'ä') { r += 0x84; } else
 				if (ch == 'ö') { r += 0x94; } else
-				
+
 				if (ch == 'ß') { r += 0xE1; } else
-				
+
 				r += ch;
 			}	return r;
 		}
@@ -555,7 +567,7 @@ namespace prolog
 	locale_str(int32_t which)
 	{
 		::std::string result = "";
-		
+
 		if (app_lang == 1) { locale_reader l( "locale.eng" ); result = l.message( which ); } else
 		if (app_lang == 2) { locale_reader l( "locale.deu" ); result = l.message( which ); } else
 						   { locale_reader l( "locale.eng" ); result = l.message( which ); }
@@ -602,7 +614,7 @@ namespace prolog
 	// -----------------------------------------------------------------------
 	class PL_ASTList
 	{
-	public:	
+	public:
 		PL_ASTList()
 		{	struct PL_ASTList_Node *current, *temp;
 			pl_head = nullptr;
@@ -848,12 +860,27 @@ namespace prolog
 		const uint32_t   _line_col;
 
 	public:
-		template <typename T1>
-		PL_Exception( T1 msg, uint32_t line = 1, uint32_t column = 1):
+		//template <typename T1>
+		//PL_Exception( T1 msg, uint32_t line = 1, uint32_t column = 1):
+		
+		PL_Exception(::std::string& msg, uint32_t line = 1, uint32_t column = 1):
 			_message( msg ),
 			_line_row(line),
 			_line_col(column)
 			{}
+		PL_Exception(const char* msg, uint32_t line = 1, uint32_t column = 1):
+			_message( msg ),
+			_line_row(line),
+			_line_col(column)
+			{}
+		#ifdef _WIN32
+		PL_Exception(DWORD lastError, uint32_t line = 1, uint32_t column = 1):
+			_line_row(line),
+			_line_col(column)
+		{
+			
+		}
+		#endif
 		PL_Exception():
 			_message( locale_str( 2 ) ),
 			_line_row(PL_line_row),
@@ -1645,7 +1672,14 @@ namespace prolog
 			break;
 			case ENOENT:
 			{
+				// todo !!!
+				#ifdef _WIN32
 				if (!CreateDirectory(name.c_str(),0)) {
+					throw PL_Exception_Windows(
+					GetLastError(),
+					PL_line_row,
+					PL_line_col);
+					
 					switch (GetLastError()) {
 						case ERROR_ALREADY_EXISTS:
 							throw PL_Exception_Windows(
@@ -1657,6 +1691,8 @@ namespace prolog
 						break;
 					}
 				}
+				#else
+				#endif  // _WIN32
 				messageBox("dir erstellt",mfOKButton);
 				return true;
 			}
@@ -1668,12 +1704,17 @@ namespace prolog
 	}
 	class PL_LoParser: public PL_parser
 	{
+	private:
+		uint16_t app_lib_mod_mode;
+		uint16_t app_lib_mod_type;
+
 	public:
 		class PL_ASTList * ast;
 
 		//-- CONSTRUCTORS DEFINITIONS -----------------------------
 
 		PL_LoParser() {
+			app_lib_mod_mode = 0;
 			init();
 		}
 		~PL_LoParser() {
@@ -1681,14 +1722,110 @@ namespace prolog
 		}
 
 		//-- FUNCTION DEFINITIONS ---------------------------------
+		# define ALM_TYPE_APP      1
+		# define ALM_TYPE_LIB      2
+		# define ALM_TYPE_MOD      3
+
+		# define ALM_MODE_APP_PAS 10
+		# define ALM_MODE_APP_DBA 11
+		# define ALM_MODE_APP_PRO 12
+		# define ALM_MODE_APP_LSP 13
+		
+		# define ALM_MODE_LIB_PAS 20
+		# define ALM_MODE_LIB_DBA 21
+		# define ALM_MODE_LIB_PRO 22
+		# define ALM_MODE_LIB_LSP 23
+		
+		# define ALM_MODE_MOD_PAS 30
+		# define ALM_MODE_MOD_DBA 31
+		# define ALM_MODE_MOD_PRO 32
+		# define ALM_MODE_MOD_LSP 33
+		
+		void PL_handle_application_pascal()
+		{
+		}
+		void PL_handle_application_dbase()
+		{
+		}
+		void PL_handle_application_prolog()
+		{
+		}
+		void PL_handle_application_lisp()
+		{
+		}
+		
+		void PL_handle_library_pascal()
+		{
+		}
+		void PL_handle_library_dbase()
+		{
+		}
+		void PL_handle_library_prolog()
+		{
+		}
+		void PL_handle_library_lisp()
+		{
+		}
+		
+		void PL_handle_module_pascal()
+		{
+		}
+		void PL_handle_module_dbase()
+		{
+		}
+		void PL_handle_module_prolog()
+		{
+		}
+		void PL_handle_module_lisp()
+		{
+		}
+		
 		void PL_handle_module()
 		{
+			switch (app_lib_mod_mode)
+			{
+				case ALM_MODE_MOD_PAS: messageBox("a module for pascal is parsed",mfOKButton); PL_handle_module_pascal(); break;
+				case ALM_MODE_MOD_DBA: messageBox("a module for dbase  is parsed",mfOKButton); PL_handle_module_dbase (); break;
+				case ALM_MODE_MOD_PRO: messageBox("a module for prolog is parsed",mfOKButton); PL_handle_module_prolog(); break;
+				case ALM_MODE_MOD_LSP: messageBox("a module for lisp   is parsed",mfOKButton); PL_handle_module_lisp  (); break;
+			}
+			
+			char buffer[100];
+			sprintf(buffer,"==> %s", PL_ident.c_str());
+			messageBox(buffer,mfOKButton);
+		}
+		
+		void PL_handle_library()
+		{
+			switch (app_lib_mod_mode)
+			{
+				case ALM_MODE_LIB_PAS: messageBox("a library for pascal is parsed",mfOKButton); PL_handle_library_pascal(); break;
+				case ALM_MODE_LIB_DBA: messageBox("a library for dbase  is parsed",mfOKButton); PL_handle_library_dbase (); break;
+				case ALM_MODE_LIB_PRO: messageBox("a library for prolog is parsed",mfOKButton); PL_handle_library_prolog(); break;
+				case ALM_MODE_LIB_LSP: messageBox("a library for lisp   is parsed",mfOKButton); PL_handle_library_lisp  (); break;
+			}
+						
+			char buffer[100];
+			sprintf(buffer,"==> %s", PL_ident.c_str());
+			messageBox(buffer,mfOKButton);
+		}
+		
+		void PL_handle_application()
+		{
+			switch (app_lib_mod_mode)
+			{
+				case ALM_MODE_APP_PAS: messageBox("a application for pascal is parsed",mfOKButton); PL_handle_application_pascal(); break;
+				case ALM_MODE_APP_DBA: messageBox("a application for dbase  is parsed",mfOKButton); PL_handle_application_dbase (); break;
+				case ALM_MODE_APP_PRO: messageBox("a application for prolog is parsed",mfOKButton); PL_handle_application_prolog(); break;
+				case ALM_MODE_APP_LSP: messageBox("a application for lisp   is parsed",mfOKButton); PL_handle_application_lisp  (); break;
+			}
+			
 			char buffer[100];
 			sprintf(buffer,"==> %s", PL_ident.c_str());
 			messageBox(buffer,mfOKButton);
 		}
 
-		void check_module()
+		void check_module_or_application_or_library()
 		{
 			PL_ident = "";
 			PL_lookaheadChar =
@@ -1706,6 +1843,8 @@ namespace prolog
 				if (PL_ident.size() > 0)
 				{	if (PL_ident == "module")
 					{
+						app_lib_mod_type = ALM_TYPE_MOD;
+
 						PL_ident = "";
 						PL_lookaheadChar =
 						PL_handle_pas_white_spaces();
@@ -1732,12 +1871,7 @@ namespace prolog
 								PL_line_col  = 1;
 								PL_line_row += 1;
 								goto lab3;
-							}
-
-//							char bu[100];
-//							sprintf(bu,"OO--> %c, %d", PL_lookaheadChar,PL_lookaheadChar);
-//							messageBox(bu,mfOKButton);
-							
+							}	else
 							if (PL_lookaheadChar == ';') {
 								PL_handle_module();
 							}	else {
@@ -1747,6 +1881,108 @@ namespace prolog
 								PL_line_row,
 								PL_line_col);
 							}
+						}	else {
+							throw PL_Exception_ParserError(
+							//"semicolon expected"
+							locale_str( 78 ).c_str(),
+							PL_line_row,
+							PL_line_col);
+						}
+					}	else
+					if (PL_ident == "library")
+					{
+						app_lib_mod_type = ALM_TYPE_LIB;
+						
+						PL_ident = "";
+						PL_lookaheadChar =
+						PL_handle_pas_white_spaces();
+
+						if(((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+						|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+						||  (PL_lookaheadChar == '_') )
+						{
+							PL_ident = "";
+							PL_ident.push_back(PL_lookaheadChar);
+							PL_lookaheadChar =
+							PL_get_ident();
+
+							lab4:
+							PL_lookaheadChar =
+							PL_handle_pas_white_spaces();
+
+							if (PL_lookaheadChar == ' '
+							||  PL_lookaheadChar == '\t') {
+								goto lab4;
+							}	else
+							if (PL_lookaheadChar == 0x0a
+							||  PL_lookaheadChar == 0x0d) {
+								PL_line_col  = 1;
+								PL_line_row += 1;
+								goto lab4;
+							}	else
+							if (PL_lookaheadChar == ';') {
+								PL_handle_library();
+							}	else {
+								throw PL_Exception_ParserError(
+								//"library name not terminated."
+								locale_str( 145 ).c_str(),
+								PL_line_row,
+								PL_line_col);
+							}
+						}	else {
+							throw PL_Exception_ParserError(
+							//"semicolon expected"
+							locale_str( 78 ).c_str(),
+							PL_line_row,
+							PL_line_col);
+						}
+					}	else
+					if (PL_ident == "application")
+					{
+						app_lib_mod_type = ALM_TYPE_APP;
+
+						PL_ident = "";
+						PL_lookaheadChar =
+						PL_handle_pas_white_spaces();
+
+						if(((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+						|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+						||  (PL_lookaheadChar == '_') )
+						{
+							PL_ident = "";
+							PL_ident.push_back(PL_lookaheadChar);
+							PL_lookaheadChar =
+							PL_get_ident();
+
+							lab5:
+							PL_lookaheadChar =
+							PL_handle_pas_white_spaces();
+
+							if (PL_lookaheadChar == ' '
+							||  PL_lookaheadChar == '\t') {
+								goto lab5;
+							}	else
+							if (PL_lookaheadChar == 0x0a
+							||  PL_lookaheadChar == 0x0d) {
+								PL_line_col  = 1;
+								PL_line_row += 1;
+								goto lab5;
+							}	else
+							if (PL_lookaheadChar == ';') {
+								PL_handle_application ();
+							}	else {
+								throw PL_Exception_ParserError(
+								//"application name not terminated."
+								locale_str( 144 ).c_str(),
+								PL_line_row,
+								PL_line_col);
+							}
+						}	else {
+							throw PL_Exception_ParserError(
+							//"semicolon expected"
+							locale_str( 78 ).c_str(),
+							PL_line_row,
+							PL_line_col);
 						}
 					}	else {
 						throw PL_Exception_ParserError(
@@ -1790,23 +2026,39 @@ namespace prolog
 
 						if (PL_ident.size() > 0)
 						{	if (PL_ident == "pascal")
-							{	check_namespace( PL_ident.c_str());
-								check_module ();
+							{	app_lib_mod_mode = ALM_MODE_APP_PAS;
+								check_namespace( PL_ident.c_str());
+								check_module_or_application_or_library ();
 								return;
 							}	else
 							if (PL_ident == "dbase")
-							{	check_namespace( PL_ident.c_str());
-								check_module ();
+							{	app_lib_mod_mode = ALM_MODE_APP_DBA;
+								check_namespace( PL_ident.c_str());
+								check_module_or_application_or_library ();
+								return;
+							}	else
+							if (PL_ident == "prolog")
+							{	app_lib_mod_mode = ALM_MODE_APP_PRO;
+								check_namespace( PL_ident.c_str());
+								check_module_or_application_or_library ();
+								return;
+							}	else
+							if (PL_ident == "lisp")
+							{	app_lib_mod_mode = ALM_MODE_APP_LSP;
+								check_namespace( PL_ident.c_str());
+								check_module_or_application_or_library ();
 								return;
 							}	else {
 								throw PL_Exception_ParserError(
-								"pascal or dbase expected",
+								//"'pascal', 'dbase', 'prolog' or 'lisp' expected",
+								locale_str( 142 ).c_str(),
 								PL_line_row,
 								PL_line_col);
 							}
 						}	else {
 							throw PL_Exception_ParserError(
-							"pascal or dbase expected",
+							//"'pascal', 'dbase', 'prolog' or 'lisp' expected",
+							locale_str( 142 ).c_str(),
 							PL_line_row,
 							PL_line_col);
 						}
@@ -1819,14 +2071,14 @@ namespace prolog
 				}
 			}
 		}
-		
+
 		void PL_parseFile(const ::std::string &filename )
 		{
 				PL_prepare(filename);
 			BEGIN_WHILE
 				PL_lookaheadChar =
 				PL_handle_pas_white_spaces();
-				
+
 				if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
 				||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
 				||   (PL_lookaheadChar == '_') )
@@ -1837,18 +2089,19 @@ namespace prolog
 					PL_handle_ident();
 				}	else break;
 			END_WHILE
-			
+
 			if (PL_comment_open > 0)
 			throw PL_Exception_ParserError("comment not terminated.",
 			PL_line_row,PL_line_col);
-		
+
 			char buffer[255];
 			sprintf(buffer, "Compile: OK\n"
-							"Lines  : %d", PL_line_row);
+					"Lines  : %d", PL_line_row);
 			messageBox(buffer,mfOKButton);
 		}
 	};
 
+	#ifdef _WIN32
 	void killProcess()
 	{
 		HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
@@ -1866,18 +2119,23 @@ namespace prolog
 		}
 		CloseHandle(hSnapShot);
 	}
+	#else
+	void killProcess()
+	{
+	    system("pkill -f prolog64");
+	    system("kill -9 $(pgrep -f 'prolog64')");
+	    exit(1);
+	}
+	#endif
 
 	// signature of the generated function
 	typedef void (*_func)(void*);
 	void FuncPt(void * addr)
 	{
 		char buffer[112];
-		sprintf(buffer, "==> %u\n==> %lu\n==> %llu",addr,addr,addr);
+		sprintf(buffer, "==> voids");
 		messageBox(buffer,mfError|mfOKButton);
-		/*::std::cout << "this is a test" <<
-		::std::endl ;*/
 	}
-
 
 	void calledFunc1() noexcept { messageBox("hallo duda"  , mfInformation|mfOKButton); }
 	void calledFunc2() noexcept { messageBox("tudel dei da", mfInformation|mfOKButton); }
@@ -1908,14 +2166,14 @@ namespace prolog
 			if (!strcmp(item.first.c_str(),funcName.c_str()))
 			{
 				::x86::Gp x = cc.newInt32("x");
-				
+
 				InvokeNode * inode;
 				cc.invoke( & inode,imm( (void*)item.second.arg_addr),
 				FuncSignatureT<void, void*>(CallConvId::kStdCall));
-				
+
 				inode->setArg(0, x);
 				inode->setRet(0, x);
-				
+
 				found = true;
 				break;
 			}
@@ -1964,6 +2222,7 @@ namespace prolog
 	// ---------------------------------------------------------------------
 	// DWARF debugging class ...
 	// ---------------------------------------------------------------------
+	#ifdef DWARF_ENABLED
 	class DWARF {
 		::std::ifstream ifile;
 	public:
@@ -1991,7 +2250,6 @@ namespace prolog
 			if (res == DW_DLV_ERROR)
 			throw PL_Exception_Application("FAIL CannoNTRY.");
 
-	#if 0
 			res = dwarf_object_detector_path_b(
 				file_name.c_str(),
 				0,0,
@@ -2016,7 +2274,6 @@ namespace prolog
 				throw PL_Exception_Application(
 				error_buffer.str().c_str() );
 			}
-	#endif
 		}
 
 		DWARF() {}
@@ -2024,6 +2281,7 @@ namespace prolog
 		{
 		}
 	};
+	#endif
 
 	// ---------------------------------------------------------------------
 	// Application event numbers for Console Project's ...
@@ -2096,6 +2354,9 @@ namespace prolog
 	} *newData;
 
 	::TEditWindow     * editWin;
+	::TEditWindow     * debugWin;
+	
+	::std::string       editWindowFileName;
 	::std::vector<char> editWindowBuffer;
 
 	// ---------------------------------------------------------------------
@@ -2595,7 +2856,7 @@ namespace prolog
 				
 				TRect r( getExtent() );
 				r.grow(-1, -1);
-				
+
 				insert(new TFileViewer(
 					r,
 					standardScrollBar(sbHorizontal | sbHandleKeyboard),
@@ -2632,14 +2893,14 @@ namespace prolog
 				b.moveStr(0, txt, color);
 				writeLine(x, y, strlen(txt), 1, b);
 			}
-			void _writeChar(int x, int y, char chr, ushort color, ushort count = 1, bool flag = false)
+			void _writeChar(int x, int y, char chr, ushort color, uint16_t count = 1, bool flag = false)
 			{
-				char* buffer = new char[count];
-				char* tmp    = new char[count];
-				
+				char* buffer = new char[512];
+				char* tmp    = new char[512];
+
 				if (flag == false) {
-					sprintf(buffer,"%c", chr);
-					strcpy (tmp,buffer);
+					::sprintf(buffer,"%c", chr);
+					::strcpy (tmp,buffer);
 
 					if (count > 1) {
 						for (ushort i = 1; i < count; ++i) {
@@ -2649,8 +2910,8 @@ namespace prolog
 					}
 					_writeStr(x, y, tmp, color);
 				}	else {
-					sprintf(buffer, "%c", chr);
-					
+					::sprintf(buffer, "%c", chr);
+
 					for (ushort i = 0; i < count; ++i)
 					_writeStr(x, y+i, buffer, color);
 				}
@@ -2678,7 +2939,7 @@ namespace prolog
 				_writeStr(x, 1, locale_str( 40 ).c_str(), c); x += 17;
 				_writeStr(x, 1, locale_str( 37 ).c_str(), c); x += 15;
 				_writeStr(x, 1, locale_str( 35 ).c_str(), c);
-				
+
 				c = getColor(0x0310);
 				x = 1;
 
@@ -2686,7 +2947,7 @@ namespace prolog
 				_writeChar(2,  2, 0xcd, c, (17*6) );
 				_writeChar(2,  5, 0xcd, c, (17*6) );
 				_writeChar(2, 15, 0xcd, c, (17*6) );
-				
+
 				// data
 				_writeChar(x,  15, 0xc8, c, 1);
 				_writeChar(x,   2, 0xcb, c, 1);
@@ -2867,13 +3128,13 @@ namespace prolog
 		public:
 			MyMemoEditor(
 				const TRect & bounds,
-				const char  * fileName):
+				const char  * _filename):
 				TWindowInit( &MyMemoEditor::initFrame ),
-				TEditWindow(bounds,fileName,wnNoNumber)
+				TEditWindow(bounds,_filename,wnNoNumber)
 			{
 				editWindowBuffer.clear();
 					
-				::std::wifstream input1("program.prg", std::ios::binary);
+				::std::wifstream input1(editWindowFileName, std::ios::binary);
 				::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
 				
 				for (auto &item: filecon)
@@ -2925,9 +3186,14 @@ namespace prolog
 				const TRect & bounds,
 				const char  * fileName )
 			{
+				debugWin = new MyMemoEditor(
+				TRect(5,5, 80,18), "" );
+				TView * p1 = TProgram::application->validView( debugWin );
+				deskTop->insert(p1);
+				
 				editWin = new MyMemoEditor( bounds, fileName );
-				TView * p = TProgram::application->validView( editWin );
-				deskTop->insert(p);
+				TView * p2 = TProgram::application->validView( editWin );
+				deskTop->insert(p2);
 			}
 		};
 		
@@ -2935,88 +3201,22 @@ namespace prolog
 		private:
 			PL_dBaseSourceMemoEditor * memoEditor = nullptr;
 		public:
-			PL_dBaseNewApplication(const char * fileName ):
-				TWindow(TRect(0, 0, 74, 22), fileName, wnNoNumber),
+			PL_dBaseNewApplication(const char * _filename ):
+				TWindow(TRect(4, 5, 74, 22), _filename, wnNoNumber),
 				TWindowInit( &PL_dBaseNewApplication::initFrame)
 			{
-				TRect r = TRect( 0,0, 21,22 );
-				TInterior *leftInterior  = makeInterior( r, True );
-
-				r = TRect( 20,0, 74,22 );
-				TInterior *rightInterior = makeInterior( r, False );
+				memoEditor = new PL_dBaseSourceMemoEditor(
+				TRect(23,1, 22+22+22+6,21),
+				editWindowFileName.c_str() );
 			}
 			PL_dBaseNewApplication():
 				TWindow(TRect(0, 0, 74, 22), "unnamed.prg", wnNoNumber),
 				TWindowInit( &PL_dBaseNewApplication::initFrame)
 			{
-				TRect r = TRect( 0,0, 21,22 );
-				TInterior *leftInterior = makeInterior( r, True );
-
-				r = TRect( 20,0, 74,22 );
-				TInterior *rightInterior = makeInterior( r, False );
 			}
 
 			virtual void handleEvent( TEvent &event ) {
 				TWindow::handleEvent( event );
-			}
-			
-			TInterior* makeInterior(
-				const TRect& bounds,
-				Boolean left)
-			{
-				TRect r = TRect(
-					bounds.b.x-1,
-					bounds.a.y+1,
-					bounds.b.x,
-					bounds.b.y-1 );
-
-				TScrollBar *vScrollBar = new TScrollBar( r );
-				if( vScrollBar == 0 ) {
-					::std::cout << "vScrollbar init error" <<
-					::std::endl;
-					::exit(1);
-				}
-
-				vScrollBar->options |= ofPostProcess;
-				if( left )
-					vScrollBar->growMode = gfGrowHiY;
-				insert ( vScrollBar );
-
-				if (!left) {
-					r = TRect(
-						bounds.a.x+14,
-						bounds.b.y-1,
-						bounds.b.x-2,
-						bounds.b.y );
-				}	else {
-					r = TRect(
-						bounds.a.x+2,
-						bounds.b.y-1,
-						bounds.b.x-2,
-						bounds.b.y );
-				}
-
-				TScrollBar *hScrollBar = new TScrollBar( r );
-				if( hScrollBar == 0 )
-				{
-					::std::cout << "hScrollbar init error" <<
-					::std::endl;
-					::exit(1);
-				}
-				
-				hScrollBar->options |= ofPostProcess;
-				if( left )
-					hScrollBar->growMode = (gfGrowHiY | gfGrowLoY);
-				insert ( hScrollBar );
-				
-				if (!left) {
-					char fileName[128] = "program.prg";
-					memoEditor = new PL_dBaseSourceMemoEditor( TRect(23,1, 22+22+22+6,21), fileName );
-				}
-				
-				r = bounds;
-				r.grow( -1, -1 );
-				return new TInterior( r, hScrollBar, vScrollBar ); 
 			}
 		};
 		class PL_dBaseNewFile: public TDialog {
@@ -3416,7 +3616,11 @@ namespace prolog
 					::std::size_t data_fnd ;
 
 					data_file  = xdbf_data_directory;
+					#ifdef _WIN32
 					data_file += "\\";
+					#else
+					data_file += "/";
+					#endif
 					data_file += xdbf_data_table;
 						
 					if (data_file.find( ".dbf" ) == ::std::string::npos)
@@ -3524,11 +3728,11 @@ namespace prolog
 				return new PL_dBaseNewFile( streamableInit, -1 );
 			}
 		};	//  PL_dBaseNewFile
-		
+
 		class PL_dBaseCatalog: public TDialog {
 		private:
 			::std::string fileName;
-			
+
 			ushort execDialog( TDialog *d )
 			{
 				TView *p = TProgram::application->validView( d );
@@ -3541,7 +3745,7 @@ namespace prolog
 					return res;
 				}
 			}
-			
+
 			void createNewFileDialog(::std::string s, int flag)
 			{
 				auto  * d = new PL_dBaseNewFile(s, flag);
@@ -3553,23 +3757,23 @@ namespace prolog
 				}
 				TProgram::deskTop->insert(d);
 			}
-			
+
 			void init()
 			{
 				flags &= ~(wfGrow | wfZoom);
 				growMode = 0;
-				
+
 				eventMask = evMouseDown | evKeyboard | evCommand | evBroadcast;
-				
+
 				options |= ofCentered;
 				options |= ofSelectable;
-				
+
 				TRect r = getClipRect();
 				r.grow(-1,-1);
 				insert(new PL_dBaseFrame(r));
 
 				int x = 18;
-				
+
 				TScrollBar * sb_1 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
 				TScrollBar * sb_2 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
 				TScrollBar * sb_3 = new TScrollBar( TRect( x,7, x+1,16 ) ); x += 17;
@@ -3601,20 +3805,19 @@ namespace prolog
 				xdbf_lbc_2->insert( newStr("foo") );
 				xdbf_lbc_2->insert( newStr("bar") );
 				xdbf_lbc_2->insert( newStr("fuz") );
-				
+
 				xdbf_lbc_3->insert( newStr("Hello") );
 				xdbf_lbc_3->insert( newStr("World") );
 				xdbf_lbc_2->insert( newStr("smell") );
-				
+
 				xdbf_lbc_4->insert( newStr("Hello") );
 				xdbf_lbc_4->insert( newStr("World") );
-				
+
 				xdbf_lbc_5->insert( newStr("Hello") );
-				
-				
+
 				xdbf_lbc_6->insert( newStr("system.prg") );
 				xdbf_lbc_6->insert( newStr("program.prg") );
-				
+
 				/*
 				xdbf_lbc_6->insert( newStr("CCC") );
 				xdbf_lbc_6->insert( newStr("dd") );
@@ -3725,7 +3928,7 @@ namespace prolog
 					
 					w = new THelpWindow(hFile, helpCtx); //getHelpCtx());
 					TProgram::deskTop->insert(w);
-					
+
 					helpInUse = False;
 				}
 			}
@@ -3830,21 +4033,21 @@ namespace prolog
 						if ((xdbf_lb_3->state & sfFocused) != 0) {
 							xdbf_lb_3->getText(buffer,
 							xdbf_lb_3->focused, MAX_LEN);
-							
+
 							messageBox(buffer,mfInformation|mfOKButton);
 							return;
 						} else
 						if ((xdbf_lb_4->state & sfFocused) != 0) {
 							xdbf_lb_4->getText(buffer,
 							xdbf_lb_4->focused, MAX_LEN);
-							
+
 							messageBox(buffer,mfInformation|mfOKButton);
 							return;
 						} else
 						if ((xdbf_lb_5->state & sfFocused) != 0) {
 							xdbf_lb_5->getText(buffer,
 							xdbf_lb_5->focused, MAX_LEN);
-							
+
 							messageBox(buffer,mfInformation|mfOKButton);
 							return;
 						} else
@@ -3852,14 +4055,19 @@ namespace prolog
 							xdbf_lb_6->getText(buffer,
 							xdbf_lb_6->focused, MAX_LEN);
 
-							auto  * d = new PL_dBaseNewApplication( buffer );
+							editWindowFileName = "";
+							editWindowFileName.append(buffer);
+
+							auto  * d = new PL_dBaseNewApplication(
+							editWindowFileName.c_str() );
+							/*
 							TView * p = TProgram::application->validView( d );
 							if (!p) {
 								::std::string sz;
 								sz = locale_str( 23 ).c_str();
 								throw PL_Exception_Application( sz.c_str() );
 							}
-							//TProgram::deskTop->insert(d);
+							TProgram::deskTop->insert(d);*/
 							return;
 						}
 					}
@@ -3942,7 +4150,7 @@ namespace prolog
 		};
 
 		class TNewProjectDialog: public TDialog {
-		private:		
+		private:
 			ushort execDialog( TDialog *d )
 			{
 				TView *p = TProgram::application->validView( d );
@@ -3955,7 +4163,7 @@ namespace prolog
 					return res;
 				}
 			}
-			
+
 			ushort execDialog(const char* pattern)
 			{
 				//char* file_name = (char*)malloc(maxLineLength);
@@ -4023,7 +4231,11 @@ namespace prolog
 				selectNext(true);
 				
 				strcpy(
+				#ifdef _WIN32
 				newData->inputLineData,"C:\\");
+				#else
+				newData->inputLineData,"/home/");
+				#endif
 				newData->radioButtons1Data = 2;
 				newData->radioButtons2Data = 1;
 				newData->checkButtons1Data = 1;
@@ -4142,12 +4354,11 @@ namespace prolog
 						// get dialog data for current use:
 						// ---------------------------------
 	//					char* buffer = new char[255];
-						getData(newData);
-						ushort resid     = newData->radioButtons1Data;
+	//					getData(newData);
+						ushort resid     = 2; //newData->radioButtons1Data;
 						::std::string sz = locale_str( 23 ).c_str();
-						
 						if (resid == 2) {	// dBase
-							auto  * d = new PL_dBaseCatalog( newData->inputLineData );
+							auto  * d = new PL_dBaseCatalog( "dbase.cat" ); //newData->inputLineData );
 							TView * p = TProgram::application->validView( d );
 							if (!p) {
 								delete d;
@@ -4163,7 +4374,7 @@ namespace prolog
 							}
 							TProgram::deskTop->insert(d);
 						}
-						
+
 	/*
 						sprintf(buffer,"btn1: %d, btn2: %d, chk1: %d\n%s",
 						newData->radioButtons1Data,
@@ -4333,25 +4544,13 @@ namespace prolog
 					func();
 
 					editWin->editor->save();
-					
-					//FILE * fh = fopen("program.prg","r");
-					//fseek(fh,0,SEEK_SET);
-					
 					editWindowBuffer.clear();
 					
-					::std::wifstream input1("program.prg", std::ios::binary);
+					::std::wifstream input1(editWindowFileName, std::ios::binary);
 					::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
 					
 					for (auto &item: filecon)
 					editWindowBuffer.push_back(item);
-					
-					//wint_t wc;
-					//while ((wc = fgetwc(fh)) != WEOF) {
-					//	editWindowBuffer.push_back(wc);
-					//}
-					//int buflen = editWindowBuffer.size();
-					//fclose(fh);
-					
 					editWin->draw();
 
 					// -------------------------------------------
@@ -4359,7 +4558,7 @@ namespace prolog
 					// -------------------------------------------
 					try {
 						auto * parser = new PL_LoParser();
-						parser->PL_parseFile("program.prg");
+						parser->PL_parseFile(editWindowFileName);
 					}
 					catch (PL_Exception_Windows& e)
 					{
@@ -4748,6 +4947,7 @@ namespace prolog
 	// Resolve symbol name and source location given the path
 	// to the executable and an address
 	// ----------------------------------------------------------
+	#if defined(_WIN32)
 	int
 	addr2line(
 		char const * const program_name,
@@ -4947,6 +5147,7 @@ namespace prolog
 		}
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
+	#endif	// _WIN32
 
 	void
 	app_signal_handler(
@@ -4954,7 +5155,7 @@ namespace prolog
 		int arg )
 	{
 		::std::stringstream ss;
-		
+
 		::std::string s1 = "Caught ";
 		::std::string s2 = "Caught SIGFPE: (floating-point: ";
 		::std::string s3 = "Caught SIGILL: ";
@@ -5063,7 +5264,8 @@ namespace prolog
 			break;
 		}
 
-		throw PL_Exception_Application( ss.str() );
+		if (ss.str().size() > 0)
+		throw PL_Exception_Application( ss.str().c_str() );
 
 		//::std::cout << ss.str() <<
 		//::std::endl ;
@@ -5090,12 +5292,18 @@ namespace prolog
 		signal(SIGABRT, &sig_handler_6);
 	}
 
-
+#ifdef _WIN32
 	void set_signal_handler(prolog::ConsoleApplication * a) {
 		_app = a;
 		set_signal_handler();
 		SetUnhandledExceptionFilter( windows_exception_handler );
 	}
+#else
+    void set_signal_handler(prolog::ConsoleApplication * a) {
+		_app = a;
+		set_signal_handler();
+	}
+#endif
 
 	// ---------------------------------------------------------------------
 	// tui app - text user interface ConsoleApplication ...
@@ -5154,8 +5362,10 @@ namespace prolog
 					exit( 1  );
 				}
 			}	else {
-				throw PL_Exception_Application(
-				locale_str( 102 ).c_str() );
+				//throw PL_Exception_Application(
+				::std::cout << locale_str( 102 ).c_str() <<
+				::std::endl;
+				exit(1);
 			}
 		}
 		catch (PL_Exception_Windows& e)
@@ -5165,7 +5375,7 @@ namespace prolog
 				<< ::std::endl
 				<< ::std::endl
 				<< e.what();
-				
+
 			if (app->MessageBoxRect(
 				TRect(10,7,60,19),
 				txt.str().c_str(),
@@ -5187,7 +5397,7 @@ namespace prolog
 				<< ::std::endl
 				<< ::std::endl
 				<< e.what();
-				
+
 			if (app->MessageBoxRect(
 				TRect(10,7,60,19),
 				txt.str().c_str(),
@@ -5341,6 +5551,8 @@ namespace prolog
 
 		::std::vector< ::std::string > items;
 	};
+
+#if defined(_WIN32)
 
 	class WindowGlobals {
 	public:
@@ -5878,19 +6090,27 @@ namespace prolog
 		}
 		return buttonHWND;
 	}
-
+#endif
 	static void
 	CallUserApplication(
+		#ifdef _WIN32
 		HWND hwndParent,
 		int  lang,
 		int  bthID,
 		::std::function<void(Normal *, int)> func)
+		#else
+		int lang,
+		::std::function<void(Normal *, int)> func)
+		#endif
 	{
 		app_lang = lang;
 		ApplicationFuncExePtr = func;
+		#ifdef _WIN32
 		SendMessage( hwndParent, WM_CLOSE, 0,0 );
+		#endif
 	}
 
+#ifdef _WIN32
 	static LRESULT CALLBACK
 	chooseProc(
 		HWND   hwndParent,
@@ -5903,7 +6123,7 @@ namespace prolog
 		# define BTNID_ENG_GUI 2002
 		# define BTNID_DEU_TUI 2003
 		# define BTNID_DEU_GUI 2004
-		
+
 		switch (msg)
 		{
 			case WM_CREATE:
@@ -5939,6 +6159,7 @@ namespace prolog
 			return DefWindowProc(hwndParent, msg, wParam, lParam);
 		}	return 0;
 	}
+#endif  // _WIN32
 
 	class Normal {
 	public:
@@ -5946,15 +6167,16 @@ namespace prolog
 		{
 			::std::cout << "Normal" <<
 			::std::endl ;
-			
+
+			#ifdef _WIN32
 			InitCommonControls();
-			
+
 			// choose application type ...
 			{
 				WNDCLASSEX _wc;
 				HWND       _hwnd;
 				MSG        _msg;
-						
+
 				_wc.cbSize         = sizeof(WNDCLASSEX);
 				_wc.style          = CS_HREDRAW | CS_VREDRAW;
 				_wc.lpfnWndProc    = chooseProc;
@@ -5971,7 +6193,7 @@ namespace prolog
 				if (!::RegisterClassEx(&_wc))
 					throw PL_Exception_Application(
 					"jjjWindow Registration Failed!" );
-					
+
 				_hwnd = CreateWindowEx(
 					WS_EX_CLIENTEDGE,
 					"towindow",
@@ -5993,27 +6215,34 @@ namespace prolog
 					TranslateMessage( &_msg );
 					DispatchMessage ( &_msg );
 				}
-				
+
 				// -----------------------------------
 				// depend on button id-click, start
 				// ptr function/gui or tui ...
 				// -----------------------------------
 				ApplicationFuncExePtr(this, app_lang);
 			}
+			#else
+			CallUserApplication(GERMAN, ApplicationFuncTUI);
+			ApplicationFuncExePtr(this, app_lang);
+			#endif  // _WIN32
 		}
 		~Normal()
 		{
 			//delete regwin;
 		}
 
+#ifdef _WIN32
 		void add( Menu& m)              { regwin->add( m );    }
 		void setMenu ( Menu& m)         { regwin->add( m );    }
 		void setTitle( ::std::string s) { regwin->setTitle(s); }
-		
+
 		int  run() { return regwin->run(); }
 		RegisterWindow * regwin;
+#endif
 	};
 
+#ifdef _WIN32
 	class MDI: public RegisterWindow {
 	public:
 		MDI( void )
@@ -6021,14 +6250,23 @@ namespace prolog
 			::std::cout << "MDI" <<
 			::std::endl ;
 			
+			#ifdef _WIN32
 			::std::stringstream win_type;
 			win_type << "RegisterWindow_" << ++intWinGlobals;
-			
+
 			RegisterWindow( win_type.str().c_str() );
+			#endif
 		}
 	private:
 	};
-
+#else
+	class MDI {
+	public:
+		MDI( void )
+		{
+		}
+	};
+#endif
 	template <typename T1>
 	class Desktop {
 		static_assert(
@@ -6052,11 +6290,13 @@ namespace prolog
 		{
 			delete window_type;
 		}
+#ifdef _WIN32
 		void add( Menu& m)              {        window_type->add( m );    }
 		void setMenu ( Menu& m )        {        window_type->add( m );    }
 		void setTitle( ::std::string s) {        window_type->setTitle(s); }
-		
+
 		int  run()                      { return window_type->run();       }
+#endif
 	private:
 		T1 * window_type;
 	};
@@ -6084,11 +6324,13 @@ namespace prolog
 			::std::cout << "dtor Windows" << ::std::endl;
 			delete app_type;
 		}
+#ifdef _WIN32
 		void add( Menu& m)              { app_type->add( m );    }
 		void setMenu ( Menu& m)         { app_type->add(m);      }
 		void setTitle( ::std::string s) { app_type->setTitle(s); }
-		
+
 		int  run() { return app_type->run();  }
+#endif  // _WIN32
 	private:
 		T1 * app_type;
 	};
@@ -6142,16 +6384,16 @@ namespace prolog
 		static_assert(
 			(::std::is_base_of< Windows< Desktop< Normal >>, T2 >::value == false) ||
 			(::std::is_base_of< Windows< Desktop< MDI    >>, T2 >::value == false) ||
-			
+
 			(::std::is_base_of< Windows< Client < FTP    >>, T2 >::value == false) ||
 			(::std::is_base_of< Windows< Server < FTP    >>, T2 >::value == false) ||
-			
+
 			(::std::is_base_of< Ascii< English >, T1 >::value == false) ||
 			(::std::is_base_of< Ascii< German  >, T1 >::value == false) ||
-			
+
 			(::std::is_base_of< Wide < English >, T1 >::value == false) ||
 			(::std::is_base_of< Wide < German  >, T1 >::value == false) ||
-			
+
 			(::std::is_base_of< DOS, T2 >::value == false),
 			PL_ASSERT_APPLICATION);
 	public:
@@ -6198,40 +6440,47 @@ namespace prolog
 	void ApplicationFuncTUI(Normal *ptr, int lang)
 	{
 		::std::cout << "starting tui... " << lang << ::std::endl;
-		delete ptr;
+		//delete ptr;
 		init_con_app( argv_vec, "dbase.prg", 2 );
 		exit(1);
 	}
 
+#ifdef _WIN32
 	void ApplicationFuncGUI(Normal *ptr, int lang)
 	{
 		::std::cout << "starting gui..." << lang << ::std::endl;
 		ptr->regwin = new RegisterWindow();
 		delete ptr;
 	}
+#endif
 
 }	// namespace: prolog
 
 // ---------------------------------------------------------------------
 // test case entry point ...
 // ---------------------------------------------------------------------
+#if defined(_WIN32)
 BOOL WINAPI
 WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
 	LPSTR     lpCmdLine,
 	int       nCmdShow)
+#else
+int main(int argc, char **argv)
+#endif  // _WIN32
 {
 	using namespace prolog;
 
 	::std::vector< ::std::string > iput_file;
 	::std::string                  oput_file;
 	::std::string                  s0;
-	
+
 	int output = 0;
 	int result = 0;
 
 	try {
+		#if defined(_WIN32)
 		LPWSTR *szArglist;
 
 		int nArgs  = 0;
@@ -6253,10 +6502,15 @@ WinMain(
 		}
 
 		LocalFree( szArglist );
+		#else
+		for (int i = 0; i < argc; i++) {
+			argv_vec.push_back( argv[i] );
+		}
+		#endif  // _WIN32
 
-		setlocale(LC_ALL,"");
-		bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
-		textdomain     (locale_str( 0 ).c_str());
+		//setlocale(LC_ALL,"");
+		//bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
+		//textdomain     (locale_str( 0 ).c_str());
 
 		// ----------------------------------------
 		// get command arguments from console ...
@@ -6264,13 +6518,15 @@ WinMain(
 		// ----------------------------------------
 		if (argv_vec.size() < 2) {
 			app_lang = 1;	// <-- todo
-			
-			#ifdef WINDOWS_APPLICATION
-			
+
+			#if defined(_WIN32)
+			// GetLastError ...
+			for (uint16_t i = 0; i < 87; i++)
+			error_message.insert({i, ::std::make_pair(146 + i, 147 + i) });
+		
 			//Application< Desktop >( argv_vec );
 			//Application< Console >( argv_vec );
-			
-			#define WinApp( x )          \
+			#define WinApp( x )              \
 				using namespace prolog;  \
 				Application< Ascii< German >, Windows< Desktop< x > >>
 
@@ -6279,26 +6535,26 @@ WinMain(
 			// --------------------
 			WinApp(Normal) win_app ( argv_vec.size(), argv_vec );
 			win_app.setTitle("dBase Win (c) 2023 by Jens Kallup - paule32");
-			
+
 			// create menu:
 			Menu menuBar;
-			
+
 			menuBar.add( "File"  );
 			menuBar.add( "Edit"  );
 			menuBar.add( "Tools" );
-			
+
 			// add menu bar to application:
 			win_app.add( menuBar );
 
 			// message loop
 			result = win_app.run();
-			
+
 			#else
 			// --------------------
 			// create DOS window
 			// --------------------
 			init_con_app ( argv_vec, "dbase.prg", 2 );
-			
+
 			return TRUE;
 			#endif
 		}
@@ -6312,7 +6568,7 @@ WinMain(
 			case '-':
 			{
 				switch (s0.at(1)) {
-				case 'l': {  						// lang
+				case 'l': {  		// lang
 					switch (s0.at(2)) {
 					case 'e': app_lang = 1; break;  // english
 					case 'd': app_lang = 2; break;  // german
@@ -6350,7 +6606,7 @@ WinMain(
 			break;
 			}
 		}
-		
+
 		// --------------------------------------------
 		// first, check, if user has give output file:
 		// --------------------------------------------
@@ -6434,9 +6690,9 @@ WinMain(
 			locale_str( 9 ).c_str());
 		}
 	}
-	
+
 	//-- CENTRALIZED EXCEPTION HANDLING -----------------------
-	
+
 	// -------------------------------------------
 	// exception, coming from command line error:
 	// -------------------------------------------
@@ -6446,9 +6702,13 @@ WinMain(
 		<< std::endl
 		<< locale_str( 12 ) << e.what()
 		<< std::endl;
-		
+
+		#if defined(_WIN32)
 		MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
-		
+		#else
+		::std::cout << ss.str();
+		#endif	// _WIN32
+
 		return 1;
 	}
 	// -------------------------------------------
@@ -6461,8 +6721,12 @@ WinMain(
 		<< locale_str( 14 ) << std::endl
 		<< locale_str( 12 ) << e.what()
 		<< std::endl;
-		
+
+		#if defined(_WIN32)
 		MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
+		#else
+		::std::cout << ss.str();
+		#endif	// _WIN32
 
 		return FALSE;
 	}
@@ -6479,8 +6743,12 @@ WinMain(
 		::std::stringstream ss;ss
 		<< locale_str( 11 ) << e.line() << std::endl
 		<< locale_str( 12 ) << e.what() << std::endl;
-		
+
+		#if defined(_WIN32)
 		MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
+		#else
+		::std::cout << ss.str();
+		#endif   // _WIN32
 
 		return 1;
 	}
@@ -6492,8 +6760,12 @@ WinMain(
 		::std::stringstream ss;ss
 		<< locale_str( 1 )
 		<< ::std::endl;
-		
-		//MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
+
+		#if defined(_WIN32)
+		MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
+		#else
+		::std::cout << ss.str();
+		#endif	// _WIN32
 
 		return FALSE;
 	}	return TRUE;

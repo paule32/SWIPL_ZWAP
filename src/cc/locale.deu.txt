@@ -138,5 +138,183 @@ Ein oder mehrere Verzeichnisse existieren nicht - es wird nur das letzte Verzeic
 Betriebs-System Fehler
 Spalte:
 Modulname nicht abgeschlossen. Haben Sie ein ';' vergessen ?
-'module' erwartet
+'module', 'library' oder 'application' erwartet
 unerwartetes Zeichen gelesen
+'pascal', 'dbase', 'prolog' oder 'lisp' erwartet
+kann kein Memo-Editor erstellen
+Applikationname nicht abgeschlossen. Haben Sie ein ';' vergessen ?
+Bibliothekname nicht abgeschlossen. Haben Sie ein ';' vergessen ?
+Der Vorgang wurde erfolgreich abgeschlossen
+SUCCESS
+Falsche Funktion
+INVALID_FUNCTION
+Die angegebene Datei wurde nicht gefunden
+FILE_NOT_FOUND
+Das System kann den angegebenen Pfad nicht finden
+PATH_NOT_FOUND
+Das System kann die Datei nicht öffnen
+TOO_MANY_OPEN_FILES
+Zugriff verweigert
+ACCESS_DENIED
+Das Handle ist ungültig
+INVALID_HANDLE
+Die Speichersteuerungsblöcke wurden zerstört
+ARENA_TRASHED
+Für die Verarbeitung dieses Befehls sind nicht genügend Speicherressourcen verfügbar
+NOT_ENOUGH_MEMORY
+Die Blockadresse des Speichersteuerelements ist ungültig
+INVALID_BLOCK
+Die Umgebung ist falsch
+BAD_ENVIRONMENT
+Es wurde versucht, ein Programm mit einem falschen Format zu laden
+BAD_FORMAT
+Der Zugriffscode ist ungültig
+INVALID_ACCESS
+Die Daten sind ungültig
+INVALID_DATA
+Für diesen Vorgang ist nicht genügend Speicher verfügbar
+OUTOFMEMORY
+Das System kann das angegebene Laufwerk nicht finden
+INVALID_DRIVE
+Das Verzeichnis kann nicht entfernt werden
+CURRENT_DIRECTORY
+Das System kann die Datei nicht auf ein anderes Laufwerk verschieben
+NOT_SAME_DEVICE
+Es gibt keine weiteren Dateien
+NO_MORE_FILES
+Die Medien sind schreibgeschützt
+WRITE_PROTECT
+Das System kann das angegebene Gerät nicht finden
+BAD_UNIT
+Das Gerät ist nicht bereit
+NOT_READY
+Das Gerät erkennt den Befehl nicht
+BAD_COMMAND
+Datenfehler (cyclische Redundanzprüfung)
+CRC
+Das Programm hat einen Befehl ausgegeben, die Befehlslänge ist jedoch falsch
+BAD_LENGTH
+Das Laufwerk kann keinen bestimmten Bereich finden oder auf dem Datenträger nachverfolgen
+SEEK
+Auf den angegebenen Datenträger oder die angegebene Diskette kann nicht zugegriffen werden
+NOT_DOS_DISK
+Das Laufwerk kann den angeforderten Sektor nicht finden
+SECTOR_NOT_FOUND
+Der Drucker hat kein Papier
+OUT_OF_PAPER
+Das System kann nicht auf das angegebene Gerät schreiben
+WRITE_FAULT
+Das System kann vom angegebenen Gerät nicht gelesen werden
+READ_FAULT
+Ein Gerät, das an das System angeschlossen ist, funktioniert nicht
+GEN_FAILURE
+Der Prozess kann nicht auf die Datei zugreifen, da sie bereits von einem anderen Prozess verwendet wird
+SHARING_VIOLATION
+Der Prozess kann nicht auf die Datei zugreifen, da sie teilweise von einem anderen Prozess gesperrt ist
+LOCK_VIOLATION
+Die falsche Diskette befindet sich im Laufwerk. Fügen Sie %2 (Volume Serial Number: %3) in laufwerk %1 ein
+WRONG_DISK
+Zu viele Dateien, die für die Freigabe geöffnet wurden
+SHARING_BUFFER_EXCEEDED
+:nil
+:nil
+Das Ende der Datei wurde erreicht
+HANDLE_EOF
+Der Datenträger ist voll
+HANDLE_DISK_FULL
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Die Anforderung wird nicht unterstützt
+NOT_SUPPORTED
+Windows den Netzwerkpfad nicht finden. Stellen Sie sicher, dass der Netzwerkpfad korrekt ist und der Zielcomputer nicht ausgelastet oder deaktiviert ist. Wenn Windows den Netzwerkpfad weiterhin nicht finden können, wenden Sie sich an Den Netzwerkadministrator
+REM_NOT_LIST
+Sie wurden nicht verbunden, da ein doppelter Name im Netzwerk vorhanden ist. Wenn Sie einer Domäne beitreten, wechseln Sie zu System in Systemsteuerung, um den Computernamen zu ändern, und versuchen Sie es erneut. Wenn Sie einer Arbeitsgruppe beitreten, wählen Sie einen anderen Arbeitsgruppennamen aus
+DUP_NAME
+Der Netzwerkpfad wurde nicht gefunden
+BAD_NETPATH
+Das Netzwerk ist ausgelastet
+NETWORK_BUSY
+Die angegebene Netzwerkressource oder das angegebene Gerät ist nicht mehr verfügbar
+DEV_NOT_EXIST
+Das Netzwerk-BIOS-Befehlslimit wurde erreicht
+TOO_MANY_CMDS
+Ein Hardwarefehler des Netzwerkadapters ist aufgetreten
+ADAP_HDW_ERR
+Der angegebene Server kann den angeforderten Vorgang nicht ausführen
+BAD_NET_RESP
+Unerwarteter Netzwerkfehler
+UNEXP_NET_ERR
+Der Remoteadapter ist nicht kompatibel
+AD_REM_ADAP
+Die Druckerwarteschlange ist voll
+PRINTQ_FULL
+Speicherplatz zum Speichern der Datei, die auf das Drucken wartet, ist auf dem Server nicht verfügbar
+NO_SPOOL_SPACE
+hre Datei, die auf das Drucken wartet, wurde gelöscht
+PRINT_CANCELLED
+Der angegebene Netzwerkname ist nicht mehr verfügbar
+NETNAME_DELETED
+Der Netzwerkzugriff wird verweigert
+NETWORK_ACCESS_DENIED
+Der Netzwerkressourcentyp ist nicht korrekt
+BAD_DEV_TYPE
+Der Netzwerkname wurde nicht gefunden
+BAD_NET_NAME
+Der Namegrenzwert für die Netzwerkadapterkarte des lokalen Computers wurde überschritten
+TOO_MANY_NAMES
+Das Netzwerk-BIOS-Sitzungslimit wurde überschritten
+TOO_MANY_SESS
+Der Remoteserver wurde angehalten oder befindet sich im Prozess des Startvorgangs
+SHARING_PAUSED
+Zu diesem Zeitpunkt können keine Verbindungen mit diesem Remotecomputer hergestellt werden, da bereits so viele Verbindungen wie der Computer akzeptiert werden kann
+REQ_NOT_ACCEP
+Das angegebene Drucker- oder Datenträgergerät wurde angehalten
+REDIR_PAUSED
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Die Datei ist vorhanden
+FILE_EXISTS
+:nil
+:nil
+Das Verzeichnis oder die Datei kann nicht erstellt werden
+CANNOT_MAKE
+Fehler bei INT 24
+FAIL_I24
+Storage, diese Anforderung zu verarbeiten, ist nicht verfügbar
+OUT_OF_STRUCTURES
+Der name des lokalen Geräts wird bereits verwendet
+ALREADY_ASSIGNED
+Das angegebene Netzwerkkennwort ist falsch
+INVALID_PASSWORD

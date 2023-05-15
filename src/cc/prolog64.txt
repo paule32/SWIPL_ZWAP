@@ -1513,6 +1513,19 @@ Syntax: ADC <Zieloperand>,<Quelloperand>
 
 ; -------------------------------------------------------------------------
 ; win32api
+; deutsch
+; -------------------------------------------------------------------------
+.topic win32api_DEU
+ {ENG:win32api_ENG}
+ ════════════════════════════════════════════
+ win32api:
+ ---------
+ 
+ => Fenster Funktionen:
+ {Hauptfenster erstellen:win32api_CreatingaMainWindow_DEU}
+
+; -------------------------------------------------------------------------
+; win32api
 ; english
 ; -------------------------------------------------------------------------
 .topic win32api_ENG
@@ -1551,7 +1564,18 @@ Syntax: ADC <Zieloperand>,<Quelloperand>
  {HDC:win32api_HDC_ENG}
 
 ; -------------------------------------------------------------------------
+.topic win32api_CreatingaMainWindow_DEU
+ {ENG:win32api_CreatingaMainWindow_ENG}
+ ════════════════════════════════════════════
+ Ein Hauptfenster erstellen
+ --------------------------
+ 
+ ════════════════════════════════════════════
+ {win32api:win32api_DEU}
+
 .topic win32api_CreatingaMainWindow_ENG
+ {DEU:win32api_CreatingaMainWindow_DEU}
+ ════════════════════════════════════════════
  Creating a Main Window
  ----------------------
  
