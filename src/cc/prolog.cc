@@ -198,6 +198,7 @@
 # include <iomanip>
 # include <regex>
 # include <functional>
+# include <filesystem>
 
 // ---------------------------------------------------------------------
 // Windows header stuff ...
@@ -409,7 +410,14 @@ namespace prolog
 	class PL_Exception_Application;
 	class PL_Exception_Windows;
 
-	::std::map< uint16_t, ::std::pair< uint32_t, uint32_t > > error_message;
+	::std::map< uint16_t, ::std::pair< uint16_t, uint16_t> > error_message;
+	
+	// ---------------------------------------------------------------------
+	// path container ...
+	// ---------------------------------------------------------------------
+	::std::map< ::std::string, ::std::string > app_path;
+	::std::map< ::std::string, ::std::string > lib_path;
+	::std::map< ::std::string, ::std::string > mod_path;
 
 	// ---------------------------------------------------------------------
 	// for customize the compiler output ...
@@ -445,8 +453,11 @@ namespace prolog
 			// header
 			uint32_t version;
 			uint8_t  locaver;
+			uint16_t numitem;
+			
 			fread(&version, 1, sizeof(uint32_t), in);
 			fread(&locaver, 1, sizeof(uint8_t ), in);
+			fread(&numitem, 1, sizeof(uint16_t), in);
 
 			// check version
 			if (version != 20230409) {
@@ -468,66 +479,33 @@ namespace prolog
 			#endif
 
 			// if no item found, then do nothing
-			uint32_t numitems;
-			fread(&numitems, 1, sizeof(uint32_t), in);
-			if (numitems < 1) {
+			if (numitem < 1) {
 				fprintf(stderr,"no items found.");
 				fflush (stderr);
 				fclose(in);
 				exit(1);
 			}
 
-			//fprintf(stdout,"items: %d\n",numitems);
+			uint16_t len = 0;
+			for (uint16_t i = 0; i < numitem; i++) {
+				fread( &len, 1, sizeof(uint16_t), in );
 
-			int header_size  = sizeof( uint32_t );  // items
-				header_size += sizeof( uint32_t );  // version
-				header_size += sizeof( uint8_t  );  // locaver
+				char * buffer = new char[len+1];
+				fread( buffer, 1, len, in );
+				buffer[len] = '\0';
 
-				header_size += numitems * sizeof( uint32_t );  // len
-				header_size += numitems * sizeof( uint32_t );  // pos
-
-			// items found, then read it in
-			::std::vector< uint32_t > apos;
-			::std::vector< uint32_t > alen;
-
-			char * buffer  = new char[256];
-			char * puffer  = new char[256];
-
-			int    pos = 0;
-			int    len = 0;
-
-			for (int i = 0; i < numitems; i++) {
-				fread(&len, 1, sizeof(uint32_t), in);
-				apos.push_back( len );
+				array_locale.push_back( buffer );
+				delete buffer;
 			}
-			for (int i = 0; i < numitems; i++) {
-				fread(&pos, 1, sizeof(uint32_t), in);
-				alen.push_back( pos );
-			}
-
-			fseek(in, header_size, SEEK_SET);
-			int poo = header_size;
-
-			array_locale.clear ();
-
-			for (int i = 0; i < numitems; i++) {
-				pos = alen.at( i );
-				len = apos.at( i );
-
-				fseek(in,poo,0);
-				fread(buffer, 1, len, in);
-				buffer[len] = 0x00;
-				poo += len + 1;
-
-				sprintf(puffer, "%s",   buffer );
-				array_locale.push_back( puffer );
-			}
-
-			delete buffer;
-			delete puffer;
 
 			// no needed anymore
 			fclose(in);
+			
+			// GetLastError messages...
+			#ifdef _WIN32
+			for (uint16_t i = 0; i < 87; i++)
+			error_message.insert( {i, ::std::pair(146 + i, 147 + i)} );
+			#endif
 		}
 		locale_reader() { }
 
@@ -570,7 +548,7 @@ namespace prolog
 
 		if (app_lang == 1) { locale_reader l( "locale.eng" ); result = l.message( which ); } else
 		if (app_lang == 2) { locale_reader l( "locale.deu" ); result = l.message( which ); } else
-						   { locale_reader l( "locale.eng" ); result = l.message( which ); }
+				           { locale_reader l( "locale.eng" ); result = l.message( which ); }
 		return result;
 	}
 
@@ -860,27 +838,12 @@ namespace prolog
 		const uint32_t   _line_col;
 
 	public:
-		//template <typename T1>
-		//PL_Exception( T1 msg, uint32_t line = 1, uint32_t column = 1):
-		
-		PL_Exception(::std::string& msg, uint32_t line = 1, uint32_t column = 1):
+		template <typename T1>
+		PL_Exception( T1 msg, uint32_t line = 1, uint32_t column = 1):
 			_message( msg ),
 			_line_row(line),
 			_line_col(column)
 			{}
-		PL_Exception(const char* msg, uint32_t line = 1, uint32_t column = 1):
-			_message( msg ),
-			_line_row(line),
-			_line_col(column)
-			{}
-		#ifdef _WIN32
-		PL_Exception(DWORD lastError, uint32_t line = 1, uint32_t column = 1):
-			_line_row(line),
-			_line_col(column)
-		{
-			
-		}
-		#endif
 		PL_Exception():
 			_message( locale_str( 2 ) ),
 			_line_row(PL_line_row),
@@ -1081,6 +1044,20 @@ namespace prolog
 		}
 
 		//-- FUNCTION DEFINITIONS ---------------------------------
+		::std::vector< ::std::string >
+		PL_dir_split(const ::std::string& str, const char sep)
+		{
+			::std::string token;
+			::std::stringstream ss(str);
+			::std::vector< ::std::string > tokens;
+			
+			while (::std::getline(ss, token, sep)) {
+				tokens.push_back(token);
+			}
+
+			return tokens;
+		}
+		
 		uint16_t PL_getch()
 		{
 			PL_lookaheadPosition += 1;
@@ -1675,11 +1652,6 @@ namespace prolog
 				// todo !!!
 				#ifdef _WIN32
 				if (!CreateDirectory(name.c_str(),0)) {
-					throw PL_Exception_Windows(
-					GetLastError(),
-					PL_line_row,
-					PL_line_col);
-					
 					switch (GetLastError()) {
 						case ERROR_ALREADY_EXISTS:
 							throw PL_Exception_Windows(
@@ -1789,10 +1761,6 @@ namespace prolog
 				case ALM_MODE_MOD_PRO: messageBox("a module for prolog is parsed",mfOKButton); PL_handle_module_prolog(); break;
 				case ALM_MODE_MOD_LSP: messageBox("a module for lisp   is parsed",mfOKButton); PL_handle_module_lisp  (); break;
 			}
-			
-			char buffer[100];
-			sprintf(buffer,"==> %s", PL_ident.c_str());
-			messageBox(buffer,mfOKButton);
 		}
 		
 		void PL_handle_library()
@@ -1804,10 +1772,6 @@ namespace prolog
 				case ALM_MODE_LIB_PRO: messageBox("a library for prolog is parsed",mfOKButton); PL_handle_library_prolog(); break;
 				case ALM_MODE_LIB_LSP: messageBox("a library for lisp   is parsed",mfOKButton); PL_handle_library_lisp  (); break;
 			}
-						
-			char buffer[100];
-			sprintf(buffer,"==> %s", PL_ident.c_str());
-			messageBox(buffer,mfOKButton);
 		}
 		
 		void PL_handle_application()
@@ -1819,14 +1783,43 @@ namespace prolog
 				case ALM_MODE_APP_PRO: messageBox("a application for prolog is parsed",mfOKButton); PL_handle_application_prolog(); break;
 				case ALM_MODE_APP_LSP: messageBox("a application for lisp   is parsed",mfOKButton); PL_handle_application_lisp  (); break;
 			}
-			
-			char buffer[100];
-			sprintf(buffer,"==> %s", PL_ident.c_str());
-			messageBox(buffer,mfOKButton);
 		}
 
+		void PL_check_path()
+		{
+			#define DIRS_INLINE(T1,T2)                                              \
+			for (auto &item: T1) { if (item.first == T2) {                          \
+			::std::vector< ::std::string > dirs = PL_dir_split( item.second, '/' ); \
+			::std::string tmp = "./";                                               \
+			if (dirs.empty()) return;                                               \
+			for (auto it = dirs.begin(); it != ::std::prev(dirs.end()); ++it)       \
+			tmp += *it + '/';                                                       \
+			::std::filesystem::create_directories(tmp); }}
+
+			switch (app_lib_mod_mode)
+			{
+				case ALM_MODE_APP_PAS: DIRS_INLINE(app_path,"pascal"); break;
+				case ALM_MODE_APP_DBA: DIRS_INLINE(app_path,"dbase" ); break;
+				case ALM_MODE_APP_PRO: DIRS_INLINE(app_path,"prolog"); break;
+				case ALM_MODE_APP_LSP: DIRS_INLINE(app_path,"lisp"  ); break;
+				// ----------------------------------------------------------
+				case ALM_MODE_LIB_PAS: DIRS_INLINE(lib_path,"pascal"); break;
+				case ALM_MODE_LIB_DBA: DIRS_INLINE(lib_path,"dbase" ); break;
+				case ALM_MODE_LIB_PRO: DIRS_INLINE(lib_path,"prolog"); break;
+				case ALM_MODE_LIB_LSP: DIRS_INLINE(lib_path,"lisp"  ); break;
+				// ----------------------------------------------------------
+				case ALM_MODE_MOD_PAS: DIRS_INLINE(mod_path,"pascal"); break;
+				case ALM_MODE_MOD_DBA: DIRS_INLINE(mod_path,"dbase" ); break;
+				case ALM_MODE_MOD_PRO: DIRS_INLINE(mod_path,"prolog"); break;
+				case ALM_MODE_MOD_LSP: DIRS_INLINE(mod_path,"lisp"  ); break;
+				// ----------------------------------------------------------
+			}
+		}
+		
 		void check_module_or_application_or_library()
 		{
+			::std::string old_ident;
+
 			PL_ident = "";
 			PL_lookaheadChar =
 			PL_handle_pas_white_spaces();
@@ -1844,19 +1837,24 @@ namespace prolog
 				{	if (PL_ident == "module")
 					{
 						app_lib_mod_type = ALM_TYPE_MOD;
+						old_ident = "";
+						old_ident.clear();
 
 						PL_ident = "";
 						PL_lookaheadChar =
 						PL_handle_pas_white_spaces();
 
-						if(((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
-						|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
-						||  (PL_lookaheadChar == '_') )
+						if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+						||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+						||   (PL_lookaheadChar == '_') )
 						{
+							old_ident.push_back(PL_lookaheadChar);
 							PL_ident = "";
-							PL_ident.push_back(PL_lookaheadChar);
+
 							PL_lookaheadChar =
 							PL_get_ident();
+							
+							old_ident.append(PL_ident);
 
 							lab3:
 							PL_lookaheadChar =
@@ -1871,6 +1869,66 @@ namespace prolog
 								PL_line_col  = 1;
 								PL_line_row += 1;
 								goto lab3;
+							}	else
+							if (PL_lookaheadChar == '.') {
+								old_ident.push_back('/');
+								while (1) {
+									PL_lookaheadChar =
+									PL_handle_pas_white_spaces();
+									
+									if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+									||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+									||   (PL_lookaheadChar == '_') )
+									{
+										PL_lookaheadChar =
+										PL_get_ident();
+										
+										old_ident.append(PL_ident);
+
+										lab6:
+										PL_lookaheadChar =
+										PL_handle_pas_white_spaces();
+										
+										if (PL_lookaheadChar == ' '
+										||  PL_lookaheadChar == '\t') {
+											goto lab6;
+										}	else
+										if (PL_lookaheadChar == 0x0a
+										||  PL_lookaheadChar == 0x0d) {
+											PL_line_col  = 1;
+											PL_line_row += 1;
+											goto lab6;
+										}	else
+										if (PL_lookaheadChar == '.') {
+											old_ident.push_back('/');
+											continue;
+										}	else
+										if (PL_lookaheadChar == ';') {
+											switch (app_lib_mod_mode)
+											{
+												case ALM_MODE_MOD_PAS: mod_path.insert({"pascal",old_ident}); break;
+												case ALM_MODE_MOD_DBA: mod_path.insert({"dbase" ,old_ident}); break;
+												case ALM_MODE_MOD_PRO: mod_path.insert({"prolog",old_ident}); break;
+												case ALM_MODE_MOD_LSP: mod_path.insert({"lisp"  ,old_ident}); break;
+											}
+											PL_check_path();
+											PL_handle_module();
+											break;
+										}	else {
+											throw PL_Exception_ParserError(
+											//"module name not terminated."
+											locale_str( 139 ).c_str(),
+											PL_line_row,
+											PL_line_col);
+										}
+									}	else {
+										throw PL_Exception_ParserError(
+										//"unknown character found."
+										locale_str( 128 ).c_str(),
+										PL_line_row,
+										PL_line_col);
+									}
+								}
 							}	else
 							if (PL_lookaheadChar == ';') {
 								PL_handle_module();
@@ -1892,6 +1950,8 @@ namespace prolog
 					if (PL_ident == "library")
 					{
 						app_lib_mod_type = ALM_TYPE_LIB;
+						old_ident = "";
+						old_ident.clear();
 						
 						PL_ident = "";
 						PL_lookaheadChar =
@@ -1901,31 +1961,94 @@ namespace prolog
 						|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
 						||  (PL_lookaheadChar == '_') )
 						{
+							old_ident.push_back(PL_lookaheadChar);
 							PL_ident = "";
-							PL_ident.push_back(PL_lookaheadChar);
+
 							PL_lookaheadChar =
 							PL_get_ident();
+							
+							old_ident.append(PL_ident);
 
-							lab4:
+							lab7:
 							PL_lookaheadChar =
 							PL_handle_pas_white_spaces();
 
 							if (PL_lookaheadChar == ' '
 							||  PL_lookaheadChar == '\t') {
-								goto lab4;
+								goto lab7;
 							}	else
 							if (PL_lookaheadChar == 0x0a
 							||  PL_lookaheadChar == 0x0d) {
 								PL_line_col  = 1;
 								PL_line_row += 1;
-								goto lab4;
+								goto lab7;
+							}	else
+							if (PL_lookaheadChar == '.') {
+								old_ident.push_back('/');
+								while (1) {
+									PL_lookaheadChar =
+									PL_handle_pas_white_spaces();
+									
+									if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+									||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+									||   (PL_lookaheadChar == '_') )
+									{
+										PL_lookaheadChar =
+										PL_get_ident();
+										
+										old_ident.append(PL_ident);
+
+										lab8:
+										PL_lookaheadChar =
+										PL_handle_pas_white_spaces();
+										
+										if (PL_lookaheadChar == ' '
+										||  PL_lookaheadChar == '\t') {
+											goto lab8;
+										}	else
+										if (PL_lookaheadChar == 0x0a
+										||  PL_lookaheadChar == 0x0d) {
+											PL_line_col  = 1;
+											PL_line_row += 1;
+											goto lab8;
+										}	else
+										if (PL_lookaheadChar == '.') {
+											old_ident.push_back('/');
+											continue;
+										}	else
+										if (PL_lookaheadChar == ';') {
+											switch (app_lib_mod_mode)
+											{
+												case ALM_MODE_LIB_PAS: lib_path.insert({"pascal",old_ident}); break;
+												case ALM_MODE_LIB_DBA: lib_path.insert({"dbase" ,old_ident}); break;
+												case ALM_MODE_LIB_PRO: lib_path.insert({"prolog",old_ident}); break;
+												case ALM_MODE_LIB_LSP: lib_path.insert({"lisp"  ,old_ident}); break;
+											}
+											PL_check_path();
+											PL_handle_library();
+											break;
+										}	else {
+											throw PL_Exception_ParserError(
+											//"library name not terminated."
+											locale_str( 834 ).c_str(),
+											PL_line_row,
+											PL_line_col);
+										}
+									}	else {
+										throw PL_Exception_ParserError(
+										//"unknown character found."
+										locale_str( 128 ).c_str(),
+										PL_line_row,
+										PL_line_col);
+									}
+								}
 							}	else
 							if (PL_lookaheadChar == ';') {
-								PL_handle_library();
+								PL_handle_module();
 							}	else {
 								throw PL_Exception_ParserError(
-								//"library name not terminated."
-								locale_str( 145 ).c_str(),
+								//"module name not terminated."
+								locale_str( 139 ).c_str(),
 								PL_line_row,
 								PL_line_col);
 							}
@@ -1940,6 +2063,8 @@ namespace prolog
 					if (PL_ident == "application")
 					{
 						app_lib_mod_type = ALM_TYPE_APP;
+						old_ident = "";
+						old_ident.clear();
 
 						PL_ident = "";
 						PL_lookaheadChar =
@@ -1949,31 +2074,94 @@ namespace prolog
 						|| ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
 						||  (PL_lookaheadChar == '_') )
 						{
+							old_ident.push_back(PL_lookaheadChar);
 							PL_ident = "";
-							PL_ident.push_back(PL_lookaheadChar);
+
 							PL_lookaheadChar =
 							PL_get_ident();
+							
+							old_ident.append(PL_ident);
 
-							lab5:
+							lab9:
 							PL_lookaheadChar =
 							PL_handle_pas_white_spaces();
 
 							if (PL_lookaheadChar == ' '
 							||  PL_lookaheadChar == '\t') {
-								goto lab5;
+								goto lab9;
 							}	else
 							if (PL_lookaheadChar == 0x0a
 							||  PL_lookaheadChar == 0x0d) {
 								PL_line_col  = 1;
 								PL_line_row += 1;
-								goto lab5;
+								goto lab9;
+							}	else
+							if (PL_lookaheadChar == '.') {
+								old_ident.push_back('/');
+								while (1) {
+									PL_lookaheadChar =
+									PL_handle_pas_white_spaces();
+									
+									if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+									||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+									||   (PL_lookaheadChar == '_') )
+									{
+										PL_lookaheadChar =
+										PL_get_ident();
+										
+										old_ident.append(PL_ident);
+
+										lab10:
+										PL_lookaheadChar =
+										PL_handle_pas_white_spaces();
+										
+										if (PL_lookaheadChar == ' '
+										||  PL_lookaheadChar == '\t') {
+											goto lab10;
+										}	else
+										if (PL_lookaheadChar == 0x0a
+										||  PL_lookaheadChar == 0x0d) {
+											PL_line_col  = 1;
+											PL_line_row += 1;
+											goto lab10;
+										}	else
+										if (PL_lookaheadChar == '.') {
+											old_ident.push_back('/');
+											continue;
+										}	else
+										if (PL_lookaheadChar == ';') {
+											switch (app_lib_mod_mode)
+											{
+												case ALM_MODE_APP_PAS: app_path.insert({"pascal",old_ident}); break;
+												case ALM_MODE_APP_DBA: app_path.insert({"dbase" ,old_ident}); break;
+												case ALM_MODE_APP_PRO: app_path.insert({"prolog",old_ident}); break;
+												case ALM_MODE_APP_LSP: app_path.insert({"lisp"  ,old_ident}); break;
+											}
+											PL_check_path();
+											PL_handle_application();
+											break;
+										}	else {
+											throw PL_Exception_ParserError(
+											//"application name not terminated."
+											locale_str( 833 ).c_str(),
+											PL_line_row,
+											PL_line_col);
+										}
+									}	else {
+										throw PL_Exception_ParserError(
+										//"unknown character found."
+										locale_str( 128 ).c_str(),
+										PL_line_row,
+										PL_line_col);
+									}
+								}
 							}	else
 							if (PL_lookaheadChar == ';') {
-								PL_handle_application ();
+								PL_handle_module();
 							}	else {
 								throw PL_Exception_ParserError(
-								//"application name not terminated."
-								locale_str( 144 ).c_str(),
+								//"module name not terminated."
+								locale_str( 139 ).c_str(),
 								PL_line_row,
 								PL_line_col);
 							}
@@ -1984,12 +2172,6 @@ namespace prolog
 							PL_line_row,
 							PL_line_col);
 						}
-					}	else {
-						throw PL_Exception_ParserError(
-						//"module expected",
-						locale_str( 140 ).c_str(),
-						PL_line_row,
-						PL_line_col);
 					}
 				}
 			}
@@ -5265,7 +5447,7 @@ namespace prolog
 		}
 
 		if (ss.str().size() > 0)
-		throw PL_Exception_Application( ss.str().c_str() );
+		throw PL_Exception_Application( ss.str() );
 
 		//::std::cout << ss.str() <<
 		//::std::endl ;
@@ -6520,10 +6702,6 @@ int main(int argc, char **argv)
 			app_lang = 1;	// <-- todo
 
 			#if defined(_WIN32)
-			// GetLastError ...
-			for (uint16_t i = 0; i < 87; i++)
-			error_message.insert({i, ::std::make_pair(146 + i, 147 + i) });
-		
 			//Application< Desktop >( argv_vec );
 			//Application< Console >( argv_vec );
 			#define WinApp( x )              \

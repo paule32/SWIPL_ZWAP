@@ -31,8 +31,8 @@ if [[ "${machine}" == "Linux" ]]; then
 	dos2unix locale.deu.txt
 fi
 
-echo "english:" && ./createLang${exeEXT} locale.eng.txt locale.eng
-echo "german: " && ./createLang${exeEXT} locale.deu.txt locale.deu
+printf "english: " && ./createLang${exeEXT} locale.eng.txt locale.eng
+printf "german : " && ./createLang${exeEXT} locale.deu.txt locale.deu
 echo "done."
 
 # create the Turbo Vision help file

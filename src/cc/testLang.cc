@@ -48,8 +48,15 @@ int main(int argc, char **argv)
 	// header
 	uint32_t version;
 	uint8_t  locaver;
-	fread(&version, 1, sizeof(uint32_t), in);
-	fread(&locaver, 1, sizeof(uint8_t ), in);
+	uint16_t numitem;
+	
+	fread( &version, 1, sizeof(uint32_t), in );
+	fread( &locaver, 1, sizeof(uint8_t ), in );
+	fread( &numitem, 1, sizeof(uint16_t), in );
+
+	fprintf( stdout, "version: %d\n", version );
+	fprintf( stdout, "locaver: %d\n", locaver );
+	fprintf( stdout, "numitem: %d\n", numitem );
 	
 	// check version
 	if (version != 20230409) {
@@ -69,64 +76,33 @@ int main(int argc, char **argv)
 	}
 
 	// if no item found, then do nothing
-	uint32_t numitems;
-	fread(&numitems, 1, sizeof(uint32_t), in);
-	if (numitems < 1) {
+	if (numitem < 1) {
 		fprintf(stderr,"no items found.");
 		fflush (stderr);
 		fclose(in);
 		return 1;
 	}
 	
-	fprintf(stdout,"items: %d\n",numitems);
-	
-	int header_size  = sizeof( uint32_t );  // items
-	    header_size += sizeof( uint32_t );  // version
-		header_size += sizeof( uint8_t  );  // locaver
-		
-		header_size += numitems * sizeof( uint32_t );  // len
-		header_size += numitems * sizeof( uint32_t );  // pos
-		
-	printf("header: %d  --  0x%x\n", header_size,header_size);
-	
 	// items found, then read it in
-	::std::vector< uint32_t > apos;
-	::std::vector< uint32_t > alen;
+	::std::vector< ::std::string > astr;
 
-	char * buffer  = new char[256];
-	char * puffer  = new char[256];
+	uint16_t len = 0;
 
-	int    pos = 0;
-	int    len = 0;
+	for (uint16_t i = 0; i < numitem; i++) {
+		fread( &len, 1, sizeof(uint16_t), in );
 
-	for (int i = 0; i < numitems; i++) {
-		fread(&len, 1, sizeof(uint32_t), in);
-		apos.push_back( len );
+		char * buffer = new char[len+1];
+		fread( buffer, 1, len, in );
+		buffer[len] = '\0';
+
+		fprintf(stdout,"--> %5d  %s\n", len, buffer);
+
+		astr.push_back( buffer );
+		delete buffer;
 	}
-	for (int i = 0; i < numitems; i++) {
-		fread(&pos, 1, sizeof(uint32_t), in);
-		alen.push_back( pos );
-	}
-	
-	fseek(in, header_size, SEEK_SET);
-	int poo = header_size;
-	for (int i = 0; i < numitems; i++) {
-		pos = alen.at( i );
-		len = apos.at( i );
-		
-		fseek(in,poo,0);
-		fread(buffer, 1, len, in);
-		buffer[len] = 0x00;
-		poo += len + 1;
-		
-		sprintf(puffer,"--> %s\n",buffer);
-		fprintf(stdout,"--> %5d - 0x%06x  %s", len, poo, puffer);
-	}
-	
-	delete buffer;
-	delete puffer;
-	
+
 	// no needed anymore
 	fclose(in);	
+
 	return 0;
 }

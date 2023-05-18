@@ -318,3 +318,518 @@ The local device name is already in use
 ALREADY_ASSIGNED
 The specified network password is not correct
 INVALID_PASSWORD
+Der Parameter ist falsch
+INVALID_PARAMETER
+Fehler beim Schreiben im Netzwerk
+NET_WRITE_FAULT
+Das System kann derzeit keinen anderen Prozess starten
+NO_PROC_SLOTS
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Ein anderes System-Semaphor kann nicht erstellt werden
+TOO_MANY_SEMAPHORES
+Der exklusive Semaphor ist eigentum an einem anderen Prozess
+EXCL_SEM_ALREADY_OWNED
+Das Semaphor ist festgelegt und kann nicht geschlossen werden
+SEM_IS_SET
+Die Semaphore kann nicht erneut festgelegt werden
+TOO_MANY_SEM_REQUESTS
+Exklusive semaphoren können zur Unterbrechung nicht angefordert werden
+INVALID_AT_INTERRUPT_TIME
+Der vorherige Besitz dieses Semaphores wurde beendet
+SEM_OWNER_DIED
+Legen Sie die Diskette für das Laufwerk %1 ein
+SEM_USER_LIMIT
+Das Programm wurde beendet, weil eine alternative Diskette nicht eingefügt wurde
+DISK_CHANGE
+Der Datenträger wird von einem anderen Prozess verwendet oder gesperrt
+DRIVE_LOCKED
+Das Rohr wurde beendet
+BROKEN_PIPE
+Das System kann das angegebene Gerät oder die angegebene Datei nicht öffnen
+OPEN_FAILED
+Der Dateiname ist zu lang
+BUFFER_OVERFLOW
+Es ist nicht genügend Speicherplatz vorhanden
+DISK_FULL
+Es sind keine internen Dateibezeichner verfügbar
+NO_MORE_SEARCH_HANDLES
+Der interne Zieldateibezeichner ist falsch
+INVALID_TARGET_HANDLE
+:nil
+:nil
+:nil
+:nil
+Der vom Anwendungsprogramm vorgenommene IOCTL-Aufruf ist nicht korrekt
+INVALID_CATEGORY
+Der Parameterwert des Parameterwerts für den Überprüfen-On-Write-Schalter ist nicht korrekt
+INVALID_VERIFY_SWITCH
+Das System unterstützt den angeforderten Befehl nicht
+BAD_DRIVER_LEVEL
+Diese Funktion wird auf diesem System nicht unterstützt
+CALL_NOT_IMPLEMENTED
+Der Zeitüberschreitungszeitraum für Semaphore ist abgelaufen
+SEM_TIMEOUT
+Der an einen Systemaufruf übergebene Datenbereich ist zu klein
+INSUFFICIENT_BUFFER
+Die Syntax des Dateinamens, des Verzeichnisnamens oder der Volumebezeichnung ist falsch
+INVALID_NAME
+Die Systemanrufebene ist nicht korrekt
+INVALID_LEVEL
+Der Datenträger verfügt über keine Volumebezeichnung
+NO_VOLUME_LABEL
+Das angegebene Modul wurde nicht gefunden
+MOD_NOT_FOUND
+Die angegebene Prozedur konnte nicht gefunden werden
+PROC_NOT_FOUND
+Es gibt keine untergeordneten Prozesse, auf die gewartet werden soll.
+WAIT_NO_CHILDREN
+Die Anwendung %1 kann nicht im Win32-Modus ausgeführt werden
+CHILD_NOT_COMPLETE
+Versuchen Sie, ein Dateihandle zu einer geöffneten Datenträgerpartition für einen anderen Vorgang als unformatierte Datenträger-I/O zu verwenden
+DIRECT_ACCESS_HANDLE
+Es wurde versucht, den Dateizeiger vor dem Anfang der Datei zu verschieben
+NEGATIVE_SEEK
+Der Dateizeiger kann nicht auf dem angegebenen Gerät oder der angegebenen Datei festgelegt werden
+SEEK_ON_DEVICE
+Ein JOIN- oder SUBST-Befehl kann nicht für ein Laufwerk verwendet werden, das zuvor verknüpfte Laufwerke enthält
+IS_JOIN_TARGET
+Es wurde versucht, einen JOIN- oder SUBST-Befehl auf einem Laufwerk zu verwenden, das bereits verbunden wurde
+IS_JOINED
+Es wurde versucht, einen JOIN- oder SUBST-Befehl auf einem Laufwerk zu verwenden, das bereits ersetzt wurde
+IS_SUBSTED
+Das System hat versucht, den JOIN eines Laufwerks zu löschen, das nicht verbunden ist
+NOT_JOINED
+Das System hat versucht, die Ersetzung eines Laufwerks zu löschen, das nicht ersetzt wird
+NOT_SUBSTED
+Das System hat versucht, einem Laufwerk auf einem verknüpften Laufwerk ein Verzeichnis zuzuordnen
+JOIN_TO_JOIN
+Das System hat versucht, ein Laufwerk in ein Verzeichnis auf einem ersetzten Laufwerk zu ersetzen
+SUBST_TO_SUBST
+Das System hat versucht, einem Laufwerk auf einem ersetzten Laufwerk ein Verzeichnis zuzuordnen
+JOIN_TO_SUBST
+Das System hat versucht, ein Laufwerk auf einem verknüpften Laufwerk zu einem Verzeichnis zu subST
+SUBST_TO_JOIN
+Das System kann derzeit keinen JOIN oder SUBST ausführen
+BUSY_DRIVE
+Das System kann weder einem Laufwerk noch einem Verzeichnis auf demselben Laufwerk beitreten oder ersetzen
+SAME_DRIVE
+Das Verzeichnis ist kein Unterverzeichnis des Stammverzeichnisses
+DIR_NOT_ROOT
+Das Verzeichnis ist nicht leer
+DIR_NOT_EMPTY
+Der angegebene Pfad wird in einem Ersatz verwendet
+IS_SUBST_PATH
+Nicht genügend Ressourcen sind verfügbar, um diesen Befehl zu verarbeiten
+IS_JOIN_PATH
+Der angegebene Pfad kann derzeit nicht verwendet werden
+PATH_BUSY
+Es wurde versucht, ein Laufwerk zu verknüpfen oder zu ersetzen, für das ein Verzeichnis auf dem Laufwerk das Ziel eines vorherigen Ersatzs ist
+IS_SUBST_TARGET
+Systemablaufverfolgungsinformationen wurden in Ihrer CONFIG.SYS-Datei nicht angegeben, oder die Ablaufverfolgung ist nicht zulässig
+SYSTEM_TRACE
+Die Anzahl der angegebenen semaphore-Ereignisse für DosMuxSemWait ist nicht korrekt
+INVALID_EVENT_COUNT
+DosMuxSemWait wurde nicht ausgeführt; zu viele Semaphoren sind bereits festgelegt
+TOO_MANY_MUXWAITERS
+Die DosMuxSemWait-Liste ist nicht korrekt
+INVALID_LIST_FORMAT
+Die eingegebene Volumebeschriftung überschreitet die Bezeichnungszeichengrenze des Zieldateisystems
+LABEL_TOO_LONG
+Ein anderer Thread kann nicht erstellt werden
+TOO_MANY_TCBS
+Der Empfängervorgang hat das Signal abgelehnt
+SIGNAL_REFUSED
+Das Segment ist bereits verworfen und kann nicht gesperrt werden
+DISCARDED
+Das Segment ist bereits entsperrt
+NOT_LOCKED
+Die Adresse für die Thread-ID ist nicht korrekt
+BAD_THREADID_ADDR
+Ein oder mehrere Argumente sind nicht richtig
+BAD_ARGUMENTS
+Der angegebene Pfad ist ungültig
+BAD_PATHNAME
+Ein Signal ist bereits ausstehend
+SIGNAL_PENDING
+:nil
+:nil
+Es können keine weiteren Threads im System erstellt werden
+MAX_THRDS_REACHED
+:nil
+:nil
+:nil
+:nil
+Eine Datei kann nicht gesperrt werden
+LOCK_FAILED
+:nil
+:nil
+:nil
+:nil
+Die angeforderte Ressource wird verwendet
+BUSY
+Die Befehlsunterstützungserkennung des Geräts wird ausgeführt
+DEVICE_SUPPORT_IN_PROGRESS
+:nil
+:nil
+Eine Sperranforderung war für den angegebenen Abbruchbereich nicht ausstehender Wert
+CANCEL_VIOLATION
+Das Dateisystem unterstützt keine atomaren Änderungen an dem Sperrtyp
+ATOMIC_LOCKS_NOT_SUPPORTED
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Das System hat eine Segmentnummer erkannt, die nicht richtig war
+INVALID_SEGMENT_NUMBER
+:nil
+:nil
+Das Betriebssystem kann %1 nicht ausführen
+INVALID_ORDINAL
+Eine Datei kann nicht erstellt werden, wenn die Datei bereits vorhanden ist
+ALREADY_EXISTS
+:nil
+:nil
+:nil
+:nil
+Das übergebene Flag ist nicht richtig
+INVALID_FLAG_NUMBER
+Der angegebene System-Semaphorename wurde nicht gefunden
+SEM_NOT_FOUND
+Das Betriebssystem kann %1 nicht ausführen
+INVALID_STARTING_CODESEG
+Das Betriebssystem kann %1 nicht ausführen
+INVALID_STACKSEG
+Das Betriebssystem kann %1 nicht ausführen
+INVALID_MODULETYPE
+%1 kann im Win32-Modus nicht ausgeführt werden
+INVALID_EXE_SIGNATURE
+Das Betriebssystem kann %1 nicht ausführen
+EXE_MARKED_INVALID
+%1 ist keine gültige Win32-Anwendung
+BAD_EXE_FORMAT
+Das Betriebssystem kann %1 nicht ausführen.
+ITERATED_DATA_EXCEEDS_64k
+Das Betriebssystem kann %1 nicht ausführen
+INVALID_MINALLOCSIZE
+Das Betriebssystem kann dieses Anwendungsprogramm nicht ausführen
+DYNLINK_FROM_INVALID_RING
+Das Betriebssystem ist nicht für die Ausführung dieser Anwendung konfiguriert
+IOPL_NOT_ENABLED
+Das Betriebssystem kann %1 nicht ausführen
+INVALID_SEGDPL
+Das Betriebssystem kann dieses Anwendungsprogramm nicht ausführen
+AUTODATASEG_EXCEEDS_64k
+Das Codesegment kann nicht größer oder gleich 64K sein
+RING2SEG_MUST_BE_MOVABLE
+Das Betriebssystem kann %1 nicht ausführen
+RELOC_CHAIN_XEEDS_SEGLIM
+Das Betriebssystem kann %1 nicht ausführen
+INFLOOP_IN_RELOC_CHAIN
+Das System konnte die Umgebungsoption nicht finden, die eingegeben wurde
+ENVVAR_NOT_FOUND
+:nil
+:nil
+Kein Prozess in der Befehlsunterstruktur verfügt über einen Signalhandler
+NO_SIGNAL_SENT
+Der Dateiname oder die Erweiterung ist zu lang
+FILENAME_EXCED_RANGE
+Der Ring 2-Stapel wird verwendet
+RING2_STACK_IN_USE
+Die globalen Dateinamenzeichen * oder ?, werden falsch oder zu viele globale Dateinamenzeichen angegeben
+META_EXPANSION_TOO_LONG
+Das gepostete Signal ist nicht richtig
+INVALID_SIGNAL_NUMBER
+Der Signalhandler kann nicht festgelegt werden
+THREAD_1_INACTIVE
+:nil
+:nil
+Das Segment ist gesperrt und kann nicht neu zugeordnet werden
+LOCKED
+:nil
+:nil
+Zu viele Dynamische Verknüpfungsmodule werden an dieses Programm- oder Dynamic-Link-Modul angefügt
+TOO_MANY_MODULES
+Aufrufe von LoadModule können nicht geschachtelt werden
+NESTING_NOT_ALLOWED
+Diese Version von %1 ist nicht kompatibel mit der Version von Windows, die Sie ausführen. Überprüfen Sie die Systeminformationen Ihres Computers, und wenden Sie sich dann an den Softwareherausgeber
+EXE_MACHINE_TYPE_MISMATCH
+Die Bilddatei %1 ist signiert, kann nicht geändert werden
+EXE_CANNOT_MODIFY_SIGNED_BINARY
+Die Bilddatei %1 ist stark signiert, kann nicht geändert werden
+EXE_CANNOT_MODIFY_STRONG_SIGNED_BINARY
+:nil
+:nil
+Diese Datei ist ausgecheckt oder für die Bearbeitung durch einen anderen Benutzer gesperrt
+FILE_CHECKED_OUT
+Die Datei muss ausgecheckt werden, bevor Änderungen gespeichert werden
+CHECKOUT_REQUIRED
+Der dateityp, der gespeichert oder abgerufen wird, wurde blockiert
+BAD_FILE_TYPE
+Die Dateigröße überschreitet den zulässigen Grenzwert und kann nicht gespeichert werden
+FILE_TOO_LARGE
+Zugriff verweigert. Bevor Sie Dateien an diesem Speicherort öffnen, müssen Sie zuerst der Liste der vertrauenswürdigen Websites die Website hinzufügen, zur Website navigieren und die Option auswählen, sich automatisch anzumelden
+FORMS_AUTH_REQUIRED
+Der Vorgang wurde nicht erfolgreich abgeschlossen, da die Datei einen Virus oder potenziell unerwünschte Software enthält
+VIRUS_INFECTED
+Diese Datei enthält ein Virus oder potenziell unerwünschte Software und kann nicht geöffnet werden. Aufgrund der Art dieses Virus oder potenziell unerwünschter Software wurde die Datei von diesem Speicherort entfernt
+VIRUS_DELETED
+:nil
+:nil
+:nil
+:nil
+Das Rohr ist lokal
+PIPE_LOCAL
+Der Rohrzustand ist ungültig
+BAD_PIPE
+Alle Pipeinstanzen sind ausgelastet
+PIPE_BUSY
+Die Leitung wird geschlossen
+NO_DATA
+Kein Prozess befindet sich am anderen Ende des Rohrs
+PIPE_NOT_CONNECTED
+Weitere Daten sind verfügbar
+MORE_DATA
+Die Sitzung wurde abgebrochen
+VC_DISCONNECTED
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Der angegebene name des erweiterten Attributs war ungültig
+INVALID_EA_NAME
+Die erweiterten Attribute sind inkonsistent
+EA_LIST_INCONSISTENT
+:nil
+:nil
+:nil
+:nil
+Timeout bei Wartevorgang
+TIMEOUT
+Es sind keine weiteren Daten verfügbar
+NO_MORE_ITEMS
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Die Kopierfunktionen können nicht verwendet werden
+CANNOT_COPY
+Der Verzeichnisname ist ungültig
+DIRECTORY
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Die erweiterten Attribute passen nicht in den Puffer
+EAS_DIDNT_FIT
+Die erweiterte Attributdatei im bereitgestellten Dateisystem ist beschädigt
+EA_FILE_CORRUPT
+Die Erweiterte Attributtabellendatei ist voll
+EA_TABLE_FULL
+Der angegebene erweiterte Attributziehpunkt ist ungültig
+INVALID_EA_HANDLE
+:nil
+:nil
+:nil
+Das bereitgestellte Dateisystem unterstützt keine erweiterten Attribute
+EAS_NOT_SUPPORTED
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Versuchen Sie, mutex nicht im Besitz des Anrufers zu veröffentlichen
+NOT_OWNER
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+:nil
+Zu viele Beiträge wurden zu einem Semaphor gemacht
+TOO_MANY_POSTS
+Nur ein Teil einer ReadProcessMemory- oder WriteProcessMemory-Anforderung wurde abgeschlossen
+PARTIAL_COPY
+Die Oplock-Anforderung wird verweigert
+OPLOCK_NOT_GRANTED
+Eine ungültige Oplock-Bestätigung wurde vom System empfangen
+INVALID_OPLOCK_PROTOCOL
+Das Volume ist zu fragmentiert, um diesen Vorgang abzuschließen
+DISK_TOO_FRAGMENTED
+Die Datei kann nicht geöffnet werden, da sie sich im Prozess des Löschens befindet
+DELETE_PENDING
+Kurznameneinstellungen werden möglicherweise aufgrund der globalen Registrierungseinstellung nicht auf diesem Volume geändert
+INCOMPATIBLE_WITH_GLOBAL_SHORT_NAME_REGISTRY_SETTING
+Kurznamen sind auf diesem Volume nicht aktiviert
+SHORT_NAMES_NOT_ENABLED_ON_VOLUME
+Der Sicherheitsdatenstrom für das angegebene Volume befindet sich in einem inkonsistenten Zustand. Führen Sie CHKDSK auf dem Volume aus
+SECURITY_STREAM_IS_INCONSISTENT
+Ein angeforderter Dateisperrvorgang kann aufgrund eines ungültigen Bytebereichs nicht verarbeitet werden
+INVALID_LOCK_RANGE
+Das Zum Unterstützen des Imagetyps erforderliche Subsystem ist nicht vorhanden
+IMAGE_SUBSYSTEM_NOT_PRESENT
+Die angegebene Datei hat bereits eine Benachrichtigungs-GUID zugeordnet
+NOTIFICATION_GUID_ALREADY_DEFINED
+Es wurde eine ungültige Ausnahmehandlerroutine erkannt
+INVALID_EXCEPTION_HANDLER
+Doppelte Berechtigungen wurden für das Token angegeben
+DUPLICATE_PRIVILEGES
+Es konnten keine Bereiche für den angegebenen Vorgang verarbeitet werden
+NO_RANGES_PROCESSED
+Der Vorgang ist für eine interne Datei des Dateisystems nicht zulässig
+NOT_ALLOWED_ON_SYSTEM_FILE
+Die physischen Ressourcen dieses Datenträgers wurden ausgelastet
+DISK_RESOURCES_EXHAUSTED
+Das Token, das die Daten darstellt, ist ungültig
+INVALID_TOKEN
+Das Gerät unterstützt das Befehlsfeature nicht
+DEVICE_FEATURE_NOT_SUPPORTED
+Das System kann den Nachrichtentext für die Nachrichtennummer 0x%1 in der Nachrichtendatei für %2 nicht finden
+MR_MID_NOT_FOUND
+Der angegebene Bereich wurde nicht gefunden
+SCOPE_NOT_FOUND
+Die angegebene Zentrale Zugriffsrichtlinie ist auf dem Zielcomputer nicht definiert
+UNDEFINED_SCOPE
+Die von Active Directory abgerufene Zentrale Zugriffsrichtlinie ist ungültig
+INVALID_CAP
+Das Gerät ist nicht erreichbar
+DEVICE_UNREACHABLE
+Das Zielgerät verfügt über unzureichende Ressourcen, um den Vorgang abzuschließen
+DEVICE_NO_RESOURCES
+Fehler bei der Datenintegritätsüberprüfung. Daten im Dateidatenstrom sind beschädigt
+DATA_CHECKSUM_ERROR
+Es wurde versucht, sowohl ein KERNEL- als auch ein normales erweitertes Attribut (EA) im gleichen Vorgang zu ändern
+INTERMIXED_KERNEL_EA_OPERATION
+:nil
+:nil
+Das Gerät unterstützt keine TRIM auf Dateiebene
+FILE_LEVEL_TRIM_NOT_SUPPORTED
+Der Befehl hat einen Datenversatz angegeben, der nicht an die Granularität/Ausrichtung des Geräts ausgerichtet ist
+OFFSET_ALIGNMENT_VIOLATION
+Der Befehl hat in der Parameterliste ein ungültiges Feld angegeben
+INVALID_FIELD_IN_PARAMETER_LIST
+Ein Vorgang wird derzeit mit dem Gerät ausgeführt
+OPERATION_IN_PROGRESS
+Es wurde versucht, den Befehl über einen ungültigen Pfad an das Zielgerät zu senden
+BAD_DEVICE_PATH
+Der Befehl hat eine Anzahl von Deskriptoren angegeben, die das vom Gerät unterstützte Maximum überschritten haben
+TOO_MANY_DESCRIPTORS
+Scrub ist in der angegebenen Datei deaktiviert
+SCRUB_DATA_DISABLED
+Das Speichergerät stellt keine Redundanz bereit
+NOT_REDUNDANT_STORAGE
+Ein Vorgang wird in einer residenten Datei nicht unterstützt
+RESIDENT_FILE_NOT_SUPPORTED
+Ein Vorgang wird für eine komprimierte Datei nicht unterstützt
+COMPRESSED_FILE_NOT_SUPPORTED
+Ein Vorgang wird in einem Verzeichnis nicht unterstützt
+DIRECTORY_NOT_SUPPORTED
+Die angegebene Kopie der angeforderten Daten konnte nicht gelesen werden
+NOT_READ_FROM_COPY
+:nil
+:nil
+:nil
+:nil
+Es ist keine Aktion erforderlich, da ein Systemneustart erforderlich ist
+FAIL_NOACTION_REBOOT
+Fehler beim Herunterfahren
+FAIL_SHUTDOWN
+Fehler beim Neustartvorgang
+FAIL_RESTART
+Die maximale Anzahl von Sitzungen wurde erreicht
+MAX_SESSIONS_REACHED
+:nil 353
+:nil 400
+Der Thread befindet sich bereits im Hintergrundverarbeitungsmodus
+THREAD_MODE_ALREADY_BACKGROUND
+Der Thread befindet sich nicht im Hintergrundverarbeitungsmodus
+THREAD_MODE_NOT_BACKGROUND
+Der Prozess befindet sich bereits im Hintergrundverarbeitungsmodus
+ERROR_PROCESS_MODE_ALREADY_BACKGROUND
+Der Prozess befindet sich nicht im Hintergrundverarbeitungsmodus
+PROCESS_MODE_NOT_BACKGROUND
+:nil 403
+:nil 487
+Versuchen Sie, auf ungültige Adresse zuzugreifen
+INVALID_ADDRESS
+application not terminated - maybe a ';' is missing ?
+library not terminated - maybe a ';' is missing ?

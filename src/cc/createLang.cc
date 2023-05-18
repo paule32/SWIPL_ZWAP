@@ -75,45 +75,20 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	// number of items
-	::std::vector< uint32_t > apos;
-	for (auto &item: str_data)
-	apos.push_back( item.size());
-	
 	// header
-	uint32_t version = 20230409;
-	uint8_t  locaver = 1;
-	fwrite(&version, 1, sizeof(uint32_t),out);
-	fwrite(&locaver, 1, sizeof(uint8_t ),out);
+	uint32_t version  = 20230409;
+	uint8_t  locaver  = 1;
+	uint16_t numitems = str_data.size();
 	
-	uint32_t header_size  = apos.size() * sizeof( uint32_t );  // items
-		     header_size +=               sizeof( uint32_t );  // version
-		     header_size +=               sizeof( uint8_t  );  // locaver
+	fwrite(&version , 1, sizeof(uint32_t),out);
+	fwrite(&locaver , 1, sizeof(uint8_t ),out);
+	fwrite(&numitems, 1, sizeof(uint16_t),out);
 	
-	uint32_t numitems = apos.size();
-	fwrite(&numitems, 1, sizeof(uint32_t), out);
-	
-	// position in file + header size
-	uint32_t pos = header_size;
-	uint32_t poo = 0;
-
-	// the size
-	for (auto &item: apos) {
-		poo = item;
-		fwrite( &poo, 1, sizeof(uint32_t), out);
-	}
-	// the offset
-	pos = header_size;
+	// the length
 	for (auto &item: str_data) {
-		fwrite( &pos, 1, sizeof(uint32_t), out);
-		pos += item.size();
-	}
-	
-	// data
-	char dummy = 0x0;
-	for (auto &item: str_data) {
-		fwrite( item.c_str(), 1, item.size(), out);
-		fwrite( &dummy,1,1,out);
+		uint16_t len = item.size();
+		fwrite(&len, 1, sizeof(uint16_t), out);
+		fwrite( item.c_str(), 1, len, out);
 	}
 
 	fclose(out);

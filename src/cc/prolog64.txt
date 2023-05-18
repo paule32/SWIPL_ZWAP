@@ -1524,6 +1524,8 @@ Syntax: ADC <Zieloperand>,<Quelloperand>
  => Fenster Funktionen:
  {Hauptfenster erstellen:win32api_CreatingaMainWindow_DEU}
 
+ => {Systemfehler-Codes 0 - 499:win32api_SystemFehlerCodes_0bis499_DEU}
+ 
 ; -------------------------------------------------------------------------
 ; win32api
 ; english
@@ -2980,3 +2982,5360 @@ Syntax: ADC <Zieloperand>,<Quelloperand>
  {win32api:win32api_ENG}
 
 ; -------------------------------------------------------------------------
+.topic win32api_SystemFehlerCodes_0bis499_DEU
+ Systemfehlercodes (0 bis 499)
+ -----------------------------
+ In der folgenden Liste werden Systemfehlercodes (Fehler 0 bis 499)
+ beschrieben. Sie werden von der GetLastError-Funktion zurückgegeben,
+ wenn viele Funktionen fehlschlagen.
+ Um den Beschreibungstext für den Fehler in Ihrer Anwendung abzurufen,
+ verwenden Sie die FormatMessage-Funktion mit dem
+ FORMAT_MESSAGE_FROM_SYSTEM Flag.
+ 
+ {DEU:ERROR_SUCCESS_DEU} - {ENG:ERROR_SUCCESS_ENG} : ERROR_SUCCESS
+ {DEU:ERROR_INVALID_FUNCTION_DEU} - {ENG:ERROR_INVALID_FUNCTION_ENG} : ERROR_INVALID_FUNCTION
+ {DEU:ERROR_FILE_NOT_FOUND_DEU} - {ENG:ERROR_FILE_NOT_FOUND_ENG} : ERROR_FILE_NOT_FOUND
+ {DEU:ERROR_PATH_NOT_FOUND_DEU} - {ENG:ERROR_PATH_NOT_FOUND_ENG} : ERROR_PATH_NOT_FOUND
+ {DEU:ERROR_TOO_MANY_OPEN_FILES_DEU} - {ENG:ERROR_TOO_MANY_OPEN_FILES_ENG} : ERROR_TOO_MANY_OPEN_FILES
+ {DEU:ERROR_ACCESS_DENIED_DEU} - {ENG:ERROR_ACCESS_DENIED_ENG} : ERROR_ACCESS_DENIED
+ {DEU:ERROR_INVALID_HANDLE_DEU} - {ENG:ERROR_INVALID_HANDLE_ENG} : ERROR_INVALID_HANDLE
+ {DEU:ERROR_ARENA_TRASHED_DEU} - {ENG:ERROR_ARENA_TRASHED_ENG} : ERROR_ARENA_TRASHED
+ {DEU:ERROR_NOT_ENOUGH_MEMORY_DEU} - {ENG:ERROR_NOT_ENOUGH_MEMORY_ENG} : ERROR_NOT_ENOUGH_MEMORY
+ {DEU:ERROR_INVALID_BLOCK_DEU} - {ENG:ERROR_INVALID_BLOCK_ENG} : ERROR_INVALID_BLOCK
+ {DEU:ERROR_BAD_ENVIRONMENT_DEU} - {ENG:ERROR_BAD_ENVIRONMENT_ENG} : ERROR_BAD_ENVIRONMENT
+ {DEU:ERROR_BAD_FORMAT_DEU} - {ENG:ERROR_BAD_FORMAT_ENG} : ERROR_BAD_FORMAT
+ {DEU:ERROR_INVALID_ACCESS_DEU} - {ENG:ERROR_INVALID_ACCESS_ENG} : ERROR_INVALID_ACCESS
+ {DEU:ERROR_INVALID_DATA_DEU} - {ENG:ERROR_INVALID_DATA_ENG} : ERROR_INVALID_DATA
+ {DEU:ERROR_OUTOFMEMORY_DEU} - {ENG:ERROR_OUTOFMEMORY_ENG} : ERROR_OUTOFMEMORY
+ {DEU:ERROR_INVALID_DRIVE_DEU} - {ENG:ERROR_INVALID_DRIVE_ENG} : ERROR_INVALID_DRIVE
+ {DEU:ERROR_CURRENT_DIRECTORY_DEU} - {ENG:ERROR_CURRENT_DIRECTORY_ENG} : ERROR_CURRENT_DIRECTORY
+ {DEU:ERROR_NOT_SAME_DEVICE_DEU} - {ENG:ERROR_NOT_SAME_DEVICE_ENG} : ERROR_NOT_SAME_DEVICE
+ {DEU:ERROR_NO_MORE_FILES_DEU} - {ENG:ERROR_NO_MORE_FILES_ENG} : ERROR_NO_MORE_FILES
+ {DEU:ERROR_WRITE_PROTECT_DEU} - {ENG:ERROR_WRITE_PROTECT_ENG} : ERROR_WRITE_PROTECT
+ {DEU:ERROR_BAD_UNIT_DEU} - {ENG:ERROR_BAD_UNIT_ENG} : ERROR_BAD_UNIT
+ {DEU:ERROR_NOT_READY_DEU} - {ENG:ERROR_NOT_READY_ENG} : ERROR_NOT_READY
+ {DEU:ERROR_BAD_COMMAND_DEU} - {ENG:ERROR_BAD_COMMAND_ENG} : ERROR_BAD_COMMAND
+ {DEU:ERROR_CRC_DEU} - {ENG:ERROR_CRC_ENG} : ERROR_CRC
+ {DEU:ERROR_BAD_LENGTH_DEU} - {ENG:ERROR_BAD_LENGTH_ENG} : ERROR_BAD_LENGTH
+ {DEU:ERROR_SEEK_DEU} - {ENG:ERROR_SEEK_ENG} : ERROR_SEEK
+ {DEU:ERROR_NOT_DOS_DISK_DEU} - {ENG:ERROR_NOT_DOS_DISK_ENG} : ERROR_NOT_DOS_DISK
+ {DEU:ERROR_SECTOR_NOT_FOUND_DEU} - {ENG:ERROR_SECTOR_NOT_FOUND_ENG} : ERROR_SECTOR_NOT_FOUND
+ {DEU:ERROR_OUT_OF_PAPER_DEU} - {ENG:ERROR_OUT_OF_PAPER_ENG} : ERROR_OUT_OF_PAPER
+ {DEU:ERROR_WRITE_FAULT_DEU} - {ENG:ERROR_WRITE_FAULT_ENG} : ERROR_WRITE_FAULT
+ {DEU:ERROR_READ_FAULT_DEU} - {ENG:ERROR_READ_FAULT_ENG} : ERROR_READ_FAULT
+ {DEU:ERROR_GEN_FAILURE_DEU} - {ENG:ERROR_GEN_FAILURE_ENG} : ERROR_GEN_FAILURE
+ {DEU:ERROR_SHARING_VIOLATION_DEU} - {ENG:ERROR_SHARING_VIOLATION_ENG} : ERROR_SHARING_VIOLATION
+ {DEU:ERROR_LOCK_VIOLATION_DEU} - {ENG:ERROR_LOCK_VIOLATION_ENG} : ERROR_LOCK_VIOLATION
+ {DEU:ERROR_WRONG_DISK_DEU} - {ENG:ERROR_WRONG_DISK_ENG} : ERROR_WRONG_DISK
+ {DEU:ERROR_SHARING_BUFFER_EXCEEDED_DEU} - {ENG:ERROR_SHARING_BUFFER_EXCEEDED_ENG} : ERROR_SHARING_BUFFER_EXCEEDED
+ {DEU:ERROR_HANDLE_EOF_DEU} - {ENG:ERROR_HANDLE_EOF_ENG} : ERROR_HANDLE_EOF
+ {DEU:ERROR_HANDLE_DISK_FULL_DEU} - {ENG:ERROR_HANDLE_DISK_FULL_ENG} : ERROR_HANDLE_DISK_FULL
+ {DEU:ERROR_NOT_SUPPORTED_DEU} - {ENG:ERROR_NOT_SUPPORTED_ENG} : ERROR_NOT_SUPPORTED
+ {DEU:ERROR_REM_NOT_LIST_DEU} - {ENG:ERROR_REM_NOT_LIST_ENG} : ERROR_REM_NOT_LIST
+ {DEU:ERROR_DUP_NAME_DEU} - {ENG:ERROR_DUP_NAME_ENG} : ERROR_DUP_NAME
+ {DEU:ERROR_BAD_NETPATH_DEU} - {ENG:ERROR_BAD_NETPATH_ENG} : ERROR_BAD_NETPATH
+ {DEU:ERROR_NETWORK_BUSY_DEU} - {ENG:ERROR_NETWORK_BUSY_ENG} : ERROR_NETWORK_BUSY
+ {DEU:ERROR_DEV_NOT_EXIST_DEU} - {ENG:ERROR_DEV_NOT_EXIST_ENG} : ERROR_DEV_NOT_EXIST
+ {DEU:ERROR_TOO_MANY_CMDS_DEU} - {ENG:ERROR_TOO_MANY_CMDS_ENG} : ERROR_TOO_MANY_CMDS
+ {DEU:ERROR_ADAP_HDW_ERR_DEU} - {ENG:ERROR_ADAP_HDW_ERR_ENG} : ERROR_ADAP_HDW_ERR
+ {DEU:ERROR_BAD_NET_RESP_DEU} - {ENG:ERROR_BAD_NET_RESP_ENG} : ERROR_BAD_NET_RESP
+ {DEU:ERROR_UNEXP_NET_ERR_DEU} - {ENG:ERROR_UNEXP_NET_ERR_ENG} : ERROR_UNEXP_NET_ERR
+ {DEU:ERROR_BAD_REM_ADAP_DEU} - {ENG:ERROR_BAD_REM_ADAP_ENG} : ERROR_BAD_REM_ADAP
+ {DEU:ERROR_PRINTQ_FULL_DEU} - {ENG:ERROR_PRINTQ_FULL_ENG} : ERROR_PRINTQ_FULL
+ {DEU:ERROR_NO_SPOOL_SPACE_DEU} - {ENG:ERROR_NO_SPOOL_SPACE_ENG} : ERROR_NO_SPOOL_SPACE
+ {DEU:ERROR_PRINT_CANCELLED_DEU} - {ENG:ERROR_PRINT_CANCELLED_ENG} : ERROR_PRINT_CANCELLED
+ {DEU:ERROR_NETNAME_DELETED_DEU} - {ENG:ERROR_NETNAME_DELETED_ENG} : ERROR_NETNAME_DELETED
+ {DEU:ERROR_NETWORK_ACCESS_DENIED_DEU} - {ENG:ERROR_NETWORK_ACCESS_DENIED_ENG} : ERROR_NETWORK_ACCESS_DENIED
+ {DEU:ERROR_BAD_DEV_TYPE_DEU} - {ENG:ERROR_BAD_DEV_TYPE_ENG} : ERROR_BAD_DEV_TYPE
+ {DEU:ERROR_BAD_NET_NAME_DEU} - {ENG:ERROR_BAD_NET_NAME_ENG} : ERROR_BAD_NET_NAME
+ {DEU:ERROR_TOO_MANY_NAMES_DEU} - {ENG:ERROR_TOO_MANY_NAMES_ENG} : ERROR_TOO_MANY_NAMES
+ {DEU:ERROR_TOO_MANY_SESS_DEU} - {ENG:ERROR_TOO_MANY_SESS_ENG} : ERROR_TOO_MANY_SESS
+ {DEU:ERROR_SHARING_PAUSED_DEU} - {ENG:ERROR_SHARING_PAUSED_ENG} : ERROR_SHARING_PAUSED
+ {DEU:ERROR_REQ_NOT_ACCEP_DEU} - {ENG:ERROR_REQ_NOT_ACCEP_ENG} : ERROR_REQ_NOT_ACCEP
+ {DEU:ERROR_REDIR_PAUSED_DEU} - {ENG:ERROR_REDIR_PAUSED_ENG} : ERROR_REDIR_PAUSED
+ {DEU:ERROR_FILE_EXISTS_DEU} - {ENG:ERROR_FILE_EXISTS_ENG} : ERROR_FILE_EXISTS
+ {DEU:ERROR_CANNOT_MAKE_DEU} - {ENG:ERROR_CANNOT_MAKE_ENG} : ERROR_CANNOT_MAKE
+ {DEU:ERROR_FAIL_I24_DEU} - {ENG:ERROR_FAIL_I24_ENG} : ERROR_FAIL_I24
+ {DEU:ERROR_OUT_OF_STRUCTURES_DEU} - {ENG:ERROR_OUT_OF_STRUCTURES_ENG} : ERROR_OUT_OF_STRUCTURES
+ {DEU:ERROR_ALREADY_ASSIGNED_DEU} - {ENG:ERROR_ALREADY_ASSIGNED_ENG} : ERROR_ALREADY_ASSIGNED
+ {DEU:ERROR_INVALID_PASSWORD_DEU} - {ENG:ERROR_INVALID_PASSWORD_ENG} : ERROR_INVALID_PASSWORD
+ {DEU:ERROR_INVALID_PARAMETER_DEU} - {ENG:ERROR_INVALID_PARAMETER_ENG} : ERROR_INVALID_PARAMETER
+ {DEU:ERROR_NET_WRITE_FAULT_DEU} - {ENG:ERROR_NET_WRITE_FAULT_ENG} : ERROR_NET_WRITE_FAULT
+ {DEU:ERROR_NO_PROC_SLOTS_DEU} - {ENG:ERROR_NO_PROC_SLOTS_ENG} : ERROR_NO_PROC_SLOTS
+ {DEU:ERROR_TOO_MANY_SEMAPHORES_DEU} - {ENG:ERROR_TOO_MANY_SEMAPHORES_ENG} : ERROR_TOO_MANY_SEMAPHORES
+ {DEU:ERROR_EXCL_SEM_ALREADY_OWNED_DEU} - {ENG:ERROR_EXCL_SEM_ALREADY_OWNED_ENG} : ERROR_EXCL_SEM_ALREADY_OWNED
+ {DEU:ERROR_SEM_IS_SET_DEU} - {ENG:ERROR_SEM_IS_SET_ENG} : ERROR_SEM_IS_SET
+ {DEU:ERROR_TOO_MANY_SEM_REQUESTS_DEU} - {ENG:ERROR_TOO_MANY_SEM_REQUESTS_ENG} : ERROR_TOO_MANY_SEM_REQUESTS
+ {DEU:ERROR_INVALID_AT_INTERRUPT_TIME_DEU} - {ENG:ERROR_INVALID_AT_INTERRUPT_TIME_ENG} : ERROR_INVALID_AT_INTERRUPT_TIME
+ {DEU:ERROR_SEM_OWNER_DIED_DEU} - {ENG:ERROR_SEM_OWNER_DIED_ENG} : ERROR_SEM_OWNER_DIED
+ {DEU:ERROR_SEM_USER_LIMIT_DEU} - {ENG:ERROR_SEM_USER_LIMIT_ENG} : ERROR_SEM_USER_LIMIT
+ {DEU:ERROR_DISK_CHANGE_DEU} - {ENG:ERROR_DISK_CHANGE_ENG} : ERROR_DISK_CHANGE
+ {DEU:ERROR_DRIVE_LOCKED_DEU} - {ENG:ERROR_DRIVE_LOCKED_ENG} : ERROR_DRIVE_LOCKED
+ {DEU:ERROR_BROKEN_PIPE_DEU} - {ENG:ERROR_BROKEN_PIPE_ENG} : ERROR_BROKEN_PIPE
+ {DEU:ERROR_OPEN_FAILED_DEU} - {ENG:ERROR_OPEN_FAILED_ENG} : ERROR_OPEN_FAILED
+ {DEU:ERROR_BUFFER_OVERFLOW_DEU} - {ENG:ERROR_BUFFER_OVERFLOW_ENG} : ERROR_BUFFER_OVERFLOW
+ {DEU:ERROR_DISK_FULL_DEU} - {ENG:ERROR_DISK_FULL_ENG} : ERROR_DISK_FULL
+ {DEU:ERROR_NO_MORE_SEARCH_HANDLES_DEU} - {ENG:ERROR_NO_MORE_SEARCH_HANDLES_ENG} : ERROR_NO_MORE_SEARCH_HANDLES
+ {DEU:ERROR_INVALID_TARGET_HANDLE_DEU} - {ENG:ERROR_INVALID_TARGET_HANDLE_ENG} : ERROR_INVALID_TARGET_HANDLE
+ {DEU:ERROR_INVALID_CATEGORY_DEU} - {ENG:ERROR_INVALID_CATEGORY_ENG} : ERROR_INVALID_CATEGORY
+ {DEU:ERROR_INVALID_VERIFY_SWITCH_DEU} - {ENG:ERROR_INVALID_VERIFY_SWITCH_ENG} : ERROR_INVALID_VERIFY_SWITCH
+ {DEU:ERROR_BAD_DRIVER_LEVEL_DEU} - {ENG:ERROR_BAD_DRIVER_LEVEL_ENG} : ERROR_BAD_DRIVER_LEVEL
+ {DEU:ERROR_CALL_NOT_IMPLEMENTED_DEU} - {ENG:ERROR_CALL_NOT_IMPLEMENTED_ENG} : ERROR_CALL_NOT_IMPLEMENTED
+ {DEU:ERROR_SEM_TIMEOUT_DEU} - {ENG:ERROR_SEM_TIMEOUT_ENG} : ERROR_SEM_TIMEOUT
+ {DEU:ERROR_INSUFFICIENT_BUFFER_DEU} - {ENG:ERROR_INSUFFICIENT_BUFFER_ENG} : ERROR_INSUFFICIENT_BUFFER
+ {DEU:ERROR_INVALID_NAME_DEU} - {ENG:ERROR_INVALID_NAME_ENG} : ERROR_INVALID_NAME
+ {DEU:ERROR_INVALID_LEVEL_DEU} - {ENG:ERROR_INVALID_LEVEL_ENG} : ERROR_INVALID_LEVEL
+ {DEU:ERROR_NO_VOLUME_LABEL_DEU} - {ENG:ERROR_NO_VOLUME_LABEL_ENG} : ERROR_NO_VOLUME_LABEL
+ {DEU:ERROR_MOD_NOT_FOUND_DEU} - {ENG:ERROR_MOD_NOT_FOUND_ENG} : ERROR_MOD_NOT_FOUND
+ {DEU:ERROR_PROC_NOT_FOUND_DEU} - {ENG:ERROR_PROC_NOT_FOUND_ENG} : ERROR_PROC_NOT_FOUND
+ {DEU:ERROR_WAIT_NO_CHILDREN_DEU} - {ENG:ERROR_WAIT_NO_CHILDREN_ENG} : ERROR_WAIT_NO_CHILDREN
+ {DEU:ERROR_CHILD_NOT_COMPLETE_DEU} - {ENG:ERROR_CHILD_NOT_COMPLETE_ENG} : ERROR_CHILD_NOT_COMPLETE
+ {DEU:ERROR_DIRECT_ACCESS_HANDLE_DEU} - {ENG:ERROR_DIRECT_ACCESS_HANDLE_ENG} : ERROR_DIRECT_ACCESS_HANDLE
+ {DEU:ERROR_NEGATIVE_SEEK_DEU} - {ENG:ERROR_NEGATIVE_SEEK_ENG} : ERROR_NEGATIVE_SEEK
+ {DEU:ERROR_SEEK_ON_DEVICE_DEU} - {ENG:ERROR_SEEK_ON_DEVICE_ENG} : ERROR_SEEK_ON_DEVICE
+ {DEU:ERROR_IS_JOIN_TARGET_DEU} - {ENG:ERROR_IS_JOIN_TARGET_ENG} : ERROR_IS_JOIN_TARGET
+ {DEU:ERROR_IS_JOINED_DEU} - {ENG:ERROR_IS_JOINED_ENG} : ERROR_IS_JOINED
+ {DEU:ERROR_IS_SUBSTED_DEU} - {ENG:ERROR_IS_SUBSTED_ENG} : ERROR_IS_SUBSTED
+ {DEU:ERROR_NOT_JOINED_DEU} - {ENG:ERROR_NOT_JOINED_ENG} : ERROR_NOT_JOINED
+ {DEU:ERROR_NOT_SUBSTED_DEU} - {ENG:ERROR_NOT_SUBSTED_ENG} : ERROR_NOT_SUBSTED
+ {DEU:ERROR_JOIN_TO_JOIN_DEU} - {ENG:ERROR_JOIN_TO_JOIN_ENG} : ERROR_JOIN_TO_JOIN
+ {DEU:ERROR_SUBST_TO_SUBST_DEU} - {ENG:ERROR_SUBST_TO_SUBST_ENG} : ERROR_SUBST_TO_SUBST
+ {DEU:ERROR_JOIN_TO_SUBST_DEU} - {ENG:ERROR_JOIN_TO_SUBST_ENG} : ERROR_JOIN_TO_SUBST
+ {DEU:ERROR_SUBST_TO_JOIN_DEU} - {ENG:ERROR_SUBST_TO_JOIN_ENG} : ERROR_SUBST_TO_JOIN
+ {DEU:ERROR_BUSY_DRIVE_DEU} - {ENG:ERROR_BUSY_DRIVE_ENG} : ERROR_BUSY_DRIVE
+ {DEU:ERROR_SAME_DRIVE_DEU} - {ENG:ERROR_SAME_DRIVE_ENG} : ERROR_SAME_DRIVE
+ {DEU:ERROR_DIR_NOT_ROOT_DEU} - {ENG:ERROR_DIR_NOT_ROOT_ENG} : ERROR_DIR_NOT_ROOT
+ {DEU:ERROR_DIR_NOT_EMPTY_DEU} - {ENG:ERROR_DIR_NOT_EMPTY_ENG} : ERROR_DIR_NOT_EMPTY
+ {DEU:ERROR_IS_SUBST_PATH_DEU} - {ENG:ERROR_IS_SUBST_PATH_ENG} : ERROR_IS_SUBST_PATH
+ {DEU:ERROR_IS_JOIN_PATH_DEU} - {ENG:ERROR_IS_JOIN_PATH_ENG} : ERROR_IS_JOIN_PATH
+ {DEU:ERROR_PATH_BUSY_DEU} - {ENG:ERROR_PATH_BUSY_ENG} : ERROR_PATH_BUSY
+ {DEU:ERROR_IS_SUBST_TARGET_DEU} - {ENG:ERROR_IS_SUBST_TARGET_ENG} : ERROR_IS_SUBST_TARGET
+ {DEU:ERROR_SYSTEM_TRACE_DEU} - {ENG:ERROR_SYSTEM_TRACE_ENG} : ERROR_SYSTEM_TRACE
+ {DEU:ERROR_INVALID_EVENT_COUNT_DEU} - {ENG:ERROR_INVALID_EVENT_COUNT_ENG} : ERROR_INVALID_EVENT_COUNT
+ {DEU:ERROR_TOO_MANY_MUXWAITERS_DEU} - {ENG:ERROR_TOO_MANY_MUXWAITERS_ENG} : ERROR_TOO_MANY_MUXWAITERS
+ {DEU:ERROR_INVALID_LIST_FORMAT_DEU} - {ENG:ERROR_INVALID_LIST_FORMAT_ENG} : ERROR_INVALID_LIST_FORMAT
+ {DEU:ERROR_LABEL_TOO_LONG_DEU} - {ENG:ERROR_LABEL_TOO_LONG_ENG} : ERROR_LABEL_TOO_LONG
+ {DEU:ERROR_TOO_MANY_TCBS_DEU} - {ENG:ERROR_TOO_MANY_TCBS_ENG} : ERROR_TOO_MANY_TCBS
+ {DEU:ERROR_SIGNAL_REFUSED_DEU} - {ENG:ERROR_SIGNAL_REFUSED_ENG} : ERROR_SIGNAL_REFUSED
+ {DEU:ERROR_DISCARDED_DEU} - {ENG:ERROR_DISCARDED_ENG} : ERROR_DISCARDED
+ {DEU:ERROR_NOT_LOCKED_DEU} - {ENG:ERROR_NOT_LOCKED_ENG} : ERROR_NOT_LOCKED
+ {DEU:ERROR_BAD_THREADID_ADDR_DEU} - {ENG:ERROR_BAD_THREADID_ADDR_ENG} : ERROR_BAD_THREADID_ADDR
+ {DEU:ERROR_BAD_ARGUMENTS_DEU} - {ENG:ERROR_BAD_ARGUMENTS_ENG} : ERROR_BAD_ARGUMENTS
+ {DEU:ERROR_BAD_PATHNAME_DEU} - {ENG:ERROR_BAD_PATHNAME_ENG} : ERROR_BAD_PATHNAME
+ {DEU:ERROR_SIGNAL_PENDING_DEU} - {ENG:ERROR_SIGNAL_PENDING_ENG} : ERROR_SIGNAL_PENDING
+ {DEU:ERROR_MAX_THRDS_REACHED_DEU} - {ENG:ERROR_MAX_THRDS_REACHED_ENG} : ERROR_MAX_THRDS_REACHED
+ {DEU:ERROR_LOCK_FAILED_DEU} - {ENG:ERROR_LOCK_FAILED_ENG} : ERROR_LOCK_FAILED
+ {DEU:ERROR_BUSY_DEU} - {ENG:ERROR_BUSY_ENG} : ERROR_BUSY
+ {DEU:ERROR_DEVICE_SUPPORT_IN_PROGRESS_DEU} - {ENG:ERROR_DEVICE_SUPPORT_IN_PROGRESS_ENG} : ERROR_DEVICE_SUPPORT_IN_PROGRESS
+ {DEU:ERROR_CANCEL_VIOLATION_DEU} - {ENG:ERROR_CANCEL_VIOLATION_ENG} : ERROR_CANCEL_VIOLATION
+ {DEU:ERROR_ATOMIC_LOCKS_NOT_SUPPORTED_DEU} - {ENG:ERROR_ATOMIC_LOCKS_NOT_SUPPORTED_ENG} : ERROR_ATOMIC_LOCKS_NOT_SUPPORTED
+ {DEU:ERROR_INVALID_SEGMENT_NUMBER_DEU} - {ENG:ERROR_INVALID_SEGMENT_NUMBER_ENG} : ERROR_INVALID_SEGMENT_NUMBER
+ {DEU:ERROR_INVALID_ORDINAL_DEU} - {ENG:ERROR_INVALID_ORDINAL_ENG} : ERROR_INVALID_ORDINAL
+ {DEU:ERROR_ALREADY_EXISTS_DEU} - {ENG:ERROR_ALREADY_EXISTS_ENG} : ERROR_ALREADY_EXISTS
+ {DEU:ERROR_INVALID_FLAG_NUMBER_DEU} - {ENG:ERROR_INVALID_FLAG_NUMBER_ENG} : ERROR_INVALID_FLAG_NUMBER
+ {DEU:ERROR_SEM_NOT_FOUND_DEU} - {ENG:ERROR_SEM_NOT_FOUND_ENG} : ERROR_SEM_NOT_FOUND
+ {DEU:ERROR_INVALID_STARTING_CODESEG_DEU} - {ENG:ERROR_INVALID_STARTING_CODESEG_ENG} : ERROR_INVALID_STARTING_CODESEG
+ {DEU:ERROR_INVALID_STACKSEG_DEU} - {ENG:ERROR_INVALID_STACKSEG_ENG} : ERROR_INVALID_STACKSEG
+ {DEU:ERROR_INVALID_MODULETYPE_DEU} - {ENG:ERROR_INVALID_MODULETYPE_ENG} : ERROR_INVALID_MODULETYPE
+ {DEU:ERROR_INVALID_EXE_SIGNATURE_DEU} - {ENG:ERROR_INVALID_EXE_SIGNATURE_ENG} : ERROR_INVALID_EXE_SIGNATURE
+ {DEU:ERROR_EXE_MARKED_INVALID_DEU} - {ENG:ERROR_EXE_MARKED_INVALID_ENG} : ERROR_EXE_MARKED_INVALID
+ {DEU:ERROR_BAD_EXE_FORMAT_DEU} - {ENG:ERROR_BAD_EXE_FORMAT_ENG} : ERROR_BAD_EXE_FORMAT
+ {DEU:ERROR_ITERATED_DATA_EXCEEDS_64k_DEU} - {ENG:ERROR_ITERATED_DATA_EXCEEDS_64k_ENG} : ERROR_ITERATED_DATA_EXCEEDS_64k
+ {DEU:ERROR_INVALID_MINALLOCSIZE_DEU} - {ENG:ERROR_INVALID_MINALLOCSIZE_ENG} : ERROR_INVALID_MINALLOCSIZE
+ {DEU:ERROR_DYNLINK_FROM_INVALID_RING_DEU} - {ENG:ERROR_DYNLINK_FROM_INVALID_RING_ENG} : ERROR_DYNLINK_FROM_INVALID_RING
+ {DEU:ERROR_IOPL_NOT_ENABLED_DEU} - {ENG:ERROR_IOPL_NOT_ENABLED_ENG} : ERROR_IOPL_NOT_ENABLED
+ {DEU:ERROR_INVALID_SEGDPL_DEU} - {ENG:ERROR_INVALID_SEGDPL_ENG} : ERROR_INVALID_SEGDPL
+ {DEU:ERROR_AUTODATASEG_EXCEEDS_64k_DEU} - {ENG:ERROR_AUTODATASEG_EXCEEDS_64k_ENG} : ERROR_AUTODATASEG_EXCEEDS_64k
+ {DEU:ERROR_RING2SEG_MUST_BE_MOVABLE_DEU} - {ENG:ERROR_RING2SEG_MUST_BE_MOVABLE_ENG} : ERROR_RING2SEG_MUST_BE_MOVABLE
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+; fehlercodes deutsch
+.topic ERROR_SUCCESS_DEU
+ 
+ Typ : ERROR_SUCCESS
+ Text: Der Vorgang wurde erfolgreich abgeschlossen.
+ Code: 0 (0x0)
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_FUNCTION_DEU
+ 
+ Typ : ERROR_INVALID_FUNCTION
+ Text: Falsche Funktion.
+ Code: 1 (0x01)
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_FILE_NOT_FOUND_DEU
+ 
+ Typ : ERROR_FILE_NOT_FOUND
+ Text: Die angegebene Datei wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PATH_NOT_FOUND_DEU
+ 
+ Typ : ERROR_PATH_NOT_FOUND
+ Text: Das System kann den angegebenen Pfad nicht finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_OPEN_FILES_DEU
+ 
+ Typ : ERROR_TOO_MANY_OPEN_FILES
+ Text: Das System kann die Datei nicht öffnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ACCESS_DENIED_DEU
+ 
+ Typ : ERROR_ACCESS_DENIED
+ Text: Zugriff verweigert
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_HANDLE_DEU
+ 
+ Typ : ERROR_INVALID_HANDLE
+ Text: Das Handle ist ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ARENA_TRASHED_DEU
+ 
+ Typ : ERROR_ARENA_TRASHED
+ Text: Die Speichersteuerungsblöcke wurden zerstört.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_ENOUGH_MEMORY_DEU
+ 
+ Typ : ERROR_NOT_ENOUGH_MEMORY
+ Text: Für die Verarbeitung dieses Befehls sind nicht
+       genügend Speicherressourcen verfügbar.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_BLOCK_DEU
+ 
+ Typ : ERROR_INVALID_BLOCK
+ Text: Die Blockadresse des Speichersteuerelements ist
+       ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_ENVIRONMENT_DEU
+ 
+ Typ : ERROR_BAD_ENVIRONMENT
+ Text: Die Umgebung ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_FORMAT_DEU
+ 
+ Typ : ERROR_BAD_FORMAT
+ Text: Es wurde versucht, ein Programm mit einem falschen
+       Format zu laden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_ACCESS_DEU
+ 
+ Typ : ERROR_INVALID_ACCESS
+ Text: Der Zugriffscode ist ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_DATA_DEU
+ 
+ Typ : ERROR_INVALID_DATA
+ Text: Die Daten sind ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OUTOFMEMORY_DEU
+ 
+ Typ : ERROR_OUTOFMEMORY
+ Text: Für diesen Vorgang ist nicht genügend Speicher
+       verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_DRIVE_DEU
+ 
+ Typ : ERROR_INVALID_DRIVE
+ Text: Das System kann das angegebene Laufwerk nicht
+       finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CURRENT_DIRECTORY_DEU
+ 
+ Typ : ERROR_CURRENT_DIRECTORY
+ Text: Das Verzeichnis kann nicht entfernt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_SAME_DEVICE_DEU
+ 
+ Typ : ERROR_NOT_SAME_DEVICE
+ Text: Das System kann die Datei nicht auf ein anderes
+       Laufwerk verschieben.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_MORE_FILES_DEU
+ 
+ Typ : ERROR_NO_MORE_FILES
+ Text: Es gibt keine weiteren Dateien.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WRITE_PROTECT_DEU
+ 
+ Typ : ERROR_WRITE_PROTECT
+ Text: Die Medien sind schreibgeschützt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_UNIT_DEU
+ 
+ Typ : ERROR_BAD_UNIT
+ Text: Das System kann das angegebene Gerät nicht finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_READY_DEU
+ 
+ Typ : ERROR_NOT_READY
+ Text: Das Gerät ist nicht bereit.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_COMMAND_DEU
+ 
+ Typ : ERROR_BAD_COMMAND
+ Text: Das Gerät erkennt den Befehl nicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CRC_DEU
+ 
+ Typ : ERROR_CRC
+ Text: Datenfehler (cyclische Redundanzprüfung).
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_LENGTH_DEU
+ 
+ Typ : ERROR_BAD_LENGTH
+ Text: Das Programm hat einen Befehl ausgegeben,
+       die Befehlslänge ist jedoch falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEEK_DEU
+ 
+ Typ : ERROR_SEEK
+ Text: Das Laufwerk kann keinen bestimmten Bereich
+       finden oder auf dem Datenträger nachverfolgen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_DOS_DISK_DEU
+ 
+ Typ : ERROR_NOT_DOS_DISK
+ Text: Auf den angegebenen Datenträger oder die
+       angegebene Diskette kann nicht zugegriffen
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SECTOR_NOT_FOUND_DEU
+ 
+ Typ : ERROR_SECTOR_NOT_FOUND
+ Text: Das Laufwerk kann den angeforderten Sektor
+       nicht finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OUT_OF_PAPER_DEU
+ 
+ Typ : ERROR_OUT_OF_PAPER
+ Text: Der Drucker hat kein Papier
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WRITE_FAULT_DEU
+ 
+ Typ : ERROR_WRITE_FAULT
+ Text: Das System kann nicht auf das angegebene Gerät
+       schreiben.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_READ_FAULT_DEU
+ 
+ Typ : ERROR_READ_FAULT
+ Text: Das System kann vom angegebenen Gerät nicht
+       gelesen werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_GEN_FAILURE_DEU
+ 
+ Typ : ERROR_GEN_FAILURE
+ Text: Ein Gerät, das an das System angeschlossen ist,
+       funktioniert nicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SHARING_VIOLATION_DEU
+ 
+ Typ : ERROR_SHARING_VIOLATION
+ Text: Der Prozess kann nicht auf die Datei zugreifen,
+       da sie bereits von einem anderen Prozess verwendet
+       wird.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_LOCK_VIOLATION_DEU
+ 
+ Typ : ERROR_LOCK_VIOLATION
+ Text: Der Prozess kann nicht auf die Datei zugreifen,
+       da sie teilweise von einem anderen Prozess gesperrt
+       ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WRONG_DISK_DEU
+ 
+ Typ : ERROR_WRONG_DISK
+ Text: Die falsche Diskette befindet sich im Laufwerk.
+       Fügen Sie %2 (Volume Serial Number: %3) in laufwerk
+       %1 ein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SHARING_BUFFER_EXCEEDED_DEU
+ 
+ Typ : ERROR_SHARING_BUFFER_EXCEEDED
+ Text: Zu viele Dateien, die für die Freigabe geöffnet
+       wurden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_HANDLE_EOF_DEU
+ 
+ Typ : ERROR_HANDLE_EOF
+ Text: Das Ende der Datei wurde erreicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_HANDLE_DISK_FULL_DEU
+ 
+ Typ : ERROR_HANDLE_DISK_FULL
+ Text: Der Datenträger ist voll.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_SUPPORTED_DEU
+ 
+ Typ : ERROR_NOT_SUPPORTED
+ Text: Die Anforderung wird nicht unterstützt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_REM_NOT_LIST_DEU
+ 
+ Typ : ERROR_REM_NOT_LIST
+ Text: Windows den Netzwerkpfad nicht finden.
+       Stellen Sie sicher, dass der Netzwerkpfad korrekt
+       ist und der Zielcomputer nicht ausgelastet oder
+       deaktiviert ist.
+       Wenn Windows den Netzwerkpfad weiterhin nicht finden
+       können, wenden Sie sich an Den Netzwerkadministrator.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DUP_NAME_DEU
+ 
+ Typ : ERROR_DUP_NAME
+ Text: Sie wurden nicht verbunden, da ein doppelter Name
+       im Netzwerk vorhanden ist.
+       Wenn Sie einer Domäne beitreten, wechseln Sie zu
+       System in Systemsteuerung, um den Computernamen zu
+       ändern, und versuchen Sie es erneut.
+       Wenn Sie einer Arbeitsgruppe beitreten, wählen Sie
+       einen anderen Arbeitsgruppennamen aus.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_NETPATH_DEU
+ 
+ Typ : ERROR_BAD_NETPATH
+ Text: Der Netzwerkpfad wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NETWORK_BUSY_DEU
+ 
+ Typ : ERROR_NETWORK_BUSY
+ Text: Das Netzwerk ist ausgelastet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DEV_NOT_EXIST_DEU
+ 
+ Typ : ERROR_DEV_NOT_EXIST
+ Text: Die angegebene Netzwerkressource oder das
+       angegebene Gerät ist nicht mehr verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_CMDS_DEU
+ 
+ Typ : ERROR_TOO_MANY_CMDS
+ Text: Das Netzwerk-BIOS-Befehlslimit wurde erreicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ADAP_HDW_ERR_DEU
+ 
+ Typ : ERROR_ADAP_HDW_ERR
+ Text: Ein Hardwarefehler des Netzwerkadapters ist
+       aufgetreten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_NET_RESP_DEU
+ 
+ Typ : ERROR_BAD_NET_RESP
+ Text: Der angegebene Server kann den angeforderten
+       Vorgang nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_UNEXP_NET_ERR_DEU
+ 
+ Typ : ERROR_UNEXP_NET_ERR
+ Text: Unerwarteter Netzwerkfehler.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_REM_ADAP_DEU
+ 
+ Typ : ERROR_BAD_REM_ADAP
+ Text: Der Remoteadapter ist nicht kompatibel.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PRINTQ_FULL_DEU
+ 
+ Typ : ERROR_PRINTQ_FULL
+ Text: Die Druckerwarteschlange ist voll.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_SPOOL_SPACE_DEU
+ 
+ Typ : ERROR_NO_SPOOL_SPACE
+ Text: Speicherplatz zum Speichern der Datei, die auf
+       das Drucken wartet, ist auf dem Server nicht
+       verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PRINT_CANCELLED_DEU
+ 
+ Typ : ERROR_PRINT_CANCELLED
+ Text: Ihre Datei, die auf das Drucken wartet,
+       wurde gelöscht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NETNAME_DELETED_DEU
+ 
+ Typ : ERROR_NETNAME_DELETED
+ Text: Der angegebene Netzwerkname ist nicht mehr
+       verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NETWORK_ACCESS_DENIED_DEU
+ 
+ Typ : ERROR_NETWORK_ACCESS_DENIED
+ Text: Der Netzwerkzugriff wird verweigert.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_DEV_TYPE_DEU
+ 
+ Typ : ERROR_BAD_DEV_TYPE
+ Text: Der Netzwerkressourcentyp ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_NET_NAME_DEU
+ 
+ Typ : ERROR_BAD_NET_NAME
+ Text: Der Netzwerkname wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_NAMES_DEU
+ 
+ Typ : ERROR_TOO_MANY_NAMES
+ Text: Der Namegrenzwert für die Netzwerkadapterkarte
+       des lokalen Computers wurde überschritten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_SESS_DEU
+ 
+ Typ : ERROR_TOO_MANY_SESS
+ Text: Das Netzwerk-BIOS-Sitzungslimit wurde überschritten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SHARING_PAUSED_DEU
+ 
+ Typ : ERROR_SHARING_PAUSED
+ Text: Der Remoteserver wurde angehalten oder befindet
+       sich im Prozess des Startvorgangs.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_REQ_NOT_ACCEP_DEU
+ 
+ Typ : ERROR_REQ_NOT_ACCEP
+ Text: Zu diesem Zeitpunkt können keine Verbindungen mit
+       diesem Remotecomputer hergestellt werden, da
+       bereits so viele Verbindungen wie der Computer
+       akzeptiert werden kann.
+ Code:
+ 
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_REDIR_PAUSED_DEU
+ 
+ Typ : ERROR_REDIR_PAUSED
+ Text: Das angegebene Drucker- oder Datenträgergerät
+       wurde angehalten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_FILE_EXISTS_DEU
+ 
+ Typ : ERROR_FILE_EXISTS
+ Text: Die Datei ist vorhanden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CANNOT_MAKE_DEU
+ 
+ Typ : ERROR_CANNOT_MAKE
+ Text: Das Verzeichnis oder die Datei kann nicht erstellt
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_FAIL_I24_DEU
+ 
+ Typ : ERROR_FAIL_I24
+ Text: Fehler bei INT 24.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OUT_OF_STRUCTURES_DEU
+ 
+ Typ : ERROR_OUT_OF_STRUCTURES
+ Text: Storage, diese Anforderung zu verarbeiten,
+       ist nicht verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ALREADY_ASSIGNED_DEU
+ 
+ Typ : ERROR_ALREADY_ASSIGNED
+ Text: Der name des lokalen Geräts wird bereits verwendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_PASSWORD_DEU
+ 
+ Typ : ERROR_INVALID_PASSWORD
+ Text: Das angegebene Netzwerkkennwort ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_PARAMETER_DEU
+ 
+ Typ : ERROR_INVALID_PARAMETER
+ Text: Der Parameter ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NET_WRITE_FAULT_DEU
+ 
+ Typ : ERROR_NET_WRITE_FAULT
+ Text: Fehler beim Schreiben im Netzwerk.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_PROC_SLOTS_DEU
+ 
+ Typ : ERROR_NO_PROC_SLOTS
+ Text: Das System kann derzeit keinen anderen
+       Prozess starten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_SEMAPHORES_DEU
+ 
+ Typ : ERROR_TOO_MANY_SEMAPHORES
+ Text: Ein anderes System-Semaphor kann nicht
+       erstellt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_EXCL_SEM_ALREADY_OWNED_DEU
+ 
+ Typ : ERROR_EXCL_SEM_ALREADY_OWNED
+ Text: Der exklusive Semaphor ist eigentum an einem
+       anderen Prozess.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_IS_SET_DEU
+ 
+ Typ : ERROR_SEM_IS_SET
+ Text: Das Semaphor ist festgelegt und kann nicht
+       geschlossen werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_SEM_REQUESTS_DEU
+ 
+ Typ : ERROR_TOO_MANY_SEM_REQUESTS
+ Text: Die Semaphore kann nicht erneut festgelegt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_AT_INTERRUPT_TIME_DEU
+ 
+ Typ : ERROR_INVALID_AT_INTERRUPT_TIME
+ Text: Exklusive semaphoren können zur Unterbrechung
+       nicht angefordert werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_OWNER_DIED_DEU
+ 
+ Typ : ERROR_SEM_OWNER_DIED
+ Text: Der vorherige Besitz dieses Semaphores wurde
+       beendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_USER_LIMIT_DEU
+ 
+ Typ : ERROR_SEM_USER_LIMIT
+ Text: Legen Sie die Diskette für das Laufwerk %1 ein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DISK_CHANGE_DEU
+ 
+ Typ : ERROR_DISK_CHANGE
+ Text: Das Programm wurde beendet, weil eine alternative
+       Diskette nicht eingefügt wurde.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DRIVE_LOCKED_DEU
+ 
+ Typ : ERROR_DRIVE_LOCKED
+ Text: Der Datenträger wird von einem anderen Prozess
+       verwendet oder gesperrt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BROKEN_PIPE_DEU
+ 
+ Typ : ERROR_BROKEN_PIPE
+ Text: Das Rohr wurde beendet.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OPEN_FAILED_DEU
+ 
+ Typ : ERROR_OPEN_FAILED
+ Text: Das System kann das angegebene Gerät oder
+       die angegebene Datei nicht öffnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BUFFER_OVERFLOW_DEU
+ 
+ Typ : ERROR_BUFFER_OVERFLOW
+ Text: Der Dateiname ist zu lang.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DISK_FULL_DEU
+ 
+ Typ : ERROR_DISK_FULL
+ Text: Es ist nicht genügend Speicherplatz vorhanden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_MORE_SEARCH_HANDLES_DEU
+ 
+ Typ : ERROR_NO_MORE_SEARCH_HANDLES
+ Text: Es sind keine internen Dateibezeichner verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_TARGET_HANDLE_DEU
+ 
+ Typ : ERROR_INVALID_TARGET_HANDLE
+ Text: Der interne Zieldateibezeichner ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_CATEGORY_DEU
+ 
+ Typ : ERROR_INVALID_CATEGORY
+ Text: Der vom Anwendungsprogramm vorgenommene
+       IOCTL-Aufruf ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_VERIFY_SWITCH_DEU
+ 
+ Typ : ERROR_INVALID_VERIFY_SWITCH
+ Text: Der Parameterwert des Parameterwerts für
+       den Überprüfen-On-Write-Schalter ist nicht
+       korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_DRIVER_LEVEL_DEU
+ 
+ Typ : ERROR_BAD_DRIVER_LEVEL
+ Text: Das System unterstützt den angeforderten
+       Befehl nicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CALL_NOT_IMPLEMENTED_DEU
+ 
+ Typ : ERROR_CALL_NOT_IMPLEMENTED
+ Text: Diese Funktion wird auf diesem System nicht
+       unterstützt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_TIMEOUT_DEU
+ 
+ Typ : ERROR_SEM_TIMEOUT
+ Text: Der Zeitüberschreitungszeitraum für Semaphore
+       ist abgelaufen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INSUFFICIENT_BUFFER_DEU
+ 
+ Typ : ERROR_INSUFFICIENT_BUFFER
+ Text: Der an einen Systemaufruf übergebene Datenbereich
+       ist zu klein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_NAME_DEU
+ 
+ Typ : ERROR_INVALID_NAME
+ Text: Die Syntax des Dateinamens, des Verzeichnisnamens
+       oder der Volumebezeichnung ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_LEVEL_DEU
+ 
+ Typ : ERROR_INVALID_LEVEL
+ Text: Die Systemanrufebene ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_VOLUME_LABEL_DEU
+ 
+ Typ : ERROR_NO_VOLUME_LABEL
+ Text: Der Datenträger verfügt über keine
+       Volumebezeichnung.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_MOD_NOT_FOUND_DEU
+ 
+ Typ : ERROR_MOD_NOT_FOUND
+ Text: Das angegebene Modul wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PROC_NOT_FOUND_DEU
+ 
+ Typ : ERROR_PROC_NOT_FOUND
+ Text: Die angegebene Prozedur konnte nicht gefunden
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WAIT_NO_CHILDREN_DEU
+ 
+ Typ : ERROR_WAIT_NO_CHILDREN
+ Text: Es gibt keine untergeordneten Prozesse, auf die
+       gewartet werden soll.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CHILD_NOT_COMPLETE_DEU
+ 
+ Typ : ERROR_CHILD_NOT_COMPLETE
+ Text: Die Anwendung %1 kann nicht im Win32-Modus
+       ausgeführt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DIRECT_ACCESS_HANDLE_DEU
+ 
+ Typ : ERROR_DIRECT_ACCESS_HANDLE
+ Text: Versuchen Sie, ein Dateihandle zu einer geöffneten
+       Datenträgerpartition für einen anderen Vorgang als
+       unformatierte Datenträger-I/O zu verwenden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NEGATIVE_SEEK_DEU
+ 
+ Typ : ERROR_NEGATIVE_SEEK
+ Text: Es wurde versucht, den Dateizeiger vor dem
+       Anfang der Datei zu verschieben.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEEK_ON_DEVICE_DEU
+ 
+ Typ : ERROR_SEEK_ON_DEVICE
+ Text: Der Dateizeiger kann nicht auf dem angegebenen
+       Gerät oder der angegebenen Datei festgelegt
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_JOIN_TARGET_DEU
+ 
+ Typ : ERROR_IS_JOIN_TARGET
+ Text: Ein JOIN- oder SUBST-Befehl kann nicht für ein
+       Laufwerk verwendet werden, das zuvor verknüpfte
+       Laufwerke enthält.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_JOINED_DEU
+ 
+ Typ : ERROR_IS_JOINED
+ Text: Es wurde versucht, einen JOIN- oder SUBST-Befehl
+       auf einem Laufwerk zu verwenden, das bereits
+       verbunden wurde.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_SUBSTED_DEU
+ 
+ Typ : ERROR_IS_SUBSTED
+ Text: Es wurde versucht, einen JOIN- oder SUBST-Befehl
+       auf einem Laufwerk zu verwenden, das bereits
+       ersetzt wurde.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_JOINED_DEU
+ 
+ Typ : ERROR_NOT_JOINED
+ Text: Das System hat versucht, den JOIN eines Laufwerks
+       zu löschen, das nicht verbunden ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_SUBSTED_DEU
+ 
+ Typ : ERROR_NOT_SUBSTED
+ Text: Das System hat versucht, die Ersetzung eines Laufwerks
+       zu löschen, das nicht ersetzt wird.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_JOIN_TO_JOIN_DEU
+ 
+ Typ : ERROR_JOIN_TO_JOIN
+ Text: Das System hat versucht, einem Laufwerk auf einem
+       verknüpften Laufwerk ein Verzeichnis zuzuordnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SUBST_TO_SUBST_DEU
+ 
+ Typ : ERROR_SUBST_TO_SUBST
+ Text: Das System hat versucht, ein Laufwerk in ein
+       Verzeichnis auf einem ersetzten Laufwerk zu
+       ersetzen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_JOIN_TO_SUBST_DEU
+ 
+ Typ : ERROR_JOIN_TO_SUBST
+ Text: Das System hat versucht, einem Laufwerk auf
+       einem ersetzten Laufwerk ein Verzeichnis
+       zuzuordnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SUBST_TO_JOIN_DEU
+ 
+ Typ : ERROR_SUBST_TO_JOIN
+ Text: Das System hat versucht, ein Laufwerk auf einem
+       verknüpften Laufwerk zu einem Verzeichnis zu subST.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BUSY_DRIVE_DEU
+ 
+ Typ : ERROR_BUSY_DRIVE
+ Text: Das System kann derzeit keinen JOIN oder SUBST
+       ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SAME_DRIVE_DEU
+ 
+ Typ : ERROR_SAME_DRIVE
+ Text: Das System kann weder einem Laufwerk noch einem
+       Verzeichnis auf demselben Laufwerk beitreten oder
+       ersetzen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DIR_NOT_ROOT_DEU
+ 
+ Typ : ERROR_DIR_NOT_ROOT
+ Text: Das Verzeichnis ist kein Unterverzeichnis des
+       Stammverzeichnisses.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DIR_NOT_EMPTY_DEU
+ 
+ Typ : ERROR_DIR_NOT_EMPTY
+ Text: Das Verzeichnis ist nicht leer
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_SUBST_PATH_DEU
+ 
+ Typ : ERROR_IS_SUBST_PATH
+ Text: Der angegebene Pfad wird in einem Ersatz
+       verwendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_JOIN_PATH_DEU
+ 
+ Typ : ERROR_IS_JOIN_PATH
+ Text: Nicht genügend Ressourcen sind verfügbar,
+       um diesen Befehl zu verarbeiten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PATH_BUSY_DEU
+ 
+ Typ : ERROR_PATH_BUSY
+ Text: Der angegebene Pfad kann derzeit nicht
+       verwendet werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_SUBST_TARGET_DEU
+ 
+ Typ : ERROR_IS_SUBST_TARGET
+ Text: Es wurde versucht, ein Laufwerk zu verknüpfen
+       oder zu ersetzen, für das ein Verzeichnis auf
+       dem Laufwerk das Ziel eines vorherigen Ersatzs
+       ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SYSTEM_TRACE_DEU
+ 
+ Typ : ERROR_SYSTEM_TRACE
+ Text: Systemablaufverfolgungsinformationen wurden
+       in Ihrer CONFIG.SYS-Datei nicht angegeben,
+       oder die Ablaufverfolgung ist nicht zulässig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_EVENT_COUNT_DEU
+ 
+ Typ : ERROR_INVALID_EVENT_COUNT
+ Text: Die Anzahl der angegebenen semaphore-Ereignisse
+       für DosMuxSemWait ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_MUXWAITERS_DEU
+ 
+ Typ : ERROR_TOO_MANY_MUXWAITERS
+ Text: DosMuxSemWait wurde nicht ausgeführt; zu viele
+       Semaphoren sind bereits festgelegt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_LIST_FORMAT_DEU
+ 
+ Typ : ERROR_INVALID_LIST_FORMAT
+ Text: Die DosMuxSemWait-Liste ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_LABEL_TOO_LONG_DEU
+ 
+ Typ : ERROR_LABEL_TOO_LONG
+ Text: Die eingegebene Volumebeschriftung überschreitet
+       die Bezeichnungszeichengrenze des Zieldateisystems.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_TCBS_DEU
+ 
+ Typ : ERROR_TOO_MANY_TCBS
+ Text: Ein anderer Thread kann nicht erstellt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SIGNAL_REFUSED_DEU
+ 
+ Typ : ERROR_SIGNAL_REFUSED
+ Text: Der Empfängervorgang hat das Signal abgelehnt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DISCARDED_DEU
+ 
+ Typ : ERROR_DISCARDED
+ Text: Das Segment ist bereits verworfen und kann
+       nicht gesperrt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_LOCKED_DEU
+ 
+ Typ : ERROR_NOT_LOCKED
+ Text: Das Segment ist bereits entsperrt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_THREADID_ADDR_DEU
+ 
+ Typ : ERROR_BAD_THREADID_ADDR
+ Text: Die Adresse für die Thread-ID ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_ARGUMENTS_DEU
+ 
+ Typ : ERROR_BAD_ARGUMENTS
+ Text: Ein oder mehrere Argumente sind nicht richtig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_PATHNAME_DEU
+ 
+ Typ : ERROR_BAD_PATHNAME
+ Text: Der angegebene Pfad ist ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SIGNAL_PENDING_DEU
+ 
+ Typ : ERROR_SIGNAL_PENDING
+ Text: Ein Signal ist bereits ausstehend.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_MAX_THRDS_REACHED_DEU
+ 
+ Typ : ERROR_MAX_THRDS_REACHED
+ Text: Es können keine weiteren Threads im System
+       erstellt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_LOCK_FAILED_DEU
+ 
+ Typ : ERROR_LOCK_FAILED
+ Text: Eine Datei kann nicht gesperrt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BUSY_DEU
+ 
+ Typ : ERROR_BUSY
+ Text: Die angeforderte Ressource wird verwendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DEVICE_SUPPORT_IN_PROGRESS_DEU
+ 
+ Typ : ERROR_DEVICE_SUPPORT_IN_PROGRESS
+ Text: Die Befehlsunterstützungserkennung des Geräts wird
+       ausgeführt.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CANCEL_VIOLATION_DEU
+ 
+ Typ : ERROR_CANCEL_VIOLATION
+ Text: Eine Sperranforderung war für den angegebenen
+       Abbruchbereich nicht ausstehender Wert.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ATOMIC_LOCKS_NOT_SUPPORTED_DEU
+ 
+ Typ : ERROR_ATOMIC_LOCKS_NOT_SUPPORTED
+ Text: Das Dateisystem unterstützt keine atomaren
+       Änderungen an dem Sperrtyp.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_SEGMENT_NUMBER_DEU
+ 
+ Typ : ERROR_INVALID_SEGMENT_NUMBER
+ Text: Das System hat eine Segmentnummer erkannt,
+       die nicht richtig war.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_ORDINAL_DEU
+ 
+ Typ : ERROR_INVALID_ORDINAL
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ALREADY_EXISTS_DEU
+ 
+ Typ : ERROR_ALREADY_EXISTS
+ Text: Eine Datei kann nicht erstellt werden, wenn die
+       Datei bereits vorhanden ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_FLAG_NUMBER_DEU
+ 
+ Typ : ERROR_INVALID_FLAG_NUMBER
+ Text: Das übergebene Flag ist nicht richtig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_NOT_FOUND_DEU
+ 
+ Typ : ERROR_SEM_NOT_FOUND
+ Text: Der angegebene System-Semaphorename wurde
+       nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_STARTING_CODESEG_DEU
+ 
+ Typ : ERROR_INVALID_STARTING_CODESEG
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_STACKSEG_DEU
+ 
+ Typ : ERROR_INVALID_STACKSEG
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_MODULETYPE_DEU
+ 
+ Typ : ERROR_INVALID_MODULETYPE
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_EXE_SIGNATURE_DEU
+ 
+ Typ : ERROR_INVALID_EXE_SIGNATURE
+ Text: %1 kann im Win32-Modus nicht ausgeführt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_EXE_MARKED_INVALID_DEU
+ 
+ Typ : ERROR_EXE_MARKED_INVALID
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_EXE_FORMAT_DEU
+ 
+ Typ : ERROR_BAD_EXE_FORMAT
+ Text: %1 ist keine gültige Win32-Anwendung.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ITERATED_DATA_EXCEEDS_64k_DEU
+ 
+ Typ : ERROR_ITERATED_DATA_EXCEEDS_64k
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_MINALLOCSIZE_DEU
+ 
+ Typ : ERROR_INVALID_MINALLOCSIZE
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DYNLINK_FROM_INVALID_RING_DEU
+ 
+ Typ : ERROR_DYNLINK_FROM_INVALID_RING
+ Text: Das Betriebssystem kann dieses Anwendungsprogramm
+       nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IOPL_NOT_ENABLED_DEU
+ 
+ Typ : ERROR_IOPL_NOT_ENABLED
+ Text: Das Betriebssystem ist nicht für die Ausführung
+       dieser Anwendung konfiguriert.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_SEGDPL_DEU
+ 
+ Typ : ERROR_INVALID_SEGDPL
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_AUTODATASEG_EXCEEDS_64k_DEU
+ 
+ Typ : ERROR_AUTODATASEG_EXCEEDS_64k
+ Text: Das Betriebssystem kann dieses Anwendungsprogramm
+       nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_RING2SEG_MUST_BE_MOVABLE_DEU
+ 
+ Typ : ERROR_RING2SEG_MUST_BE_MOVABLE
+ Text: Das Codesegment kann nicht größer oder gleich 64K sein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+; fehlercodes englisch
+.topic ERROR_SUCCESS_ENG
+ 
+ Typ : ERROR_SUCCESS
+ Text: Der Vorgang wurde erfolgreich abgeschlossen.
+ Code: 0 (0x0)
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_FUNCTION_ENG
+ 
+ Typ : ERROR_INVALID_FUNCTION
+ Text: Falsche Funktion.
+ Code: 1 (0x01)
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_FILE_NOT_FOUND_ENG
+ 
+ Typ : ERROR_FILE_NOT_FOUND
+ Text: Die angegebene Datei wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PATH_NOT_FOUND_ENG
+ 
+ Typ : ERROR_PATH_NOT_FOUND
+ Text: Das System kann den angegebenen Pfad nicht finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_OPEN_FILES_ENG
+ 
+ Typ : ERROR_TOO_MANY_OPEN_FILES
+ Text: Das System kann die Datei nicht öffnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ACCESS_DENIED_ENG
+ 
+ Typ : ERROR_ACCESS_DENIED
+ Text: Zugriff verweigert
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_HANDLE_ENG
+ 
+ Typ : ERROR_INVALID_HANDLE
+ Text: Das Handle ist ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ARENA_TRASHED_ENG
+ 
+ Typ : ERROR_ARENA_TRASHED
+ Text: Die Speichersteuerungsblöcke wurden zerstört.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_ENOUGH_MEMORY_ENG
+ 
+ Typ : ERROR_NOT_ENOUGH_MEMORY
+ Text: Für die Verarbeitung dieses Befehls sind nicht
+       genügend Speicherressourcen verfügbar.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_BLOCK_ENG
+ 
+ Typ : ERROR_INVALID_BLOCK
+ Text: Die Blockadresse des Speichersteuerelements ist
+       ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_ENVIRONMENT_ENG
+ 
+ Typ : ERROR_BAD_ENVIRONMENT
+ Text: Die Umgebung ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_FORMAT_ENG
+ 
+ Typ : ERROR_BAD_FORMAT
+ Text: Es wurde versucht, ein Programm mit einem falschen
+       Format zu laden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_ACCESS_ENG
+ 
+ Typ : ERROR_INVALID_ACCESS
+ Text: Der Zugriffscode ist ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_DATA_ENG
+ 
+ Typ : ERROR_INVALID_DATA
+ Text: Die Daten sind ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OUTOFMEMORY_ENG
+ 
+ Typ : ERROR_OUTOFMEMORY
+ Text: Für diesen Vorgang ist nicht genügend Speicher
+       verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_DRIVE_ENG
+ 
+ Typ : ERROR_INVALID_DRIVE
+ Text: Das System kann das angegebene Laufwerk nicht
+       finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CURRENT_DIRECTORY_ENG
+ 
+ Typ : ERROR_CURRENT_DIRECTORY
+ Text: Das Verzeichnis kann nicht entfernt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_SAME_DEVICE_ENG
+ 
+ Typ : ERROR_NOT_SAME_DEVICE
+ Text: Das System kann die Datei nicht auf ein anderes
+       Laufwerk verschieben.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_MORE_FILES_ENG
+ 
+ Typ : ERROR_NO_MORE_FILES
+ Text: Es gibt keine weiteren Dateien.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WRITE_PROTECT_ENG
+ 
+ Typ : ERROR_WRITE_PROTECT
+ Text: Die Medien sind schreibgeschützt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_UNIT_ENG
+ 
+ Typ : ERROR_BAD_UNIT
+ Text: Das System kann das angegebene Gerät nicht finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_READY_ENG
+ 
+ Typ : ERROR_NOT_READY
+ Text: Das Gerät ist nicht bereit.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_COMMAND_ENG
+ 
+ Typ : ERROR_BAD_COMMAND
+ Text: Das Gerät erkennt den Befehl nicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CRC_ENG
+ 
+ Typ : ERROR_CRC
+ Text: Datenfehler (cyclische Redundanzprüfung).
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_LENGTH_ENG
+ 
+ Typ : ERROR_BAD_LENGTH
+ Text: Das Programm hat einen Befehl ausgegeben,
+       die Befehlslänge ist jedoch falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEEK_ENG
+ 
+ Typ : ERROR_SEEK
+ Text: Das Laufwerk kann keinen bestimmten Bereich
+       finden oder auf dem Datenträger nachverfolgen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_DOS_DISK_ENG
+ 
+ Typ : ERROR_NOT_DOS_DISK
+ Text: Auf den angegebenen Datenträger oder die
+       angegebene Diskette kann nicht zugegriffen
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SECTOR_NOT_FOUND_ENG
+ 
+ Typ : ERROR_SECTOR_NOT_FOUND
+ Text: Das Laufwerk kann den angeforderten Sektor
+       nicht finden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OUT_OF_PAPER_ENG
+ 
+ Typ : ERROR_OUT_OF_PAPER
+ Text: Der Drucker hat kein Papier
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WRITE_FAULT_ENG
+ 
+ Typ : ERROR_WRITE_FAULT
+ Text: Das System kann nicht auf das angegebene Gerät
+       schreiben.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_READ_FAULT_ENG
+ 
+ Typ : ERROR_READ_FAULT
+ Text: Das System kann vom angegebenen Gerät nicht
+       gelesen werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_GEN_FAILURE_ENG
+ 
+ Typ : ERROR_GEN_FAILURE
+ Text: Ein Gerät, das an das System angeschlossen ist,
+       funktioniert nicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SHARING_VIOLATION_ENG
+ 
+ Typ : ERROR_SHARING_VIOLATION
+ Text: Der Prozess kann nicht auf die Datei zugreifen,
+       da sie bereits von einem anderen Prozess verwendet
+       wird.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_LOCK_VIOLATION_ENG
+ 
+ Typ : ERROR_LOCK_VIOLATION
+ Text: Der Prozess kann nicht auf die Datei zugreifen,
+       da sie teilweise von einem anderen Prozess gesperrt
+       ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WRONG_DISK_ENG
+ 
+ Typ : ERROR_WRONG_DISK
+ Text: Die falsche Diskette befindet sich im Laufwerk.
+       Fügen Sie %2 (Volume Serial Number: %3) in laufwerk
+       %1 ein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SHARING_BUFFER_EXCEEDED_ENG
+ 
+ Typ : ERROR_SHARING_BUFFER_EXCEEDED
+ Text: Zu viele Dateien, die für die Freigabe geöffnet
+       wurden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_HANDLE_EOF_ENG
+ 
+ Typ : ERROR_HANDLE_EOF
+ Text: Das Ende der Datei wurde erreicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_HANDLE_DISK_FULL_ENG
+ 
+ Typ : ERROR_HANDLE_DISK_FULL
+ Text: Der Datenträger ist voll.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_SUPPORTED_ENG
+ 
+ Typ : ERROR_NOT_SUPPORTED
+ Text: Die Anforderung wird nicht unterstützt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_REM_NOT_LIST_ENG
+ 
+ Typ : ERROR_REM_NOT_LIST
+ Text: Windows den Netzwerkpfad nicht finden.
+       Stellen Sie sicher, dass der Netzwerkpfad korrekt
+       ist und der Zielcomputer nicht ausgelastet oder
+       deaktiviert ist.
+       Wenn Windows den Netzwerkpfad weiterhin nicht finden
+       können, wenden Sie sich an Den Netzwerkadministrator.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DUP_NAME_ENG
+ 
+ Typ : ERROR_DUP_NAME
+ Text: Sie wurden nicht verbunden, da ein doppelter Name
+       im Netzwerk vorhanden ist.
+       Wenn Sie einer Domäne beitreten, wechseln Sie zu
+       System in Systemsteuerung, um den Computernamen zu
+       ändern, und versuchen Sie es erneut.
+       Wenn Sie einer Arbeitsgruppe beitreten, wählen Sie
+       einen anderen Arbeitsgruppennamen aus.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_NETPATH_ENG
+ 
+ Typ : ERROR_BAD_NETPATH
+ Text: Der Netzwerkpfad wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NETWORK_BUSY_ENG
+ 
+ Typ : ERROR_NETWORK_BUSY
+ Text: Das Netzwerk ist ausgelastet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DEV_NOT_EXIST_ENG
+ 
+ Typ : ERROR_DEV_NOT_EXIST
+ Text: Die angegebene Netzwerkressource oder das
+       angegebene Gerät ist nicht mehr verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_CMDS_ENG
+ 
+ Typ : ERROR_TOO_MANY_CMDS
+ Text: Das Netzwerk-BIOS-Befehlslimit wurde erreicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ADAP_HDW_ERR_ENG
+ 
+ Typ : ERROR_ADAP_HDW_ERR
+ Text: Ein Hardwarefehler des Netzwerkadapters ist
+       aufgetreten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_NET_RESP_ENG
+ 
+ Typ : ERROR_BAD_NET_RESP
+ Text: Der angegebene Server kann den angeforderten
+       Vorgang nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_UNEXP_NET_ERR_ENG
+ 
+ Typ : ERROR_UNEXP_NET_ERR
+ Text: Unerwarteter Netzwerkfehler.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_REM_ADAP_ENG
+ 
+ Typ : ERROR_BAD_REM_ADAP
+ Text: Der Remoteadapter ist nicht kompatibel.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PRINTQ_FULL_ENG
+ 
+ Typ : ERROR_PRINTQ_FULL
+ Text: Die Druckerwarteschlange ist voll.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_SPOOL_SPACE_ENG
+ 
+ Typ : ERROR_NO_SPOOL_SPACE
+ Text: Speicherplatz zum Speichern der Datei, die auf
+       das Drucken wartet, ist auf dem Server nicht
+       verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PRINT_CANCELLED_ENG
+ 
+ Typ : ERROR_PRINT_CANCELLED
+ Text: Ihre Datei, die auf das Drucken wartet,
+       wurde gelöscht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NETNAME_DELETED_ENG
+ 
+ Typ : ERROR_NETNAME_DELETED
+ Text: Der angegebene Netzwerkname ist nicht mehr
+       verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NETWORK_ACCESS_DENIED_ENG
+ 
+ Typ : ERROR_NETWORK_ACCESS_DENIED
+ Text: Der Netzwerkzugriff wird verweigert.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_DEV_TYPE_ENG
+ 
+ Typ : ERROR_BAD_DEV_TYPE
+ Text: Der Netzwerkressourcentyp ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_NET_NAME_ENG
+ 
+ Typ : ERROR_BAD_NET_NAME
+ Text: Der Netzwerkname wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_NAMES_ENG
+ 
+ Typ : ERROR_TOO_MANY_NAMES
+ Text: Der Namegrenzwert für die Netzwerkadapterkarte
+       des lokalen Computers wurde überschritten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_SESS_ENG
+ 
+ Typ : ERROR_TOO_MANY_SESS
+ Text: Das Netzwerk-BIOS-Sitzungslimit wurde überschritten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SHARING_PAUSED_ENG
+ 
+ Typ : ERROR_SHARING_PAUSED
+ Text: Der Remoteserver wurde angehalten oder befindet
+       sich im Prozess des Startvorgangs.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_REQ_NOT_ACCEP_ENG
+ 
+ Typ : ERROR_REQ_NOT_ACCEP
+ Text: Zu diesem Zeitpunkt können keine Verbindungen mit
+       diesem Remotecomputer hergestellt werden, da
+       bereits so viele Verbindungen wie der Computer
+       akzeptiert werden kann.
+ Code:
+ 
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_REDIR_PAUSED_ENG
+ 
+ Typ : ERROR_REDIR_PAUSED
+ Text: Das angegebene Drucker- oder Datenträgergerät
+       wurde angehalten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_FILE_EXISTS_ENG
+ 
+ Typ : ERROR_FILE_EXISTS
+ Text: Die Datei ist vorhanden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CANNOT_MAKE_ENG
+ 
+ Typ : ERROR_CANNOT_MAKE
+ Text: Das Verzeichnis oder die Datei kann nicht erstellt
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_FAIL_I24_ENG
+ 
+ Typ : ERROR_FAIL_I24
+ Text: Fehler bei INT 24.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OUT_OF_STRUCTURES_ENG
+ 
+ Typ : ERROR_OUT_OF_STRUCTURES
+ Text: Storage, diese Anforderung zu verarbeiten,
+       ist nicht verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ALREADY_ASSIGNED_ENG
+ 
+ Typ : ERROR_ALREADY_ASSIGNED
+ Text: Der name des lokalen Geräts wird bereits verwendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_PASSWORD_ENG
+ 
+ Typ : ERROR_INVALID_PASSWORD
+ Text: Das angegebene Netzwerkkennwort ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_PARAMETER_ENG
+ 
+ Typ : ERROR_INVALID_PARAMETER
+ Text: Der Parameter ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NET_WRITE_FAULT_ENG
+ 
+ Typ : ERROR_NET_WRITE_FAULT
+ Text: Fehler beim Schreiben im Netzwerk.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_PROC_SLOTS_ENG
+ 
+ Typ : ERROR_NO_PROC_SLOTS
+ Text: Das System kann derzeit keinen anderen
+       Prozess starten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_SEMAPHORES_ENG
+ 
+ Typ : ERROR_TOO_MANY_SEMAPHORES
+ Text: Ein anderes System-Semaphor kann nicht
+       erstellt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_EXCL_SEM_ALREADY_OWNED_ENG
+ 
+ Typ : ERROR_EXCL_SEM_ALREADY_OWNED
+ Text: Der exklusive Semaphor ist eigentum an einem
+       anderen Prozess.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_IS_SET_ENG
+ 
+ Typ : ERROR_SEM_IS_SET
+ Text: Das Semaphor ist festgelegt und kann nicht
+       geschlossen werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_SEM_REQUESTS_ENG
+ 
+ Typ : ERROR_TOO_MANY_SEM_REQUESTS
+ Text: Die Semaphore kann nicht erneut festgelegt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_AT_INTERRUPT_TIME_ENG
+ 
+ Typ : ERROR_INVALID_AT_INTERRUPT_TIME
+ Text: Exklusive semaphoren können zur Unterbrechung
+       nicht angefordert werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_OWNER_DIED_ENG
+ 
+ Typ : ERROR_SEM_OWNER_DIED
+ Text: Der vorherige Besitz dieses Semaphores wurde
+       beendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_USER_LIMIT_ENG
+ 
+ Typ : ERROR_SEM_USER_LIMIT
+ Text: Legen Sie die Diskette für das Laufwerk %1 ein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DISK_CHANGE_ENG
+ 
+ Typ : ERROR_DISK_CHANGE
+ Text: Das Programm wurde beendet, weil eine alternative
+       Diskette nicht eingefügt wurde.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DRIVE_LOCKED_ENG
+ 
+ Typ : ERROR_DRIVE_LOCKED
+ Text: Der Datenträger wird von einem anderen Prozess
+       verwendet oder gesperrt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BROKEN_PIPE_ENG
+ 
+ Typ : ERROR_BROKEN_PIPE
+ Text: Das Rohr wurde beendet.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_OPEN_FAILED_ENG
+ 
+ Typ : ERROR_OPEN_FAILED
+ Text: Das System kann das angegebene Gerät oder
+       die angegebene Datei nicht öffnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BUFFER_OVERFLOW_ENG
+ 
+ Typ : ERROR_BUFFER_OVERFLOW
+ Text: Der Dateiname ist zu lang.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DISK_FULL_ENG
+ 
+ Typ : ERROR_DISK_FULL
+ Text: Es ist nicht genügend Speicherplatz vorhanden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_MORE_SEARCH_HANDLES_ENG
+ 
+ Typ : ERROR_NO_MORE_SEARCH_HANDLES
+ Text: Es sind keine internen Dateibezeichner verfügbar.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_TARGET_HANDLE_ENG
+ 
+ Typ : ERROR_INVALID_TARGET_HANDLE
+ Text: Der interne Zieldateibezeichner ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_CATEGORY_ENG
+ 
+ Typ : ERROR_INVALID_CATEGORY
+ Text: Der vom Anwendungsprogramm vorgenommene
+       IOCTL-Aufruf ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_VERIFY_SWITCH_ENG
+ 
+ Typ : ERROR_INVALID_VERIFY_SWITCH
+ Text: Der Parameterwert des Parameterwerts für
+       den Überprüfen-On-Write-Schalter ist nicht
+       korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_DRIVER_LEVEL_ENG
+ 
+ Typ : ERROR_BAD_DRIVER_LEVEL
+ Text: Das System unterstützt den angeforderten
+       Befehl nicht.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CALL_NOT_IMPLEMENTED_ENG
+ 
+ Typ : ERROR_CALL_NOT_IMPLEMENTED
+ Text: Diese Funktion wird auf diesem System nicht
+       unterstützt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_TIMEOUT_ENG
+ 
+ Typ : ERROR_SEM_TIMEOUT
+ Text: Der Zeitüberschreitungszeitraum für Semaphore
+       ist abgelaufen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INSUFFICIENT_BUFFER_ENG
+ 
+ Typ : ERROR_INSUFFICIENT_BUFFER
+ Text: Der an einen Systemaufruf übergebene Datenbereich
+       ist zu klein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_NAME_ENG
+ 
+ Typ : ERROR_INVALID_NAME
+ Text: Die Syntax des Dateinamens, des Verzeichnisnamens
+       oder der Volumebezeichnung ist falsch.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_LEVEL_ENG
+ 
+ Typ : ERROR_INVALID_LEVEL
+ Text: Die Systemanrufebene ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NO_VOLUME_LABEL_ENG
+ 
+ Typ : ERROR_NO_VOLUME_LABEL
+ Text: Der Datenträger verfügt über keine
+       Volumebezeichnung.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_MOD_NOT_FOUND_ENG
+ 
+ Typ : ERROR_MOD_NOT_FOUND
+ Text: Das angegebene Modul wurde nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PROC_NOT_FOUND_ENG
+ 
+ Typ : ERROR_PROC_NOT_FOUND
+ Text: Die angegebene Prozedur konnte nicht gefunden
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_WAIT_NO_CHILDREN_ENG
+ 
+ Typ : ERROR_WAIT_NO_CHILDREN
+ Text: Es gibt keine untergeordneten Prozesse, auf die
+       gewartet werden soll.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CHILD_NOT_COMPLETE_ENG
+ 
+ Typ : ERROR_CHILD_NOT_COMPLETE
+ Text: Die Anwendung %1 kann nicht im Win32-Modus
+       ausgeführt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DIRECT_ACCESS_HANDLE_ENG
+ 
+ Typ : ERROR_DIRECT_ACCESS_HANDLE
+ Text: Versuchen Sie, ein Dateihandle zu einer geöffneten
+       Datenträgerpartition für einen anderen Vorgang als
+       unformatierte Datenträger-I/O zu verwenden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NEGATIVE_SEEK_ENG
+ 
+ Typ : ERROR_NEGATIVE_SEEK
+ Text: Es wurde versucht, den Dateizeiger vor dem
+       Anfang der Datei zu verschieben.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEEK_ON_DEVICE_ENG
+ 
+ Typ : ERROR_SEEK_ON_DEVICE
+ Text: Der Dateizeiger kann nicht auf dem angegebenen
+       Gerät oder der angegebenen Datei festgelegt
+       werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_JOIN_TARGET_ENG
+ 
+ Typ : ERROR_IS_JOIN_TARGET
+ Text: Ein JOIN- oder SUBST-Befehl kann nicht für ein
+       Laufwerk verwendet werden, das zuvor verknüpfte
+       Laufwerke enthält.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_JOINED_ENG
+ 
+ Typ : ERROR_IS_JOINED
+ Text: Es wurde versucht, einen JOIN- oder SUBST-Befehl
+       auf einem Laufwerk zu verwenden, das bereits
+       verbunden wurde.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_SUBSTED_ENG
+ 
+ Typ : ERROR_IS_SUBSTED
+ Text: Es wurde versucht, einen JOIN- oder SUBST-Befehl
+       auf einem Laufwerk zu verwenden, das bereits
+       ersetzt wurde.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_JOINED_ENG
+ 
+ Typ : ERROR_NOT_JOINED
+ Text: Das System hat versucht, den JOIN eines Laufwerks
+       zu löschen, das nicht verbunden ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_SUBSTED_ENG
+ 
+ Typ : ERROR_NOT_SUBSTED
+ Text: Das System hat versucht, die Ersetzung eines Laufwerks
+       zu löschen, das nicht ersetzt wird.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_JOIN_TO_JOIN_ENG
+ 
+ Typ : ERROR_JOIN_TO_JOIN
+ Text: Das System hat versucht, einem Laufwerk auf einem
+       verknüpften Laufwerk ein Verzeichnis zuzuordnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SUBST_TO_SUBST_ENG
+ 
+ Typ : ERROR_SUBST_TO_SUBST
+ Text: Das System hat versucht, ein Laufwerk in ein
+       Verzeichnis auf einem ersetzten Laufwerk zu
+       ersetzen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_JOIN_TO_SUBST_ENG
+ 
+ Typ : ERROR_JOIN_TO_SUBST
+ Text: Das System hat versucht, einem Laufwerk auf
+       einem ersetzten Laufwerk ein Verzeichnis
+       zuzuordnen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SUBST_TO_JOIN_ENG
+ 
+ Typ : ERROR_SUBST_TO_JOIN
+ Text: Das System hat versucht, ein Laufwerk auf einem
+       verknüpften Laufwerk zu einem Verzeichnis zu subST.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BUSY_DRIVE_ENG
+ 
+ Typ : ERROR_BUSY_DRIVE
+ Text: Das System kann derzeit keinen JOIN oder SUBST
+       ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SAME_DRIVE_ENG
+ 
+ Typ : ERROR_SAME_DRIVE
+ Text: Das System kann weder einem Laufwerk noch einem
+       Verzeichnis auf demselben Laufwerk beitreten oder
+       ersetzen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DIR_NOT_ROOT_ENG
+ 
+ Typ : ERROR_DIR_NOT_ROOT
+ Text: Das Verzeichnis ist kein Unterverzeichnis des
+       Stammverzeichnisses.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DIR_NOT_EMPTY_ENG
+ 
+ Typ : ERROR_DIR_NOT_EMPTY
+ Text: Das Verzeichnis ist nicht leer
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_SUBST_PATH_ENG
+ 
+ Typ : ERROR_IS_SUBST_PATH
+ Text: Der angegebene Pfad wird in einem Ersatz
+       verwendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_JOIN_PATH_ENG
+ 
+ Typ : ERROR_IS_JOIN_PATH
+ Text: Nicht genügend Ressourcen sind verfügbar,
+       um diesen Befehl zu verarbeiten.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_PATH_BUSY_ENG
+ 
+ Typ : ERROR_PATH_BUSY
+ Text: Der angegebene Pfad kann derzeit nicht
+       verwendet werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IS_SUBST_TARGET_ENG
+ 
+ Typ : ERROR_IS_SUBST_TARGET
+ Text: Es wurde versucht, ein Laufwerk zu verknüpfen
+       oder zu ersetzen, für das ein Verzeichnis auf
+       dem Laufwerk das Ziel eines vorherigen Ersatzs
+       ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SYSTEM_TRACE_ENG
+ 
+ Typ : ERROR_SYSTEM_TRACE
+ Text: Systemablaufverfolgungsinformationen wurden
+       in Ihrer CONFIG.SYS-Datei nicht angegeben,
+       oder die Ablaufverfolgung ist nicht zulässig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_EVENT_COUNT_ENG
+ 
+ Typ : ERROR_INVALID_EVENT_COUNT
+ Text: Die Anzahl der angegebenen semaphore-Ereignisse
+       für DosMuxSemWait ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_MUXWAITERS_ENG
+ 
+ Typ : ERROR_TOO_MANY_MUXWAITERS
+ Text: DosMuxSemWait wurde nicht ausgeführt; zu viele
+       Semaphoren sind bereits festgelegt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_LIST_FORMAT_ENG
+ 
+ Typ : ERROR_INVALID_LIST_FORMAT
+ Text: Die DosMuxSemWait-Liste ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_LABEL_TOO_LONG_ENG
+ 
+ Typ : ERROR_LABEL_TOO_LONG
+ Text: Die eingegebene Volumebeschriftung überschreitet
+       die Bezeichnungszeichengrenze des Zieldateisystems.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_TOO_MANY_TCBS_ENG
+ 
+ Typ : ERROR_TOO_MANY_TCBS
+ Text: Ein anderer Thread kann nicht erstellt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SIGNAL_REFUSED_ENG
+ 
+ Typ : ERROR_SIGNAL_REFUSED
+ Text: Der Empfängervorgang hat das Signal abgelehnt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DISCARDED_ENG
+ 
+ Typ : ERROR_DISCARDED
+ Text: Das Segment ist bereits verworfen und kann
+       nicht gesperrt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_NOT_LOCKED_ENG
+ 
+ Typ : ERROR_NOT_LOCKED
+ Text: Das Segment ist bereits entsperrt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_THREADID_ADDR_ENG
+ 
+ Typ : ERROR_BAD_THREADID_ADDR
+ Text: Die Adresse für die Thread-ID ist nicht korrekt.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_ARGUMENTS_ENG
+ 
+ Typ : ERROR_BAD_ARGUMENTS
+ Text: Ein oder mehrere Argumente sind nicht richtig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_PATHNAME_ENG
+ 
+ Typ : ERROR_BAD_PATHNAME
+ Text: Der angegebene Pfad ist ungültig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SIGNAL_PENDING_ENG
+ 
+ Typ : ERROR_SIGNAL_PENDING
+ Text: Ein Signal ist bereits ausstehend.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_MAX_THRDS_REACHED_ENG
+ 
+ Typ : ERROR_MAX_THRDS_REACHED
+ Text: Es können keine weiteren Threads im System
+       erstellt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_LOCK_FAILED_ENG
+ 
+ Typ : ERROR_LOCK_FAILED
+ Text: Eine Datei kann nicht gesperrt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BUSY_ENG
+ 
+ Typ : ERROR_BUSY
+ Text: Die angeforderte Ressource wird verwendet.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DEVICE_SUPPORT_IN_PROGRESS_ENG
+ 
+ Typ : ERROR_DEVICE_SUPPORT_IN_PROGRESS
+ Text: Die Befehlsunterstützungserkennung des Geräts wird
+       ausgeführt.
+ Code: 
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_CANCEL_VIOLATION_ENG
+ 
+ Typ : ERROR_CANCEL_VIOLATION
+ Text: Eine Sperranforderung war für den angegebenen
+       Abbruchbereich nicht ausstehender Wert.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ATOMIC_LOCKS_NOT_SUPPORTED_ENG
+ 
+ Typ : ERROR_ATOMIC_LOCKS_NOT_SUPPORTED
+ Text: Das Dateisystem unterstützt keine atomaren
+       Änderungen an dem Sperrtyp.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_SEGMENT_NUMBER_ENG
+ 
+ Typ : ERROR_INVALID_SEGMENT_NUMBER
+ Text: Das System hat eine Segmentnummer erkannt,
+       die nicht richtig war.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_ORDINAL_ENG
+ 
+ Typ : ERROR_INVALID_ORDINAL
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ALREADY_EXISTS_ENG
+ 
+ Typ : ERROR_ALREADY_EXISTS
+ Text: Eine Datei kann nicht erstellt werden, wenn die
+       Datei bereits vorhanden ist.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_FLAG_NUMBER_ENG
+ 
+ Typ : ERROR_INVALID_FLAG_NUMBER
+ Text: Das übergebene Flag ist nicht richtig.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_SEM_NOT_FOUND_ENG
+ 
+ Typ : ERROR_SEM_NOT_FOUND
+ Text: Der angegebene System-Semaphorename wurde
+       nicht gefunden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_STARTING_CODESEG_ENG
+ 
+ Typ : ERROR_INVALID_STARTING_CODESEG
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_STACKSEG_ENG
+ 
+ Typ : ERROR_INVALID_STACKSEG
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_MODULETYPE_ENG
+ 
+ Typ : ERROR_INVALID_MODULETYPE
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_EXE_SIGNATURE_ENG
+ 
+ Typ : ERROR_INVALID_EXE_SIGNATURE
+ Text: %1 kann im Win32-Modus nicht ausgeführt werden.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_EXE_MARKED_INVALID_ENG
+ 
+ Typ : ERROR_EXE_MARKED_INVALID
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_BAD_EXE_FORMAT_ENG
+ 
+ Typ : ERROR_BAD_EXE_FORMAT
+ Text: %1 ist keine gültige Win32-Anwendung.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_ITERATED_DATA_EXCEEDS_64k_ENG
+ 
+ Typ : ERROR_ITERATED_DATA_EXCEEDS_64k
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_MINALLOCSIZE_ENG
+ 
+ Typ : ERROR_INVALID_MINALLOCSIZE
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_DYNLINK_FROM_INVALID_RING_ENG
+ 
+ Typ : ERROR_DYNLINK_FROM_INVALID_RING
+ Text: Das Betriebssystem kann dieses Anwendungsprogramm
+       nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_IOPL_NOT_ENABLED_ENG
+ 
+ Typ : ERROR_IOPL_NOT_ENABLED
+ Text: Das Betriebssystem ist nicht für die Ausführung
+       dieser Anwendung konfiguriert.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_INVALID_SEGDPL_ENG
+ 
+ Typ : ERROR_INVALID_SEGDPL
+ Text: Das Betriebssystem kann %1 nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_AUTODATASEG_EXCEEDS_64k_ENG
+ 
+ Typ : ERROR_AUTODATASEG_EXCEEDS_64k
+ Text: Das Betriebssystem kann dieses Anwendungsprogramm
+       nicht ausführen.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
+
+;----------------------------------
+.topic ERROR_RING2SEG_MUST_BE_MOVABLE_ENG
+ 
+ Typ : ERROR_RING2SEG_MUST_BE_MOVABLE
+ Text: Das Codesegment kann nicht größer oder gleich 64K sein.
+ Code:
+
+ Anforderungen:
+ --------------
+ Target Platform => Windows
+ Header          => wingdi.h (include windows.h)
+
+ ════════════════════════════════════════════
+ {win32api DEU:win32api_DEU}
+ {win32api ENG:win32api_ENG}
