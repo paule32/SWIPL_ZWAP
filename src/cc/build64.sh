@@ -21,8 +21,9 @@
 #              support for create, and running this script in
 #              detail.
 #
-# Cmd-Line   : # ./build64.sh -enable release
-#              # ./build64.sh -enable debug
+# Cmd-Line   : # ./build64.sh -enable  release
+#              # ./build64.sh -enable  debug
+#              # ./build64.sh -c       prolog
 # -------------------------------------------------------------
 # set default customize values ...
 # -------------------------------------------------------------
@@ -52,6 +53,9 @@ function download_file {
 		unzip -o $1.zip > /dev/null 2>&1
 	fi
 }
+# -------------------------------------------------------------
+# check application is installed (simple try&dirty) ...
+# -------------------------------------------------------------
 function check_application {
 	which $1 > /dev/null 2>&1
 	if [[ $? -ne 0 ]]; then
@@ -59,19 +63,31 @@ function check_application {
 		exit 2
 	else
 		printf "%-15s: OK (installed)\n" $1
-		#echo "$1          : OK (installed)"
+	fi
+}
+# -------------------------------------------------------------
+# this function check a parameter - if it empty => exit.
+# -------------------------------------------------------------
+function check_isempty {
+	if [[ -z "$1" ]]; then
+		echo "option is empty."
+		exit 2
 	fi
 }
 function prepare_build {
-	rm -rf   ${_HOME}/lib
-	rm -rf   ${_HOME}/src/{xbase,tvision,asmjit,prolog}
-	mkdir -p ${_HOME}/src/{xbase,tvision,asmjit,prolog}
-	mkdir -p ${_HOME}/lib
-	if [[ $? -ne 0 ]]; then
-		echo "build folders  : FAIL (could not create)"
-		exit 2
+	if [[ $1 -eq 0 ]]; then
+		rm -rf   ${_HOME}/lib
+		rm -rf   ${_HOME}/src/{xbase,tvision,asmjit,prolog}
+		mkdir -p ${_HOME}/src/{xbase,tvision,asmjit,prolog}
+		mkdir -p ${_HOME}/lib
+		if [[ $? -ne 0 ]]; then
+			echo "build folders  : FAIL (could not create)"
+			exit 2
+		else
+			echo "build folders  : OK (created)"
+		fi
 	else
-		echo "build folders  : OK (created)"
+		return
 	fi
 	echo ""
 	check_application "wget"
@@ -198,15 +214,12 @@ function compile_prolog {
 	# ---------------------------------------------------------
 	# first, delete old data crap ...
 	# ---------------------------------------------------------
-	if [[ "${machine}" == "MinGW" ]]; then
-		echo "delete old files..."
-		rm -rf help.h
-		rm -rf prolog64.hlp
-	fi
+	rm -rf help.h
+	rm -rf prolog64.hlp
 	# ---------------------------------------------------------
 	# compile the locale.eng creator: createLang.exe
 	# ---------------------------------------------------------
-	echo "create locale compiler:"
+	echo "== [ Build locales ] =="
 	g++ -std=c++17 -O2 -o createLang${exeEXT} createLang.cc
 	if [[ $? -ne 0 ]]; then
 		echo "Compile Error."
@@ -223,8 +236,8 @@ function compile_prolog {
 	# ---------------------------------------------------------
 	# create locale files
 	# ---------------------------------------------------------
-	printf "english: " && ./createLang${exeEXT} locale.eng.txt locale.eng
-	printf "german : " && ./createLang${exeEXT} locale.deu.txt locale.deu
+	./createLang${exeEXT} locale.eng.txt locale.eng > /dev/null 2>&1
+	./createLang${exeEXT} locale.deu.txt locale.deu > /dev/null 2>&1
 	# ---------------------------------------------------------
 	# create the Turbo Vision help file
 	# ---------------------------------------------------------
@@ -328,10 +341,113 @@ function compile_prolog {
 	fi
 }
 # -------------------------------------------------------------
+# single part compile ...
+# -------------------------------------------------------------
+function get_compile_file {
+	check_isempty $1
+	case "$1" in
+		"prolog"  ) compile_prolog  ;;
+		"asmjit"  ) compile_asmjit  ;;
+		"tvision" ) compile_tvision ;;
+		"xbase"   ) compile_xbase   ;;
+		*)
+			echo >&2 "option not supported."
+			exit 2;;
+	esac
+	echo "== [ done. ] =="
+	exit 0
+}
+# -------------------------------------------------------------
 # restore old status ...
 # -------------------------------------------------------------
 function status_restore {
 	cd ${_HOME_OLD}
+}
+# -------------------------------------------------------------
+# check, if a file exists in the directory tree:
+# -------------------------------------------------------------
+function check_exists {
+	if [[ -f "$1" ]]; then
+		read -p "would you re-compile all: [y/n]: " confirm
+		if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+			prepare_build 0
+			echo "" && compile_default
+			echo "" && compile_asmjit
+			echo "" && compile_xbase
+			echo "" && compile_tvision
+			echo "" && compile_prolog
+			exit 0
+		else
+			read -p "would you re-compile asmjit: [y/n]: " confirm
+			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+				prepare_build 1
+				echo "" && compile_asmjit
+				exit 0
+			fi
+			read -p "would you re-compile xbase: [y/n]: " confirm
+			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+				prepare_build 1
+				echo "" && compile_xbaset
+				exit 0
+			fi
+			read -p "would you re-compile tvision: [y/n]: " confirm
+			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+				prepare_build 1
+				echo "" && compile_tvision
+				exit 0
+			fi
+			read -p "would you re-compile prolog: [y/n]: " confirm
+			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+				prepare_build 1
+				echo "" && compile_prolog
+				exit 0
+			fi
+			echo "== [ aborted. ] =="
+			exit 2
+		fi
+	fi
+}
+# -------------------------------------------------------------
+# if parameter count > 0 then handle these parameter's ...
+# -------------------------------------------------------------
+function check_parameter {
+	if [[ $1 -lt 1 ]]; then
+		check_exists "${_HOME}/lib/libtvision.a"
+		check_exists "${_HOME}/lib/libasmjit.a"
+		check_exists "${_HOME}/lib/libxbase64.a"
+		echo ""
+		echo "== { no parameter given. ] =="
+		exit 0
+	fi
+	if [[ $1 -gt 0 ]] && [[ "$2" == "-"* ]]; then
+		while [[ $1 -gt 0 ]] && [[ "$2" == "-"* ]];
+		do
+			opt="$2";
+			shift;                  # expose next argument
+			case "$opt" in
+				"-" )
+					echo "empty parameter not allowed."
+					break 2;;
+				"-compile" )        # single part compile
+					get_compile_file $2
+					shift;;
+				"-c" )
+					get_compile_file $2
+					shift;;
+				"-enable" )
+					get_enabled_option $2
+					shift;;
+				"-enable="* )       # alternative format: -enable=
+					get_enabled_option "${opt#*=}";;
+				*)
+					echo >&2 "invalid option"
+					exit 1;;
+			esac
+		done
+	else
+		echo "invalid option: $@"
+		exit 2
+	fi
 }
 # -------------------------------------------------------------
 # get the shell name:
@@ -347,48 +463,17 @@ esac
 # -------------------------------------------------------------
 echo "== [ Gattering default Information's ] ==" >&2
 echo "Compile for    : ${machine}"
+#
 prepare_status_save
-prepare_build
-# -------------------------------------------------------------
-# check if parameter's given:
-# -------------------------------------------------------------
-if [[ $# -lt 1 ]]; then
-	echo "" && compile_default
-	echo "" && compile_asmjit
-	echo "" && compile_xbase
-	echo "" && compile_tvision
-	echo "" && compile_prolog
-	exit 0
-fi
-# -------------------------------------------------------------
-# if parameter count > 0 then handle these parameter's ...
-# -------------------------------------------------------------
-if [[ $# -gt 0 ]] && [[ "$1" == "-"* ]]; then
-	while [[ $# -gt 0 ]] && [[ "$1" == "-"* ]];
-	do
-		opt="$1";
-		shift;					# expose next argument
-		case "$opt" in
-			"-" )
-				echo "empty parameter not allowed."
-				break 2;;
-			"-enable" )
-				get_enabled_option "$1"
-				shift;;
-			"-enable="* )		# alternative format: -enable=
-				get_enabled_option "${opt#*=}";;
-			*)
-				echo >&2 "invalid option"
-				exit 1;;
-		esac
-	done
-else
-	echo "invalid option: $@"
-	exit 2
-fi
+check_parameter $# $1 $2
 # -------------------------------------------------------------
 # compile used non-standard packages ...
 # -------------------------------------------------------------
+check_exists "${_HOME}/lib/libtvision.a"
+check_exists "${_HOME}/lib/libasmjit.a"
+check_exists "${_HOME}/lib/libxbase64.a"
+#
+prepare_build
 echo "" && compile_default
 echo "" && compile_asmjit
 echo "" && compile_xbase
