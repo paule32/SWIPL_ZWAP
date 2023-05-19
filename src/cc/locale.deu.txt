@@ -832,4 +832,6 @@ PROCESS_MODE_NOT_BACKGROUND
 Versuchen Sie, auf ungültige Adresse zuzugreifen
 INVALID_ADDRESS
 Programm-Modul nicht abgeschlosse - haben Sie ein ';' vergessen ?
-Bibliothek-Module nicht abgeschlossen - haben Sie ein ';' vergessen ?
+Bibliothek-Modul nicht abgeschlossen - haben Sie ein ';' vergessen ?
+Applikation-Module nicht abgeschlossen - haben Sie ein ';' vergessen ?
+'module', 'library' or 'application' erwartet
