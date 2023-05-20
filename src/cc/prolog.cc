@@ -1005,6 +1005,8 @@ namespace prolog
 	public:
 		uint32_t PL_lookaheadPosition;
 		uint32_t PL_nestedComment;
+		
+		bool     PL_in_procedure_head = false;
 
 	public:
 		//-- CONSTRUCTORS DEFINITIONS -----------------------------
@@ -1537,7 +1539,227 @@ namespace prolog
 					if (PL_lookaheadChar == '*') {
 						PL_skip_comment_pas_A();
 						continue;
-					}
+					}	else
+					if (PL_lookaheadChar == ')') {
+						messageBox("proc para close",mfOKButton);
+						break;
+					}	else
+					if (PL_isalpha())
+					{
+						if (PL_in_procedure_head)
+						{
+							next_parameter:
+							PL_ident = "";
+							PL_ident.push_back(PL_lookaheadChar);
+							PL_lookaheadChar =
+							PL_get_ident();
+							
+							char buffer[200];
+							sprintf(buffer, "proc var name: %s",PL_ident.c_str());
+							messageBox(buffer,mfOKButton);
+							
+							PL_lookaheadChar =
+							PL_handle_pas_white_spaces();
+							
+							if (PL_lookaheadChar == ':')
+							{
+								PL_ident = "";
+								PL_lookaheadChar =
+								PL_handle_pas_white_spaces();
+								
+								if (PL_isalpha())
+								{
+									PL_lookaheadChar =
+									PL_get_ident();
+									
+									sprintf(buffer,"param type: %s",PL_ident.c_str());
+									messageBox(buffer,mfOKButton);
+									
+									PL_lookaheadChar =
+									PL_handle_pas_white_spaces();
+									
+									if (PL_lookaheadChar == ')')
+									{
+										PL_ident = "";
+										PL_lookaheadChar =
+										PL_handle_pas_white_spaces();
+										
+										if (PL_lookaheadChar == ';')
+										{
+											before_begin_block:
+											PL_ident = "";
+											PL_lookaheadChar =
+											PL_handle_pas_white_spaces();
+											
+											if (PL_isalpha())
+											{
+												PL_lookaheadChar =
+												PL_get_ident();
+												
+												if (PL_ident == "begin")
+												{
+													PL_ident = "";
+													PL_lookaheadChar =
+													PL_handle_pas_white_spaces();
+													
+													if (PL_isalpha())
+													{
+														PL_lookaheadChar =
+														PL_get_ident();
+													
+														if (PL_ident == "end")
+														{
+															PL_ident = "";
+															PL_lookaheadChar =
+															PL_handle_pas_white_spaces();
+															
+															if (PL_lookaheadChar == ';')
+															{
+																break;
+															}	else {
+																throw PL_Exception_ParserError(
+																// semicolon expected
+																locale_str( 839 ).c_str(),
+																PL_line_row,
+																PL_line_col);
+															}
+														}	else {
+															throw PL_Exception_ParserError(
+															// end keyword expected
+															locale_str( 841 ).c_str(),
+															PL_line_row,
+															PL_line_col);
+														}
+													}	else {
+														throw PL_Exception_ParserError(
+														// syntax error
+														locale_str( 129 ).c_str(),
+														PL_line_row,
+														PL_line_col);
+													}
+												}	else
+												if (PL_ident == "var")
+												{
+													next_var:
+													PL_ident = "";
+													PL_lookaheadChar =
+													PL_handle_pas_white_spaces();
+													
+													if (PL_isalpha())
+													{
+														PL_lookaheadChar =
+														PL_get_ident();
+														
+														sprintf(buffer,"var para name: %s", PL_ident.c_str());
+														messageBox(buffer,mfOKButton);
+														
+														PL_lookaheadChar =
+														PL_get_ident();
+														
+														if (PL_lookaheadChar == ':')
+														{
+															PL_ident = "";
+															PL_lookaheadChar =
+															PL_handle_pas_white_spaces();
+														
+															if (PL_isalpha())
+															{
+																PL_lookaheadChar =
+																PL_get_ident();
+															
+																sprintf(buffer,"var para type: %s", PL_ident.c_str());
+																messageBox(buffer,mfOKButton);
+															
+																PL_ident = "";
+																PL_lookaheadChar =
+																PL_handle_pas_white_spaces();
+															
+																if (PL_lookaheadChar == ',') {
+																	goto next_var;
+																}	else
+																if (PL_lookaheadChar == ';') {
+																	goto before_begin_block;
+																}	else {
+																	throw PL_Exception_ParserError(
+																	// comma or semicolon expected
+																	locale_str( 843 ).c_str(),
+																	PL_line_row,
+																	PL_line_col);
+																}
+															}	else {
+																throw PL_Exception_ParserError(
+																// parameter name expected
+																locale_str( 844 ).c_str(),
+																PL_line_row,
+																PL_line_col);
+															}
+														}	else {
+															throw PL_Exception_ParserError(
+															// parameter type expected
+															locale_str( 838 ).c_str(),
+															PL_line_row,
+															PL_line_col);
+														}
+													}	else {
+														throw PL_Exception_ParserError(
+														// color expected
+														locale_str( 837 ).c_str(),
+														PL_line_row,
+														PL_line_col);
+													}
+												}	else {
+													throw PL_Exception_ParserError(
+													// begin keyword expected
+													locale_str( 842 ).c_str(),
+													PL_line_row,
+													PL_line_col);
+												}
+											}	else {
+												throw PL_Exception_ParserError(
+												// begin block expected
+												locale_str( 840 ).c_str(),
+												PL_line_row,
+												PL_line_col);
+											}
+										}	else {
+											throw PL_Exception_ParserError(
+											// procedure not terminated - semicolon expected
+											locale_str( 839 ).c_str(),
+											PL_line_row,
+											PL_line_col);
+										}
+									}	else
+									if (PL_lookaheadChar == ';') {
+										messageBox("next parameter", mfOKButton);
+										goto next_parameter;
+									}	else {
+										throw PL_Exception_ParserError(
+										locale_str( 129 ).c_str(),
+										PL_line_row,
+										PL_line_col);
+									}
+								}	else {
+									throw PL_Exception_ParserError(
+									// parameter type expected
+									locale_str( 838 ).c_str(),
+									PL_line_row,
+									PL_line_col);
+								}
+							}	else {
+								throw PL_Exception_ParserError(
+								// colon expected
+								locale_str( 837 ).c_str(),
+								PL_line_row,
+								PL_line_col);
+							}
+						}	else {
+							throw PL_Exception_ParserError(
+							// syntax error
+							locale_str( 129 ).c_str(),
+							PL_line_row,
+							PL_line_col);
+						}
+					}	else
 					if (PL_comment_open > 0) {
 						throw PL_Exception_ParserError(
 						locale_str( 75 ).c_str(),
@@ -1712,6 +1934,45 @@ namespace prolog
 		
 		void PL_handle_module_pascal()
 		{
+			PL_ident = "";
+			PL_lookaheadChar =
+			PL_handle_pas_white_spaces();
+
+			if (PL_isalpha())
+			{
+				PL_lookaheadChar =
+				PL_get_ident();
+				
+				if (PL_ident == "procedure")
+				{
+					PL_ident = "";
+					PL_lookaheadChar =
+					PL_handle_pas_white_spaces();
+
+					if (PL_isalpha())
+					{
+						PL_lookaheadChar =
+						PL_get_ident();
+						
+						if (PL_check_pascal_keyword(PL_ident))
+						throw PL_Exception_ParserError(
+						//"ident as keyword not allowed.",
+						locale_str( 77 ).c_str(),
+						PL_line_row,
+						PL_line_col);
+						messageBox(PL_ident.c_str(),mfOKButton);
+						
+						PL_in_procedure_head = true;
+						PL_lookaheadChar =
+						PL_handle_pas_white_spaces();
+						
+						if (PL_lookaheadChar == '(')
+						{
+							messageBox("parameter proc",mfOKButton);
+						}
+					}
+				}
+			}
 		}
 		void PL_handle_module_dbase()
 		{
@@ -1725,7 +1986,7 @@ namespace prolog
 		
 		void PL_handle_module()
 		{
-			switch (app_lib_mod_mode)
+			switch (app_lib_mod_type)
 			{
 				case ALM_MODE_MOD_PAS: messageBox("a module for pascal is parsed",mfOKButton); PL_handle_module_pascal(); break;
 				case ALM_MODE_MOD_DBA: messageBox("a module for dbase  is parsed",mfOKButton); PL_handle_module_dbase (); break;
@@ -1736,7 +1997,7 @@ namespace prolog
 		
 		void PL_handle_library()
 		{
-			switch (app_lib_mod_mode)
+			switch (app_lib_mod_type)
 			{
 				case ALM_MODE_LIB_PAS: messageBox("a library for pascal is parsed",mfOKButton); PL_handle_library_pascal(); break;
 				case ALM_MODE_LIB_DBA: messageBox("a library for dbase  is parsed",mfOKButton); PL_handle_library_dbase (); break;
@@ -1747,7 +2008,7 @@ namespace prolog
 		
 		void PL_handle_application()
 		{
-			switch (app_lib_mod_mode)
+			switch (app_lib_mod_type)
 			{
 				case ALM_MODE_APP_PAS: messageBox("a application for pascal is parsed",mfOKButton); PL_handle_application_pascal(); break;
 				case ALM_MODE_APP_DBA: messageBox("a application for dbase  is parsed",mfOKButton); PL_handle_application_dbase (); break;

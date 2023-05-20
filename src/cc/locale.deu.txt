@@ -75,7 +75,7 @@ Fehler:
 Allgemeine Ausnahme aufgetretten
 Kommentar wurde nicht abgeschlossen
 Anweisung ist nicht gültig.
-Kommandozeichenfolge ist ein reserviertes Schlüsselwort
+Kommandozeichenfolge ist ein reserviertes Schlüsselwort (an dieser Stelle nicht erlaubt !)
 Semikolon erwartet
 Neues Projekt
 Datei kann nicht geöffnet werden: '
@@ -835,3 +835,11 @@ Programm-Modul nicht abgeschlosse - haben Sie ein ';' vergessen ?
 Bibliothek-Modul nicht abgeschlossen - haben Sie ein ';' vergessen ?
 Applikation-Module nicht abgeschlossen - haben Sie ein ';' vergessen ?
 'module', 'library' or 'application' erwartet
+Doppelpunktion erwartet
+Parametertyp erwartet
+Prozedur nicht abgeschlossen - Semikolon erwartet
+BEGIN END Block erwartet
+END Schlüsselwort erwartet
+BEGIN Schlüsselwort erwartet
+Komma ',' oder Semikolon ';' erwartet
+Parameter-Name erwartet

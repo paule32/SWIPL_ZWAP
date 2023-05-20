@@ -835,3 +835,11 @@ application not terminated - maybe a ';' is missing ?
 library not terminated - maybe a ';' is missing ?
 application not terminated - maybe a ';' is missing ?
 'module', 'library' or 'application' expected
+colon expected
+parameter type expected
+procedure not terminated - semicolon expected
+begin block expected
+END keyword expected
+BEGIN keyword expected
+colon ',' or semicolon ';' expected
+parameter name expected
