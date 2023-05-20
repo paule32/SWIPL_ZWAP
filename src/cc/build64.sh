@@ -24,6 +24,8 @@
 # Cmd-Line   : # ./build64.sh -enable  release
 #              # ./build64.sh -enable  debug
 #              # ./build64.sh -c       prolog
+#
+# For first time compile, use: # ./build64.sh -enable release
 # -------------------------------------------------------------
 # set default customize values ...
 # -------------------------------------------------------------
@@ -37,6 +39,19 @@ _DWARF=0
 function prepare_status_save {
 	_HOME_OLD="$(pwd)"
 	cd ${_HOME}/src
+}
+function cp_home {
+	cp ${_HOME_OLD}/$1 ${_HOME}/src/prolog/$1
+}
+function cp_home_old {
+	cp ${_HOME}/src/prolog/$1 ${_HOME_OLD}/$1
+}
+function strip_file {
+	strip $1
+	if [[ $? -ne 0 ]]; then
+		echo "error: can not strip $1"
+		exit 2
+	fi
 }
 # -------------------------------------------------------------
 # prepare build (check for tools, and source):
@@ -108,15 +123,9 @@ function get_enabled_option {
 		exit 2
 	fi
 	case "$1" in
-		"release" )
-			echo "ENABLE  release: OK"
-			_DEBUG=0;;
-		"debug" )
-			echo "ENABLE  debug  : OK"
-			_DEBUG=1;;
-		"dwarf" )
-			echo "ENABLE  dwarf  : OK"
-			_DWARF=1;;
+		"release" ) echo "ENABLE  release: OK"; _DEBUG=0;;
+		"debug"   ) echo "ENABLE  debug  : OK"; _DEBUG=1;;
+		"dwarf"   ) echo "ENABLE  dwarf  : OK"; _DWARF=1;;
 		*)
 			echo >&2 "option not supported."
 			exit 2;;
@@ -342,24 +351,16 @@ function compile_prolog {
 	# shrink executable (strip debug information's):
 	# ---------------------------------------------------------
 	if [[ "${machine}" == "MinGW" ]]; then
-		strip ${_HOME}/src/prolog/prolog64.exe
-		if [[ $? -ne 0 ]]; then
-			echo "error: can not strip prolog64.exe"
-			exit 2
-		fi
-		cp ${_HOME}/src/prolog/prolog64.exe ${_HOME_OLD}/prolog64.exe
+		strip_file ${_HOME}/src/prolog/prolog64.exe
+		cp_home_old prolog64.exe
 	fi
 	if [[ "${machine}" == "Linux" ]]; then
-		strip ${_HOME}/src/prolog/prolog64
-		if [[ $? -ne 0 ]]; then
-			echo "error: can not strip prolog64"
-			exit 2
-		fi
-		cp ${_HOME}/src/prolog/prolog64 ${_HOME_OLD}/prolog64
+		strip_file ${_HOME}/src/prolog/prolog64
+		cp_home_old prolog64
 	fi
-	cp ${_HOME}/src/prolog/prolog64.hlp ${_HOME_OLD}/prolog64.hlp
-	cp ${_HOME}/src/prolog/locale.eng   ${_HOME_OLD}/locale.eng
-	cp ${_HOME}/src/prolog/locale.deu   ${_HOME_OLD}/locale.deu
+	cp_home_old prolog64.hlp
+	cp_home_old locale.eng
+	cp_home_old locale.deu
 }
 # -------------------------------------------------------------
 # single part compile ...
@@ -384,45 +385,37 @@ function get_compile_file {
 function status_restore {
 	cd ${_HOME_OLD}
 }
+function compile_packages {
+	echo "" && compile_default
+	echo "" && compile_asmjit
+	echo "" && compile_xbase
+	echo "" && compile_tvision
+	echo "" && compile_prolog
+}
 # -------------------------------------------------------------
 # check, if a file exists in the directory tree:
 # -------------------------------------------------------------
+function recompile {
+	read -p "would you re-compile $2: [y/n]: " confirm
+	if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+		prepare_build 1
+		echo "" && (compile_$1)
+		exit 0
+	fi
+}
 function check_exists {
 	if [[ -f "$1" ]]; then
 		read -p "would you re-compile all: [y/n]: " confirm
 		if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
 			prepare_build 0
-			echo "" && compile_default
-			echo "" && compile_asmjit
-			echo "" && compile_xbase
-			echo "" && compile_tvision
-			echo "" && compile_prolog
+			compile_packages
 			exit 0
 		else
-			read -p "would you re-compile asmjit: [y/n]: " confirm
-			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
-				prepare_build 1
-				echo "" && compile_asmjit
-				exit 0
-			fi
-			read -p "would you re-compile xbase: [y/n]: " confirm
-			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
-				prepare_build 1
-				echo "" && compile_xbaset
-				exit 0
-			fi
-			read -p "would you re-compile tvision: [y/n]: " confirm
-			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
-				prepare_build 1
-				echo "" && compile_tvision
-				exit 0
-			fi
-			read -p "would you re-compile prolog: [y/n]: " confirm
-			if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
-				prepare_build 1
-				echo "" && compile_prolog
-				exit 0
-			fi
+			recompile asmjit  "asmjit"
+			recompile xbase   "xbase"
+			recompile tvision "tvision"
+			recompile prolog  "prolog"
+			#
 			echo "== [ aborted. ] =="
 			exit 2
 		fi
@@ -446,20 +439,11 @@ function check_parameter {
 			opt="$2";
 			shift;                  # expose next argument
 			case "$opt" in
-				"-" )
-					echo "empty parameter not allowed."
-					break 2;;
-				"-compile" )        # single part compile
-					get_compile_file $2
-					shift;;
-				"-c" )
-					get_compile_file $2
-					shift;;
-				"-enable" )
-					get_enabled_option $2
-					shift;;
-				"-enable="* )       # alternative format: -enable=
-					get_enabled_option "${opt#*=}";;
+				"-"         ) echo "empty parameter not allowed."; break 2;;
+				"-compile"  ) get_compile_file   $2; shift;;
+				"-c"        ) get_compile_file   $2; shift;;
+				"-enable"   ) get_enabled_option $2; shift;;
+				"-enable="* ) get_enabled_option "${opt#*=}";;
 				*)
 					echo >&2 "invalid option"
 					exit 1;;
@@ -484,7 +468,6 @@ esac
 # -------------------------------------------------------------
 echo "== [ Gattering default Information's ] ==" >&2
 echo "Compile for    : ${machine}"
-#
 # -------------------------------------------------------------
 # the following lines are specified to my develop folder tree.
 # if you don't need it, then delete them ...
@@ -494,10 +477,10 @@ if [[ "${_HOME}" != "${_HOME_OLD}" ]]; then
 	read -p "ATT: Copy new files? [y/n]: " confirm
 	if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
 		echo "== [ Copy new files ] =="
-		cp ${_HOME_OLD}/prolog.cc      ${_HOME}/src/prolog/
-		cp ${_HOME_OLD}/prolog64.txt   ${_HOME}/src/prolog/
-		cp ${_HOME_OLD}/locale.eng.txt ${_HOME}/src/prolog/
-		cp ${_HOME_OLD}/locale.deu.txt ${_HOME}/src/prolog/
+		cp_home prolog.cc
+		cp_home prolog64.txt
+		cp_home locale.eng.txt
+		cp_home locale.deu.txt
 		#
 		check_parameter $# $1 $2
 	fi
@@ -512,15 +495,8 @@ check_exists "${_HOME}/lib/libasmjit.a"
 check_exists "${_HOME}/lib/libxbase64.a"
 #
 prepare_build
-
-echo "" && compile_default
-echo "" && compile_asmjit
-echo "" && compile_xbase
-echo "" && compile_tvision
-echo "" && compile_prolog
-
+compile_packages
 status_restore
-
 # -------------------------------------------------------------
 # the final result should be prolog64.exe - the main executable
 # -------------------------------------------------------------
