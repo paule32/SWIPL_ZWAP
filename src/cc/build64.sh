@@ -60,8 +60,7 @@ function check_application {
 	which $1 > /dev/null 2>&1
 	if [[ $? -ne 0 ]]; then
 		printf "%15s: not found (requiered)\n" $1
-		exit 2
-	else
+		exit 2; else
 		printf "%-15s: OK (installed)\n" $1
 	fi
 }
@@ -202,7 +201,7 @@ function compile_tvision {
 # compile prolog:
 # -------------------------------------------------------------
 function compile_prolog {
-	echo "== [Configure ProLog 64-Bit Build ] =="
+	echo "== [ Configure ProLog 64-Bit Build ] =="
 	cd ${_HOME}/src/prolog
 	# ---------------------------------------------------------
 	# MinGW (Windows) executables suffix: .exe
@@ -339,6 +338,28 @@ function compile_prolog {
 			exit 2
 		fi
 	fi
+	# ---------------------------------------------------------
+	# shrink executable (strip debug information's):
+	# ---------------------------------------------------------
+	if [[ "${machine}" == "MinGW" ]]; then
+		strip ${_HOME}/src/prolog/prolog64.exe
+		if [[ $? -ne 0 ]]; then
+			echo "error: can not strip prolog64.exe"
+			exit 2
+		fi
+		cp ${_HOME}/src/prolog/prolog64.exe ${_HOME_OLD}/prolog64.exe
+	fi
+	if [[ "${machine}" == "Linux" ]]; then
+		strip ${_HOME}/src/prolog/prolog64
+		if [[ $? -ne 0 ]]; then
+			echo "error: can not strip prolog64"
+			exit 2
+		fi
+		cp ${_HOME}/src/prolog/prolog64 ${_HOME_OLD}/prolog64
+	fi
+	cp ${_HOME}/src/prolog/prolog64.hlp ${_HOME_OLD}/prolog64.hlp
+	cp ${_HOME}/src/prolog/locale.eng   ${_HOME_OLD}/locale.eng
+	cp ${_HOME}/src/prolog/locale.deu   ${_HOME_OLD}/locale.deu
 }
 # -------------------------------------------------------------
 # single part compile ...
@@ -464,7 +485,24 @@ esac
 echo "== [ Gattering default Information's ] ==" >&2
 echo "Compile for    : ${machine}"
 #
+# -------------------------------------------------------------
+# the following lines are specified to my develop folder tree.
+# if you don't need it, then delete them ...
+# -------------------------------------------------------------
 prepare_status_save
+if [[ "${_HOME}" != "${_HOME_OLD}" ]]; then
+	read -p "ATT: Copy new files? [y/n]: " confirm
+	if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+		echo "== [ Copy new files ] =="
+		cp ${_HOME_OLD}/prolog.cc      ${_HOME}/src/prolog/
+		cp ${_HOME_OLD}/prolog64.txt   ${_HOME}/src/prolog/
+		cp ${_HOME_OLD}/locale.eng.txt ${_HOME}/src/prolog/
+		cp ${_HOME_OLD}/locale.deu.txt ${_HOME}/src/prolog/
+		#
+		check_parameter $# $1 $2
+	fi
+fi
+#
 check_parameter $# $1 $2
 # -------------------------------------------------------------
 # compile used non-standard packages ...
@@ -474,28 +512,13 @@ check_exists "${_HOME}/lib/libasmjit.a"
 check_exists "${_HOME}/lib/libxbase64.a"
 #
 prepare_build
+
 echo "" && compile_default
 echo "" && compile_asmjit
 echo "" && compile_xbase
 echo "" && compile_tvision
 echo "" && compile_prolog
-# -------------------------------------------------------------
-# shrink executable (strip debug information's):
-# -------------------------------------------------------------
-if [[ "${machine}" == "MinGW" ]]; then
-	strip ${_HOME}/src/prolog/prolog64.exe
-	if [[ $? -ne 0 ]]; then
-		echo "error: can not strip prolog64.exe"
-		exit 2
-	fi
-fi
-if [[ "${machine}" == "Linux" ]]; then
-	strip ${_HOME}/src/prolog/prolog64
-	if [[ $? -ne 0 ]]; then
-		echo "error: can not strip prolog64"
-		exit 2
-	fi
-fi
+
 status_restore
 
 # -------------------------------------------------------------
