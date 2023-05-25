@@ -843,3 +843,9 @@ END Schlüsselwort erwartet
 BEGIN Schlüsselwort erwartet
 Komma ',' oder Semikolon ';' erwartet
 Parameter-Name erwartet
+'procedure', 'function' erwartet
+Hexa dezimaler Wert erwartet
+alpha-numerischer Bezeichner erwartet
+nummerischer Raute-Wert erwartet
+Anweisung oder END erwartet
+Kommentar wurde nicht als geöffnet markiert

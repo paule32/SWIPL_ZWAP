@@ -181,6 +181,9 @@
 # include <istream>
 # include <codecvt>
 # include <cstdlib> 		// for: ::std::itoa
+# include <clocale>
+# include <ctime>
+# include <cwchar>
 # include <exception>
 # include <string_view>
 # include <vector>
@@ -188,7 +191,6 @@
 # include <map>
 # include <algorithm>
 # include <iterator>
-# include <ctime>
 # include <cerrno>
 # include <cstring>
 # include <csignal>
@@ -277,6 +279,7 @@
 # include <tvision/help.h>
 
 # include "help.h"
+# include "spreadview.h"
 
 # define maxLines 65530
 
@@ -291,6 +294,25 @@ class TMenuBar;
 class TStatusLine;
 class TEditWindow;
 class TDialog;
+
+# define ALM_TYPE_APP      1
+# define ALM_TYPE_LIB      2
+# define ALM_TYPE_MOD      3
+
+# define ALM_MODE_APP_PAS 10
+# define ALM_MODE_APP_DBA 11
+# define ALM_MODE_APP_PRO 12
+# define ALM_MODE_APP_LSP 13
+
+# define ALM_MODE_LIB_PAS 20
+# define ALM_MODE_LIB_DBA 21
+# define ALM_MODE_LIB_PRO 22
+# define ALM_MODE_LIB_LSP 23
+
+# define ALM_MODE_MOD_PAS 30
+# define ALM_MODE_MOD_DBA 31
+# define ALM_MODE_MOD_PRO 32
+# define ALM_MODE_MOD_LSP 33
 
 // ---------------------------------------------------------------------
 // xBASE 4.6.0 database stuff ...
@@ -407,9 +429,27 @@ extern "C" int test_dwarf2(void);
 // ---------------------------------------------------------------------
 namespace prolog
 {
+	class PL_Exception;
+	class PL_Exception_Inline;
+	
 	class PL_Exception_Application;
+	class PL_Exception_Application_Inline;
+	
+	class PL_Exception_CommandLine;
+	class PL_Exception_CommandLine_Inline;
+	
+	class PL_Exception_DataBase;
+	class PL_Exception_DataBase_Inline;
+	
+	class PL_Exception_DataBaseWarning;
+	class PL_Exception_DataBaseWarning_Inline;
+	
+	class PL_Exception_ParserError;
+	class PL_Exception_ParserError_Inline;
+	
 	class PL_Exception_Windows;
-
+	class PL_Exception_Windows_Inline;
+	
 	::std::map< uint16_t, ::std::pair< uint16_t, uint16_t> > error_message;
 	
 	// ---------------------------------------------------------------------
@@ -422,135 +462,17 @@ namespace prolog
 	// ---------------------------------------------------------------------
 	// for customize the compiler output ...
 	// ---------------------------------------------------------------------
-	# define ENGLISH 1
-	# define GERMAN  2
+	uint8_t inline ENGLISH () { return 1; }
+	uint8_t inline GERMAN  () { return 2; }
 
-	#ifndef LANGUAGE
-	# define LANGUAGE  ENGLISH
-	#endif
+	// ---------------------------------------------------------------------
+	// default language is always English ...
+	// ---------------------------------------------------------------------
+	uint8_t inline LANGUAGE() { return ENGLISH(); }
 
 	uint32_t PL_line_row = 1;	// PL parser row number
 	uint32_t PL_line_col = 1;   // ...       column #
 	uint32_t PL_comment_open;
-
-	// ---------------------------------------------------------------------
-	// locale string's (english/german):
-	// ---------------------------------------------------------------------
-	class locale_reader {
-	public:
-		::std::vector< ::std::string > array_locale;
-
-		locale_reader( ::std::string fileIN)
-		{
-			// open input binary file ...
-			FILE *in = fopen(fileIN.c_str(),"rb");
-			if (!in) {
-				fprintf(stderr,"can not open input file: %s", fileIN.c_str());
-				fflush (stderr);
-				exit(1);
-			}
-
-			// header
-			uint32_t version;
-			uint8_t  locaver;
-			uint16_t numitem;
-			
-			fread(&version, 1, sizeof(uint32_t), in);
-			fread(&locaver, 1, sizeof(uint8_t ), in);
-			fread(&numitem, 1, sizeof(uint16_t), in);
-
-			// check version
-			if (version != 20230409) {
-				fprintf(stderr,"can not read binary locale.");
-				fflush (stderr);
-				fclose(in);
-				exit(1);
-			}
-
-			// check language
-			#if 0
-			if (locaver == ENGLISH) { app_lang = ENGLISH; } else
-			if (locaver == GERMAN ) { app_lang = GERMAN;  } else {
-				fprintf(stderr,"could not get locale language.");
-				fflush (stderr);
-				fclose(in);
-				exit(1);
-			}
-			#endif
-
-			// if no item found, then do nothing
-			if (numitem < 1) {
-				fprintf(stderr,"no items found.");
-				fflush (stderr);
-				fclose(in);
-				exit(1);
-			}
-
-			uint16_t len = 0;
-			for (uint16_t i = 0; i < numitem; i++) {
-				fread( &len, 1, sizeof(uint16_t), in );
-
-				char * buffer = new char[len+1];
-				fread( buffer, 1, len, in );
-				buffer[len] = '\0';
-
-				array_locale.push_back( buffer );
-				delete buffer;
-			}
-
-			// no needed anymore
-			fclose(in);
-			
-			// GetLastError messages...
-			#ifdef _WIN32
-			for (uint16_t i = 0; i < 87; i++)
-			error_message.insert( {i, ::std::pair(146 + i, 147 + i)} );
-			#endif
-		}
-		locale_reader() { }
-
-		::std::string message(uint32_t which) {
-			::std::stringstream ss;
-			::std::string r;
-
-			ss  << array_locale.at( which )
-			    << ::std::endl;
-
-			ss.str().erase(
-			ss.str().size()-1,1);
-
-			// ----------------------------------
-			// replace german umlauts ...
-			// ----------------------------------
-			for (int i  = 0; i < ss.str().length()-1; ++i)
-			{
-				int ch  = ss.str().c_str()[i];
-
-				if (ch == 'Ä') { r += 0x8E; } else
-				if (ch == 'Ü') { r += 0x9A; } else
-				if (ch == 'Ö') { r += 0x99; } else
-
-				if (ch == 'ü') { r += 0x81; } else
-				if (ch == 'ä') { r += 0x84; } else
-				if (ch == 'ö') { r += 0x94; } else
-
-				if (ch == 'ß') { r += 0xE1; } else
-
-				r += ch;
-			}	return r;
-		}
-	};
-
-	::std::string
-	locale_str(int32_t which)
-	{
-		::std::string result = "";
-
-		if (app_lang == 1) { locale_reader l( "locale.eng" ); result = l.message( which ); } else
-		if (app_lang == 2) { locale_reader l( "locale.deu" ); result = l.message( which ); } else
-				           { locale_reader l( "locale.eng" ); result = l.message( which ); }
-		return result;
-	}
 
 	inline int NT_ListExpr  () { return 1; }
 	inline int NT_ListString() { return 2; }
@@ -845,7 +767,7 @@ namespace prolog
 			_line_col(column)
 			{}
 		PL_Exception():
-			_message( locale_str( 2 ) ),
+			_message( "Application Exception." ),
 			_line_row(PL_line_row),
 			_line_col(PL_line_col)
 			{}
@@ -879,24 +801,17 @@ namespace prolog
 	class PL_Exception_DataBaseWarning : public PL_Exception { using PL_Exception::PL_Exception; };
 
 	// ---------------------------------------------------------------------
-	// static assert compiler output:
+	// exception code placeholder ...
 	// ---------------------------------------------------------------------
-	#if LANGUAGE == ENGLISH
-	# define PL_ASSERT_APPLICATION              "T1 must be of <DOS> or <Windows> !"
-	# define PL_ASSERT_APPLICATION_ASCII        "T1 must be of <English> or <German> !"
-	# define PL_ASSERT_APPLICATION_STREAMER_IO  "T1 must be of <i/ofstream> or <wi/ofstream> !"
-	# define PL_ASSERT_APPLICATION_WINDOWS      "T1 must be of <Desktop> or <Server> !"
-	#elif LANGUAGE == GERMAN
-	# define PL_ASSERT_APPLICATION              "T1 Typ muss <DOS> oder <Windows> sein !"
-	# define PL_ASSERT_APPLICATION_ASCII        "T1 Typ muss <English> oder <German> sein !"
-	# define PL_ASSERT_APPLICATION_STREAMER_IO  "T1 Typ muss <i/ofstream> oder <wi/ofstream> sein !"
-	# define PL_ASSERT_APPLICATION_WINDOWS      "T1 Typ muss <Desktop> oder <Server> sein !"
-	#endif
-
-	# define PL_HELPFILE	"prolog64.hlp"
-
-	# define TOK_IDENT 1000
-	# define TOK_WHITE 1001
+	void inline PL_Exception_Inline                (::std::string msg) { throw PL_Exception            (msg,PL_line_row,PL_line_col); }
+	void inline PL_Exception_Application_Inline    (::std::string msg) { throw PL_Exception_Application(msg,PL_line_row,PL_line_col); }
+	void inline PL_Exception_CommandLine_Inline    (::std::string msg) { throw PL_Exception_CommandLine(msg,PL_line_row,PL_line_col); }	
+	void inline PL_Exception_DataBase_Inline       (::std::string msg) { throw PL_Exception_DataBase   (msg,PL_line_row,PL_line_col); }
+	void inline PL_Exception_DataBaseWarning_Inline(::std::string msg) { throw PL_Exception_Application(msg,PL_line_row,PL_line_col); }
+	void inline PL_Exception_ParserError_Inline    (::std::string msg) { throw PL_Exception_ParserError(msg,PL_line_row,PL_line_col); }
+	void inline PL_Exception_Windows_Inline        (::std::string msg) { throw PL_Exception_Windows    (msg,PL_line_row,PL_line_col); }
+	
+	::std::string PL_HELPFILE() { return ::std::string("prolog64.hlp"); }
 
 	// ---------------------------------------------------------------------
 	// some mark-up styles, and code writing shortner ...
@@ -1008,6 +923,9 @@ namespace prolog
 		
 		bool     PL_in_procedure_head = false;
 
+		uint16_t app_lib_mod_mode;
+		uint16_t app_lib_mod_type;
+
 	public:
 		//-- CONSTRUCTORS DEFINITIONS -----------------------------
 		
@@ -1046,6 +964,18 @@ namespace prolog
 		}
 
 		//-- FUNCTION DEFINITIONS ---------------------------------
+		uint16_t inline TOK_IDENT()        { return 1000; }
+		uint16_t inline TOK_WHITE()        { return 1001; }
+		uint16_t inline TOK_ALPHA()        { return 1002; }
+		
+		uint16_t inline TOK_RAUTE_NUMBER() { return 2002; }
+		uint16_t inline TOK_HEX_NUMBER()   { return 2003; }
+		uint16_t inline TOK_OCT_NUMBER()   { return 2004; }
+		uint16_t inline TOK_STD_NUMBER()   { return 2005; }
+		
+		uint16_t inline TOK_KEYWORD()      { return 3000; }
+		uint16_t inline TOK_END()          { return 3000; }
+
 		::std::vector< ::std::string >
 		PL_dir_split(const ::std::string& str, const char sep)
 		{
@@ -1094,818 +1024,112 @@ namespace prolog
 
 			return PL_lookaheadChar;
 		}
-		
-		void PL_prepare(const ::std::string &filename)
+		uint16_t PL_check_symbol_ident()
 		{
-			/*
-			PL_ASTList     myAST;
-			PL_ASTList_Node* ptr;
-			
-			ptr = myAST.initNode("main", PL_line_row);
-			myAST.addNode(ptr);
-			myAST.addExpr(12,10012);
-			
-			
-			myAST.displayList(pl_head);
+			char buffer[200];
 
-			throw PL_Exception("kein fehler");*/
-			
-			ifile.open(filename);
-			if (ifile.is_open())
+			if (PL_isalphanum())
 			{
-				PL_source << ifile.rdbuf();
-				PL_type_size = sizeof( char );
-
-				// get size
-				PL_source.seekg(0, ::std::ios::end );
-				PL_file_size  =
-				PL_source.tellp();
-				PL_source.seekp(0, ::std::ios::beg );
-			}	else {
-				throw PL_Exception(
-				locale_str( 32 ).c_str(),
-				PL_line_row,
-				PL_line_col);
-			}
+				if (PL_check_pascal_keyword(PL_ident))
+				return TOK_KEYWORD();
 			
-			PL_ident = ::std::string("");
-		}
-		
-		uint16_t PL_parse_ident()
-		{
-			//PL_ident = PL_lookaheadChar;
-			PL_lookaheadChar =
-			PL_ungetch();
-
-			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_getch();
-				if (::std::isalnum(PL_lookaheadChar) ||
-					PL_lookaheadChar == '_') {
-					PL_ident +=
-					PL_lookaheadChar;
-					//printf("----> %c\n", PL_lookaheadChar);
-					continue;
-				}	else
-				if (PL_iswhitespace()) {
-					break;
-				}
-				else {
-					PL_lookaheadChar = PL_ungetch();
-					break;
-				}
-			END_WHILE
-			return PL_lookaheadChar;
-		}
-		
-		bool PL_isalpha()
-		{
-			if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
-			||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
-			||   (PL_lookaheadChar == '_') )
-			return true; else
-			return false;
-		}
-		bool PL_isalphanum()
-		{
-			if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
-			||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
-			||  ((PL_lookaheadChar >= '0') && (PL_lookaheadChar <= '9'))
-			||   (PL_lookaheadChar == '_') )
-			return true; else
-			return false;
-		}
-		bool PL_iswhitespace()
-		{
-			if (PL_lookaheadChar == ' '
-			||  PL_lookaheadChar == '\t') {
-				return true;
-			}	else
-			if (PL_lookaheadChar == 0x0a
-			||  PL_lookaheadChar == 0x0d) {
-				PL_line_col  = 1;
-				PL_line_row += 1;
-				return true;
-			}	return false;
-		}
-
-		uint16_t PL_skip_white_spaces()
-		{
-			BEGIN_WHILE
-				PL_lookaheadChar = PL_getch();
-					
-				if (PL_lookaheadChar == 0x00) {
-					PL_lookaheadChar = 0;
-					break;
-				}
-				else if(std::isalnum(PL_lookaheadChar) ||
-					PL_lookaheadChar == '_') {
-					PL_lookaheadChar =
-					PL_parse_ident() ;
-					PL_lookaheadChar = TOK_IDENT;
-					break;
-				}
-				else if (PL_iswhitespace())
-				continue; else
-				break;
-			END_WHILE
-			return PL_lookaheadChar;
-		}
-		
-		uint16_t PL_skip_comment_cpp(void)
-		{
-			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_getch();
-
-				if (PL_lookaheadChar == '/') {
-					PL_lookaheadChar =
-					PL_getch();
-
-					if (PL_lookaheadChar == '/') {
-						//cout << "c++ coment" << endl;
-						BEGIN_WHILE
-							PL_lookaheadChar = PL_getch(); if (
-							PL_lookaheadChar == '\n' ||
-							PL_lookaheadChar == '\r') {
-								
-							PL_line_row += 1;
-							PL_line_col  = 1;
-							break;
-							}
-						END_WHILE
-					}	else
-					if (PL_lookaheadChar == '*') {
-						BEGIN_WHILE
-							PL_lookaheadChar = PL_getch(); if (
-							PL_lookaheadChar == '*') {
-							
-							PL_lookaheadChar = PL_getch(); if (
-							PL_lookaheadChar == '/')
-							break;
-							}
-						END_WHILE
-					}	else {
-						throw PL_Exception_ParserError(
-						locale_str( 24 ).c_str(),
-						PL_line_row,
-						PL_line_col);
-					}
-				}
-				else if (PL_iswhitespace())
-				continue; else return
-				PL_lookaheadChar;
-			END_WHILE
-			return 0;
-		}
-
-		//! \fn     void PL_skip_comment_c(void)
-		//! \since  Version 0.0.1
-		//! \author paule32
-		//! \see    PL_skip_comment_cpp(void)
-		//! \see    PL_skip_comment_pas(void)
-		//! \~English
-		//! \brief  This function member is related to the C Parser.
-		//!         Here, we deal with C source code comment's.
-		//! \param  nothing - void.
-		//! \return nothing - void.
-		//! \~endEnglish
-		//! \~German
-		//! \brief  Diese C++ Funktion wird im C Parser verwendet.
-		//!         Es werden nomale c und C++ Kommentare behandelt.
-		//! \param  keine - void.
-		//! \return keine - void.
-		//! \~endGerman
-		void PL_skip_comment_c(void)
-		{
-			if (PL_lookaheadChar == '/')
-			{
-				if (!(PL_lookaheadChar = PL_getch()))
-					throw PL_Exception(
-					locale_str( 24 ).c_str(),
-					PL_line_row,
-					PL_line_col);
+				PL_ident = "";
+				PL_skip_comment_pas();
 				
-				if (PL_lookaheadChar == '*')
-				{	PL_nestedComment += 1;
-					
-					BEGIN_WHILE
-						label_comment2:
-						
-						if (!(PL_lookaheadChar = PL_getch()))
-						throw PL_Exception(
-						locale_str( 33 ).c_str(),
-						PL_line_row,
-						PL_line_col);
-					
-						if (PL_lookaheadChar == '\n') {
-							PL_line_row += 1;
-							PL_line_col  = 1;
-							continue;
-						}
-
-						if (PL_lookaheadChar == '/')
-						{
-							if (!(PL_lookaheadChar = PL_getch()))
-							throw PL_Exception(
-							locale_str( 33 ).c_str(),
-							PL_line_row,
-							PL_line_col);
-							
-							if (PL_lookaheadChar == '*') {
-								PL_nestedComment += 1;
-								continue;
-							}
-						}
-						
-						if (PL_lookaheadChar == '*')
-						{
-							if (!(PL_lookaheadChar = PL_getch()))
-							throw PL_Exception(
-							locale_str( 33 ).c_str(),
-							PL_line_row,
-							PL_line_col);
-						
-							if (  PL_lookaheadChar == '/') {
-							if (++PL_nestedComment < 1)
-							break;
-							}
-						}
-					END_WHILE
-				}	else {
-					// todo
-					throw PL_Exception(
-					locale_str( 24 ).c_str(),
-					PL_line_row,
-					PL_line_col);
-				}
-			}
-		}
-
-		uint16_t PL_get_ident()
-		{
-			PL_lookaheadChar =
-			PL_getch();
-			
-			if (PL_isalpha())
-			{     PL_ident.push_back(PL_lookaheadChar);
-				BEGIN_WHILE
-					PL_lookaheadChar =
-					PL_getch();
-					if (PL_iswhitespace()) {
-						break;
-					}	else
-					if (PL_isalphanum())
-					{	  PL_ident.push_back(PL_lookaheadChar);
-						  continue;
-					}	  else {
-						  PL_lookaheadChar =
-						  PL_ungetch();
-						  break;
-					}
-				END_WHILE
-			}
-
-			return PL_lookaheadChar;
-		}
-		
-		void PL_skip_comment_pas_A(void)
-		{
-			uint16_t PL_result = 0;
-			PL_comment_open += 1;
-			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_getch();
-
-				if (PL_iswhitespace()) {
-					continue;
-				}	else
-				if (PL_lookaheadChar == '*') {
-					PL_lookaheadChar =
-					PL_getch();
-					if (PL_lookaheadChar == ')') {
-						PL_comment_open -= 1;
-						break;
-					}
-				}
-			END_WHILE
-		}
-		
-		uint16_t PL_skip_comment_pas(void)
-		{
-				   uint16_t PL_result     = 0;
-			static uint16_t PL_in_comment = 0;
-
-			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_getch();
-			
-				// { comment }
-				// {$define}
-				if (PL_lookaheadChar == '{')
+				if (PL_lookaheadChar == ':')
 				{
-					lab2:
-					PL_in_comment    =  1;
-					PL_nestedComment += 1;
 					PL_lookaheadChar =
 					PL_getch();
-
-					if (PL_lookaheadChar == '$') {
-						PL_ident = "";
-						PL_lookaheadChar =
-						PL_parse_ident();
-							
-						if (PL_lookaheadChar == TOK_IDENT) {
-							PL_ident = "";
-							continue;
-						}	else
-						if (PL_lookaheadChar == '}') {
-							PL_in_comment     = 0;
-							PL_nestedComment -= 1;
-							if (PL_nestedComment > 0)
-							continue; else
-							break;
-						}	else
-						if (PL_lookaheadChar == 0x0a
-						||  PL_lookaheadChar == 0x0d) {
-							PL_line_row += 1;
-							PL_line_col  = 1;
-							continue;
-						}
-					}	else
-					if (PL_lookaheadChar == '}') {
-						messageBox("zuzzuu",mfOKButton);
-						PL_in_comment    = 0;
-						PL_lookaheadChar =
-						PL_getch();
-						break;
-					}	else
-					if (PL_lookaheadChar == 0x0a
-					||  PL_lookaheadChar == 0x0d) {
-						PL_line_col  = 1;
-						PL_line_row += 1;
-						goto lab2;
-					}	else {
-						goto lab2;
-					}
-				}	else
-				if (PL_lookaheadChar == '}') {
-					if (PL_in_comment > 0) {
-						PL_in_comment = 0;
-						continue;
-					}	else {
-						throw PL_Exception_ParserError(
-						"no open comment",
-						PL_line_row,
-						PL_line_col);
-					}
-				}	else
-				if (PL_iswhitespace()) {
-					continue;
-				}	else
-				// (* comment *)
-				if (PL_lookaheadChar == '(') {
-					PL_lookaheadChar =
-					PL_getch();
-				
-					if (PL_lookaheadChar == '*') {
-						//PL_nestedComment += 1;
-						BEGIN_WHILE
-							PL_lookaheadChar =
-							PL_getch();
-
-							if (PL_iswhitespace()) {
-								continue;
-							}	else
-							if (PL_lookaheadChar == '*') {
-								PL_lookaheadChar =
-								PL_getch();
-							
-								if (PL_lookaheadChar == ')') {
-									PL_nestedComment -= 1;
-									PL_lookaheadChar =
-									PL_getch();
-									//if (
-									//PL_nestedComment > 0)
-									//continue; else
-									//break;
-									return PL_lookaheadChar;
-								}	else
-								if (PL_lookaheadChar == '\n'
-								||  PL_lookaheadChar == '\r') {
-									PL_line_row += 1;
-									PL_line_col  = 1;
-									messageBox("line bbb",mfOKButton);
-								}
-							}
-						END_WHILE
-					}	else {
-						messageBox("plexc 34",mfOKButton);
-						throw PL_Exception_ParserError(
-						locale_str( 34 ).c_str(),
-						PL_line_row,
-						PL_line_col);
-					}
-				}	else {
-					PL_lookaheadChar =
-					PL_ungetch();
-					break;
-				}
-			END_WHILE
-			return PL_lookaheadChar;
-		}
-		
-		uint16_t PL_handle_pas_white_spaces()
-		{
-			uint16_t result = 0;
-			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_getch();
-
-				if (PL_lookaheadChar == '/') {
-					PL_ungetch();
-					PL_lookaheadChar  =
-					PL_skip_comment_cpp  (); } else
 					
-				if (PL_lookaheadChar == '{') {
-					PL_ungetch();
-					PL_lookaheadChar  =
-					PL_skip_comment_pas();
-					break;
-				}	else
-				if (PL_lookaheadChar == '(') {
-					PL_lookaheadChar =
-					PL_getch();
-					if (PL_lookaheadChar == '*') {
-						PL_skip_comment_pas_A();
-						continue;
-					}	else
-					if (PL_lookaheadChar == ')') {
-						messageBox("proc para close",mfOKButton);
-						break;
-					}	else
-					if (PL_isalpha())
+					if (PL_lookaheadChar == '=')
 					{
-						if (PL_in_procedure_head)
-						{
-							next_parameter:
-							PL_ident = "";
-							PL_ident.push_back(PL_lookaheadChar);
-							PL_lookaheadChar =
-							PL_get_ident();
+						PL_ident = "";
+						PL_skip_comment_pas();
+
+						if (PL_lookaheadChar == '$') {
+							PL_getch();
 							
-							char buffer[200];
-							sprintf(buffer, "proc var name: %s",PL_ident.c_str());
+							if (PL_ishexnum())
+							{
+								sprintf(buffer,"hex num: %s",PL_ident.c_str());
+								messageBox(buffer,mfOKButton);
+							}	else {
+								PL_Exception_ParserError_Inline(
+								"hexa decimal number expected");
+							}
+						}	else
+						if (PL_lookaheadChar == '#')
+						{
+							messageBox("rauter",mfOKButton);
+
+							PL_ident = "";
+							PL_skip_comment_pas();
+							
+							if (PL_isnum())
+							{
+								sprintf(buffer,"rauter num: %s",PL_ident.c_str());
+								messageBox(buffer,mfOKButton);
+								return TOK_RAUTE_NUMBER();
+							}	else {
+								PL_Exception_ParserError_Inline(
+								"raute number expected");
+								
+							}
+						}	else
+						if (PL_isnum())
+						{
+							sprintf(buffer,"number: %s",PL_ident.c_str());
+							messageBox(buffer,mfOKButton);
+							return TOK_STD_NUMBER();
+						}	else
+						if (PL_isalphanum())
+						{
+							sprintf(buffer,"alphanum: %s", PL_ident.c_str());
 							messageBox(buffer,mfOKButton);
 							
-							PL_lookaheadChar =
-							PL_handle_pas_white_spaces();
-							
-							if (PL_lookaheadChar == ':')
-							{
-								PL_ident = "";
-								PL_lookaheadChar =
-								PL_handle_pas_white_spaces();
-								
-								if (PL_isalpha())
-								{
-									PL_lookaheadChar =
-									PL_get_ident();
-									
-									sprintf(buffer,"param type: %s",PL_ident.c_str());
-									messageBox(buffer,mfOKButton);
-									
-									PL_lookaheadChar =
-									PL_handle_pas_white_spaces();
-									
-									if (PL_lookaheadChar == ')')
-									{
-										PL_ident = "";
-										PL_lookaheadChar =
-										PL_handle_pas_white_spaces();
-										
-										if (PL_lookaheadChar == ';')
-										{
-											before_begin_block:
-											PL_ident = "";
-											PL_lookaheadChar =
-											PL_handle_pas_white_spaces();
-											
-											if (PL_isalpha())
-											{
-												PL_lookaheadChar =
-												PL_get_ident();
-												
-												if (PL_ident == "begin")
-												{
-													PL_ident = "";
-													PL_lookaheadChar =
-													PL_handle_pas_white_spaces();
-													
-													if (PL_isalpha())
-													{
-														PL_lookaheadChar =
-														PL_get_ident();
-													
-														if (PL_ident == "end")
-														{
-															PL_ident = "";
-															PL_lookaheadChar =
-															PL_handle_pas_white_spaces();
-															
-															if (PL_lookaheadChar == ';')
-															{
-																break;
-															}	else {
-																throw PL_Exception_ParserError(
-																// semicolon expected
-																locale_str( 839 ).c_str(),
-																PL_line_row,
-																PL_line_col);
-															}
-														}	else {
-															throw PL_Exception_ParserError(
-															// end keyword expected
-															locale_str( 841 ).c_str(),
-															PL_line_row,
-															PL_line_col);
-														}
-													}	else {
-														throw PL_Exception_ParserError(
-														// syntax error
-														locale_str( 129 ).c_str(),
-														PL_line_row,
-														PL_line_col);
-													}
-												}	else
-												if (PL_ident == "var")
-												{
-													next_var:
-													PL_ident = "";
-													PL_lookaheadChar =
-													PL_handle_pas_white_spaces();
-													
-													if (PL_isalpha())
-													{
-														PL_lookaheadChar =
-														PL_get_ident();
-														
-														sprintf(buffer,"var para name: %s", PL_ident.c_str());
-														messageBox(buffer,mfOKButton);
-														
-														PL_lookaheadChar =
-														PL_get_ident();
-														
-														if (PL_lookaheadChar == ':')
-														{
-															PL_ident = "";
-															PL_lookaheadChar =
-															PL_handle_pas_white_spaces();
-														
-															if (PL_isalpha())
-															{
-																PL_lookaheadChar =
-																PL_get_ident();
-															
-																sprintf(buffer,"var para type: %s", PL_ident.c_str());
-																messageBox(buffer,mfOKButton);
-															
-																PL_ident = "";
-																PL_lookaheadChar =
-																PL_handle_pas_white_spaces();
-															
-																if (PL_lookaheadChar == ',') {
-																	goto next_var;
-																}	else
-																if (PL_lookaheadChar == ';') {
-																	goto before_begin_block;
-																}	else {
-																	throw PL_Exception_ParserError(
-																	// comma or semicolon expected
-																	locale_str( 843 ).c_str(),
-																	PL_line_row,
-																	PL_line_col);
-																}
-															}	else {
-																throw PL_Exception_ParserError(
-																// parameter name expected
-																locale_str( 844 ).c_str(),
-																PL_line_row,
-																PL_line_col);
-															}
-														}	else {
-															throw PL_Exception_ParserError(
-															// parameter type expected
-															locale_str( 838 ).c_str(),
-															PL_line_row,
-															PL_line_col);
-														}
-													}	else {
-														throw PL_Exception_ParserError(
-														// color expected
-														locale_str( 837 ).c_str(),
-														PL_line_row,
-														PL_line_col);
-													}
-												}	else {
-													throw PL_Exception_ParserError(
-													// begin keyword expected
-													locale_str( 842 ).c_str(),
-													PL_line_row,
-													PL_line_col);
-												}
-											}	else {
-												throw PL_Exception_ParserError(
-												// begin block expected
-												locale_str( 840 ).c_str(),
-												PL_line_row,
-												PL_line_col);
-											}
-										}	else {
-											throw PL_Exception_ParserError(
-											// procedure not terminated - semicolon expected
-											locale_str( 839 ).c_str(),
-											PL_line_row,
-											PL_line_col);
-										}
-									}	else
-									if (PL_lookaheadChar == ';') {
-										messageBox("next parameter", mfOKButton);
-										goto next_parameter;
-									}	else {
-										throw PL_Exception_ParserError(
-										locale_str( 129 ).c_str(),
-										PL_line_row,
-										PL_line_col);
-									}
-								}	else {
-									throw PL_Exception_ParserError(
-									// parameter type expected
-									locale_str( 838 ).c_str(),
-									PL_line_row,
-									PL_line_col);
-								}
-							}	else {
-								throw PL_Exception_ParserError(
-								// colon expected
-								locale_str( 837 ).c_str(),
-								PL_line_row,
-								PL_line_col);
-							}
+							if (PL_ident == "end")
+							{ return TOK_END  (); } else
+							{ return TOK_IDENT(); }
 						}	else {
-							throw PL_Exception_ParserError(
-							// syntax error
-							locale_str( 129 ).c_str(),
-							PL_line_row,
-							PL_line_col);
+							PL_Exception_ParserError_Inline(
+							"syntax error");
 						}
 					}	else
-					if (PL_comment_open > 0) {
-						throw PL_Exception_ParserError(
-						locale_str( 75 ).c_str(),
-						PL_line_row,
-						PL_line_col);
-					}	continue;
-				}	else			
-				if (PL_iswhitespace()) {
-					continue;
-				}	else
-				if (PL_lookaheadChar == '}' ) {
-					if (  PL_nestedComment  > 0)
-						  PL_nestedComment -= 1; else
-					throw PL_Exception_ParserError(
-					locale_str( 33 ).c_str(),
-					PL_line_row,
-					PL_line_col);
-				}	else
-				if (PL_isalpha())
-				{
-					PL_ident = "";
-					result = PL_lookaheadChar;
-					PL_ident.push_back(PL_lookaheadChar);
-					break;
-				}	else {
-					result = PL_lookaheadChar;
-					break;
-				}
-			END_WHILE
-			result = PL_lookaheadChar;
-			return result;
-		}
-		
-		bool
-		PL_check_pascal_keyword(::std::string kw) {
-			bool result = false;
-			::std::transform(
-			kw.begin(),
-			kw.end(),
-			kw.begin(), ::tolower);
-			
-			for (auto const& item: PL_pascal_keywords) {
-				if (item == kw) {
-					result = true;
-					break;
-				}
-			}
-			return result;
-		}
-	};	// PL_parser
-
-	bool check_namespace(::std::string name)
-	{
-		bool result = false;
-		DIR * dir = opendir(name.c_str());
-		if (dir) {  // exist's
-			messageBox("dir exists",mfOKButton);
-			closedir(dir);
-		}
-		switch (errno) {
-			case EACCES:
-				throw PL_Exception_Windows(
-				locale_str( 131 ).c_str(),PL_line_row);
-			break;
-			case EBADF:
-				throw PL_Exception_Windows(
-				locale_str( 130 ).c_str(),PL_line_row);
-			break;
-			case EMFILE:
-				throw PL_Exception_Windows(
-				locale_str( 132 ).c_str(),PL_line_row);
-			break;
-			case ENFILE:
-				throw PL_Exception_Windows(
-				locale_str( 133 ).c_str(),PL_line_row);
-			break;
-			case ENOMEM:
-				throw PL_Exception_Windows(
-				locale_str( 134 ).c_str(),PL_line_row);
-			break;
-			case ENOENT:
-			{
-				// todo !!!
-				#ifdef _WIN32
-				if (!CreateDirectory(name.c_str(),0)) {
-					switch (GetLastError()) {
-						case ERROR_ALREADY_EXISTS:
-							throw PL_Exception_Windows(
-							locale_str( 135 ).c_str(),PL_line_row);
-						break;
-						case ERROR_PATH_NOT_FOUND:
-							throw PL_Exception_Windows(
-							locale_str( 136 ).c_str(),PL_line_row);
-						break;
+					// label found & comment? => handle: todo
+					if (PL_lookaheadChar == '(')
+					{
+						PL_lookaheadChar =
+						PL_ungetch();
+						return PL_lookaheadChar;
+					}	else {
+						PL_Exception_ParserError_Inline(
+						"syntax error");
 					}
+				}	else
+				if (PL_lookaheadChar == '(')
+				{
+					PL_lookaheadChar =
+					PL_ungetch();
+					return PL_lookaheadChar;
+				}	else
+				// arithmetic? => handle: todo !
+				if ((PL_lookaheadChar == '+')
+				||  (PL_lookaheadChar == '-')
+				||  (PL_lookaheadChar == '*')
+				||  (PL_lookaheadChar == '/'))
+				{
+					messageBox("arithmetic found",mfOKButton);
+					return PL_lookaheadChar;
+				}	else {
+					PL_Exception_ParserError(
+					"syntax error");
 				}
-				#else
-				#endif  // _WIN32
-				messageBox("dir erstellt",mfOKButton);
-				return true;
+			}	else {
+				PL_Exception_ParserError_Inline(
+				"alphanumeric ident expected");
 			}
-			break;
-			default:
-			break;
+			return PL_lookaheadChar;
 		}
-		return result;
-	}
-	class PL_LoParser: public PL_parser
-	{
-	private:
-		uint16_t app_lib_mod_mode;
-		uint16_t app_lib_mod_type;
-
-	public:
-		class PL_ASTList * ast;
-
-		//-- CONSTRUCTORS DEFINITIONS -----------------------------
-
-		PL_LoParser() {
-			app_lib_mod_mode = 0;
-			init();
-		}
-		~PL_LoParser() {
-			delete ast;
-		}
-
-		//-- FUNCTION DEFINITIONS ---------------------------------
-		# define ALM_TYPE_APP      1
-		# define ALM_TYPE_LIB      2
-		# define ALM_TYPE_MOD      3
-
-		# define ALM_MODE_APP_PAS 10
-		# define ALM_MODE_APP_DBA 11
-		# define ALM_MODE_APP_PRO 12
-		# define ALM_MODE_APP_LSP 13
-		
-		# define ALM_MODE_LIB_PAS 20
-		# define ALM_MODE_LIB_DBA 21
-		# define ALM_MODE_LIB_PRO 22
-		# define ALM_MODE_LIB_LSP 23
-		
-		# define ALM_MODE_MOD_PAS 30
-		# define ALM_MODE_MOD_DBA 31
-		# define ALM_MODE_MOD_PRO 32
-		# define ALM_MODE_MOD_LSP 33
-		
 		void PL_handle_application_pascal()
 		{
 		}
@@ -1935,36 +1159,22 @@ namespace prolog
 		void PL_handle_module_pascal()
 		{
 			PL_ident = "";
-			PL_lookaheadChar =
-			PL_handle_pas_white_spaces();
+			PL_skip_comment_pas();
 
 			if (PL_isalpha())
 			{
-				PL_lookaheadChar =
-				PL_get_ident();
-				
 				if (PL_ident == "procedure")
 				{
-					PL_ident = "";
-					PL_lookaheadChar =
-					PL_handle_pas_white_spaces();
-
 					if (PL_isalpha())
 					{
-						PL_lookaheadChar =
-						PL_get_ident();
-						
 						if (PL_check_pascal_keyword(PL_ident))
-						throw PL_Exception_ParserError(
-						//"ident as keyword not allowed.",
-						locale_str( 77 ).c_str(),
-						PL_line_row,
-						PL_line_col);
+						PL_Exception_ParserError_Inline(
+						"ident as keyword not allowed.");
+						
 						messageBox(PL_ident.c_str(),mfOKButton);
 						
 						PL_in_procedure_head = true;
-						PL_lookaheadChar =
-						PL_handle_pas_white_spaces();
+						PL_skip_comment_pas();
 						
 						if (PL_lookaheadChar == '(')
 						{
@@ -2044,124 +1254,713 @@ namespace prolog
 			uint16_t loca3,
 			uint16_t loca4)
 		{
-			::std::string old_ident;
-
-			PL_ident = "";
-			PL_lookaheadChar =
-			PL_handle_pas_white_spaces();
-
+			::std::string tmp_ident;
 			if (PL_isalpha())
 			{
-				old_ident.push_back(PL_lookaheadChar);
-				PL_ident = "";
+				BEGIN_WHILE
+					tmp_ident.append( PL_ident );
+					PL_skip_comment_pas();
 
-				PL_lookaheadChar =
-				PL_get_ident();
-				
-				old_ident.append(PL_ident);
-
-				lab3:
-				PL_lookaheadChar =
-				PL_handle_pas_white_spaces();
-
-				if (PL_iswhitespace()) {
-					goto lab3;
-				}	else
-				if (PL_lookaheadChar == '.') {
-					old_ident.push_back('/');
-					while (1) {
-						PL_lookaheadChar =
-						PL_handle_pas_white_spaces();
-						
-						if (PL_isalpha())
-						{
-							PL_lookaheadChar =
-							PL_get_ident();
-							
-							old_ident.append(PL_ident);
-
-							lab6:
-							PL_lookaheadChar =
-							PL_handle_pas_white_spaces();
-							
-							if (PL_iswhitespace()) {
-								goto lab6;
-							}	else
-							if (PL_lookaheadChar == '.') {
-								old_ident.push_back('/');
-								continue;
-							}	else
-							if (PL_lookaheadChar == ';') {
-								old_ident.push_back('/');
-								#ifdef _WIN32
-								old_ident = ".\\" + std::regex_replace(old_ident, std::regex("/"), "\\");
-								#else
-								old_ident = "./"  + old_ident;
-								#endif
-								::std::filesystem::create_directories (old_ident);
-								PL_handle_mod_lib_app( old_ident );
-								break;
-							}	else {
-								throw PL_Exception_ParserError(
-								//"module name not terminated."
-								locale_str( loca1 ).c_str(),
-								PL_line_row,
-								PL_line_col);
-							}
-						}	else {
-							throw PL_Exception_ParserError(
-							//"unknown character found."
-							locale_str( loca2 ).c_str(),
-							PL_line_row,
-							PL_line_col);
-						}
+					if (PL_lookaheadChar == '.') {
+						tmp_ident.push_back('/');
+					}	else
+					if (PL_lookaheadChar == ';') {
+						tmp_ident.push_back('/');
+						break;
+					}	else
+					if (PL_isalpha()) {
+						continue;
+					}	else {
+						PL_Exception_ParserError_Inline( "module name not terminated." );
 					}
-				}	else
-				if (PL_lookaheadChar == ';') {
-					PL_handle_mod_lib_app(old_ident);
-				}	else {
-					throw PL_Exception_ParserError(
-					//"module name not terminated."
-					locale_str( loca3 ).c_str(),
-					PL_line_row,
-					PL_line_col);
-				}
+				END_WHILE
+				
+				#ifdef _WIN32
+				tmp_ident = ".\\" + std::regex_replace(tmp_ident, std::regex("/"), "\\");
+				#else
+				tmp_ident = "./"  + tmp_ident;
+				#endif
+				::std::filesystem::create_directories(tmp_ident);
+				
+				PL_handle_mod_lib_app( tmp_ident );
+
 			}	else {
-				throw PL_Exception_ParserError(
-				//"semicolon expected"
-				locale_str( loca4 ).c_str(),
-				PL_line_row,
-				PL_line_col);
+				PL_Exception_ParserError_Inline( "module name not terminated." );
 			}
 		}
 		
 		void check_module_or_application_or_library()
 		{
-			PL_ident = "";
-			PL_lookaheadChar =
-			PL_handle_pas_white_spaces();
-
 			if (PL_isalpha())
 			{
-				PL_ident = "";
-				PL_ident.push_back(PL_lookaheadChar);
-				PL_lookaheadChar =
-				PL_get_ident();
-				
-				if (PL_ident.size() > 0)
-				{	if (PL_ident == "module"     ) { PL_check_ident_name(833,128,833,78); } else
-					if (PL_ident == "library"    ) { PL_check_ident_name(834,128,834,78); } else
-					if (PL_ident == "application") { PL_check_ident_name(835,128,835,78); } else
-					{
-						throw PL_Exception_ParserError(
-						locale_str( 836 ).c_str(),
-						PL_line_row,
-						PL_line_col);
+				if (PL_ident == "module"     ) { PL_check_ident_name(833,128,833,78); } else
+				if (PL_ident == "library"    ) { PL_check_ident_name(834,128,834,78); } else
+				if (PL_ident == "application") { PL_check_ident_name(835,128,835,78); } else
+
+				PL_Exception_ParserError_Inline( "'module', 'library', or 'application' expected" );
+			}
+		}		
+		void PL_prepare(const ::std::string &filename)
+		{
+			/*
+			PL_ASTList     myAST;
+			PL_ASTList_Node* ptr;
+			
+			ptr = myAST.initNode("main", PL_line_row);
+			myAST.addNode(ptr);
+			myAST.addExpr(12,10012);
+			
+			
+			myAST.displayList(pl_head);
+
+			PL_Exception_Inline("kein fehler");*/
+			
+			ifile.open(filename);
+			if (ifile.is_open())
+			{
+				PL_source << ifile.rdbuf();
+				PL_type_size = sizeof( char );
+
+				// get size
+				PL_source.seekg(0, ::std::ios::end );
+				PL_file_size  =
+				PL_source.tellp();
+				PL_source.seekp(0, ::std::ios::beg );
+			}	else {
+				PL_Exception_Inline(
+				"input file read error");
+			}
+			
+			PL_ident = ::std::string("");
+		}
+		
+		bool inline PL_ischar(uint16_t c)
+		{
+			PL_new_char();
+			if (PL_lookaheadChar == c)
+			return true; else
+			return false;
+		}
+		bool inline PL_isalpha_inline()
+		{
+			if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+			||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+			||   (PL_lookaheadChar == '_') )
+			return true; else
+			return false;
+		}
+		bool inline PL_isalphanum_inline()
+		{
+			if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'z'))
+			||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'Z'))
+			||  ((PL_lookaheadChar >= '0') && (PL_lookaheadChar <= '0'))
+			||   (PL_lookaheadChar == '_'))
+			return true; else
+			return false;
+		}
+		bool inline PL_ishexnum_inline()
+		{
+			if (((PL_lookaheadChar >= 'a') && (PL_lookaheadChar <= 'f'))
+			||  ((PL_lookaheadChar >= 'A') && (PL_lookaheadChar <= 'F'))
+			||  ((PL_lookaheadChar >= '0') && (PL_lookaheadChar <= '9')))
+			return true; else
+			return false;
+		}
+		bool inline PL_isnum_inline()
+		{
+			if ((PL_lookaheadChar >= '0')
+			&&  (PL_lookaheadChar <= '9'))
+			return true; else
+			return false;
+		}
+		void inline PL_new_push_char()
+		{
+			PL_ident.push_back(PL_lookaheadChar);
+			PL_getch();
+		}
+		void inline PL_new_char()
+		{
+			PL_ident = "";
+			PL_skip_comment_pas();
+		}
+		bool PL_isalpha()
+		{
+			PL_new_char();
+			if (PL_isalpha_inline())
+			{
+				BEGIN_WHILE
+					PL_new_push_char();
+					if (PL_isalphanum_inline()) {
+						continue;
+					}	else {
+						PL_ungetch();
+						return true;
 					}
+				END_WHILE
+			}	else {
+				PL_ungetch();
+			}	return false;
+		}
+		bool PL_isalphanum()
+		{
+			PL_new_char();
+			if (PL_isalpha_inline())
+			{
+				BEGIN_WHILE
+					PL_new_push_char();
+					if (PL_isalphanum_inline()) {
+						continue;
+					}	else {
+						PL_ungetch();
+						return true;
+					}
+				END_WHILE
+			}	else {
+				PL_ungetch();
+			}	return false;
+		}
+		bool PL_isnum()
+		{
+			PL_new_char();
+			if (PL_isnum_inline())
+			{
+				BEGIN_WHILE
+					PL_new_push_char();
+					if (PL_isnum_inline()) {
+						continue;
+					}	else {
+						PL_ungetch();
+						return true;
+					}
+				END_WHILE
+			}	else {
+				PL_ungetch();
+			}	return false;
+		}
+		bool PL_ishexnum()
+		{
+			PL_new_char();
+			if (PL_ishexnum_inline())
+			{
+				BEGIN_WHILE
+					PL_new_push_char();
+					if (PL_ishexnum_inline()) {
+						continue;
+					}	else {
+						PL_ungetch();
+						return true;
+					}
+				END_WHILE
+			}	else {
+				PL_ungetch();
+			}	return false;
+		}
+		bool PL_iswhitespace()
+		{
+			uint32_t gap = 0;
+			BEGIN_WHILE
+				PL_getch();
+				
+				if (PL_lookaheadChar == ' '
+				||  PL_lookaheadChar == '\t') {
+					gap += 1;
+					continue;
+				}	else
+				if (PL_lookaheadChar == 0x0a
+				||  PL_lookaheadChar == 0x0d) {
+					PL_line_col  = 1;
+					PL_line_row += 1;
+					gap += 1;
+					continue;
+				}	else {
+					PL_ungetch();
+
+					if (gap > 0)
+					return true; else
+					return false;
+				}
+			END_WHILE
+			return false;
+		}
+
+		uint16_t PL_skip_white_spaces()
+		{
+			BEGIN_WHILE
+				PL_getch();
+				if (PL_lookaheadChar == 0x00) {
+					PL_lookaheadChar = 0;
+					break;
+				}	else
+				if (PL_isalphanum()) {
+					return TOK_IDENT();
+				}	else
+				if (PL_iswhitespace())
+				continue; else
+				break;
+			END_WHILE
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_skip_comment_cpp(void)
+		{
+			BEGIN_WHILE
+				PL_getch();
+
+				if (PL_lookaheadChar == '/') {
+					PL_getch();
+					if (PL_lookaheadChar == '/')
+					{
+						BEGIN_WHILE
+							PL_lookaheadChar = PL_getch(); if (
+							PL_lookaheadChar == '\n' ||
+							PL_lookaheadChar == '\r') {
+								
+							PL_line_row += 1;
+							PL_line_col  = 1;
+							break;
+							}
+						END_WHILE
+					}	else
+					if (PL_lookaheadChar == '*')
+					{
+						BEGIN_WHILE
+							PL_getch(); if ( PL_lookaheadChar == '*') {
+							PL_getch(); if ( PL_lookaheadChar == '/') break; }
+						END_WHILE
+					}	else {
+						PL_Exception_ParserError_Inline( "not yet implemented" );
+					}
+				}	else
+				if (PL_iswhitespace())
+				continue;
+				break;
+			END_WHILE
+
+			return 0;
+		}
+
+		//! \fn     void PL_skip_comment_c(void)
+		//! \since  Version 0.0.1
+		//! \author paule32
+		//! \see    PL_skip_comment_cpp(void)
+		//! \see    PL_skip_comment_pas(void)
+		//! \~English
+		//! \brief  This function member is related to the C Parser.
+		//!         Here, we deal with C source code comment's.
+		//! \param  nothing - void.
+		//! \return nothing - void.
+		//! \~endEnglish
+		//! \~German
+		//! \brief  Diese C++ Funktion wird im C Parser verwendet.
+		//!         Es werden nomale c und C++ Kommentare behandelt.
+		//! \param  keine - void.
+		//! \return keine - void.
+		//! \~endGerman
+		void PL_skip_comment_c(void)
+		{
+			if (PL_lookaheadChar == '/')
+			{
+				if (!(PL_lookaheadChar = PL_getch()))
+				PL_Exception_ParserError_Inline( "not yet implemented" );
+				
+				if (PL_lookaheadChar == '*') {					
+					BEGIN_WHILE
+						if (!(PL_lookaheadChar = PL_getch()))
+						PL_Exception_ParserError_Inline( "unterminated comment" );
+						if (PL_lookaheadChar == '\n') {
+							PL_line_row += 1;
+							PL_line_col  = 1;
+							continue;
+						}	else
+						if (PL_lookaheadChar == '*') {
+							if (!(PL_lookaheadChar = PL_getch()))
+							PL_Exception_Inline( "unterminated comment" );
+							if (PL_lookaheadChar == '/') {
+								break;
+							}
+						}
+					END_WHILE
+				}	else {
+				if (PL_lookaheadChar == '/') {
+					BEGIN_WHILE
+						PL_getch();
+						if ((PL_lookaheadChar == 0x0a)
+						||  (PL_lookaheadChar == 0x0d)) {
+							 PL_line_col  = 1;
+							 PL_line_row += 1;
+							 break;
+						}
+					END_WHILE
+				}	else
+					// todo
+					PL_Exception_Inline( "not yet implemented" );
 				}
 			}
 		}
 
+		uint16_t PL_get_ident()
+		{
+			if (PL_isalpha())
+			return TOK_ALPHA();
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_skip_comment_pas()
+		{
+				   uint16_t PL_result     = 0;
+			static uint16_t PL_in_comment = 0;
+
+			BEGIN_WHILE
+				PL_getch();
+			
+				if (PL_lookaheadChar == '/') {
+					PL_skip_comment_c();
+				} else
+				// { comment }
+				// {$define}
+				if (PL_lookaheadChar == '{')
+				{
+					lab2:
+					PL_in_comment =  1;
+					PL_getch();
+
+					if (PL_lookaheadChar == '$') {
+						PL_lookaheadChar = PL_isalphanum();
+						
+						if (PL_lookaheadChar == TOK_IDENT()) {
+							PL_ident = "";
+							continue;
+						}	else
+						if (PL_lookaheadChar == '}') {
+							PL_in_comment     = 0;
+							PL_nestedComment -= 1;
+							if (PL_nestedComment > 0)
+							continue; else
+							break;
+						}	else
+						if (PL_lookaheadChar == 0x0a
+						||  PL_lookaheadChar == 0x0d) {
+							PL_line_row += 1;
+							PL_line_col  = 1;
+							continue;
+						}
+					}	else
+					if (PL_lookaheadChar == '}') {
+						messageBox("zuzzuu",mfOKButton);
+						PL_in_comment    = 0;
+						PL_lookaheadChar =
+						PL_getch();
+						break;
+					}	else
+					if (PL_lookaheadChar == 0x0a
+					||  PL_lookaheadChar == 0x0d) {
+						PL_line_col  = 1;
+						PL_line_row += 1;
+						goto lab2;
+					}	else {
+						goto lab2;
+					}
+				}	else
+				if (PL_lookaheadChar == '}') {
+					if (PL_in_comment > 0) {
+						PL_in_comment = 0;
+						continue;
+					}	else {
+						PL_Exception_ParserError_Inline( "no open comment" );
+					}
+				}	else
+				if (PL_iswhitespace()) {
+					continue;
+				}	else
+				// (* comment *)
+				if (PL_lookaheadChar == '(') {
+					PL_getch();
+					if (PL_lookaheadChar == '*') {
+						BEGIN_WHILE
+							PL_getch();
+							if (PL_lookaheadChar == '*') {
+								PL_getch();
+								if (PL_lookaheadChar == ')') {
+									PL_getch();
+									return PL_lookaheadChar;
+								}	else
+								if (PL_lookaheadChar == 0x0a
+								||  PL_lookaheadChar == 0x0d) {
+									PL_line_row += 1;
+									PL_line_col  = 1;
+								}
+							}
+						END_WHILE
+					}	else {
+						messageBox("plexc 34",mfOKButton);
+						PL_Exception_ParserError_Inline( "parser error" );
+					}
+				}	else {
+					PL_ungetch();
+					break;
+				}
+			END_WHILE
+			return PL_lookaheadChar;
+		}
+
+		uint16_t PL_handle_pascal_block_begin()
+		{
+			BEGIN_WHILE
+				PL_skip_comment_pas();
+				if (PL_isalpha()) {
+					if (PL_ident == "end") {
+						PL_skip_comment_pas();
+						if (PL_lookaheadChar == ';') {
+							break;
+						}
+					}
+				}
+			END_WHILE
+			
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_handle_pascal_block_var()
+		{
+			PL_skip_comment_pas();
+			if (PL_isalpha()) {
+				char buffer[200];
+				sprintf(buffer,"var name: %s",PL_ident.c_str());
+				messageBox(buffer,mfOKButton);
+				PL_skip_comment_pas();
+				if (PL_lookaheadChar == ':') {
+					PL_skip_comment_pas();
+					if (PL_isalpha()) {
+						PL_skip_comment_pas();
+						if (PL_lookaheadChar == ';') {
+							PL_skip_comment_pas();
+							return PL_lookaheadChar;
+						}	else
+						if (PL_lookaheadChar == ',') {
+							PL_handle_pascal_block_var();
+						}
+					}
+				}
+			}
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_handle_pascal_tail_body()
+		{
+			bool begin_found = false;
+			BEGIN_WHILE
+				PL_skip_comment_pas();
+				if (PL_isalpha()) {
+					if (PL_ident == "var") {
+						PL_handle_pascal_block_var();
+						continue;
+					}	else
+					if (PL_ident == "begin") {
+						begin_found = true;
+						break;
+					}
+				}
+			END_WHILE
+			if (begin_found) {
+				PL_handle_pascal_block_begin();
+			}
+			return PL_lookaheadChar;
+		}
+
+		uint16_t PL_handle_parameter_type()
+		{
+			PL_skip_comment_pas();
+			if (PL_isalpha()) {
+			}
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_handle_parameters()
+		{
+				PL_skip_comment_pas();
+			if (PL_isalpha()) {
+				PL_skip_comment_pas();
+				if (PL_lookaheadChar == ':') {
+					PL_skip_comment_pas();
+					PL_handle_parameter_type();
+				}
+			}
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_handle_pascal_procedure()
+		{
+			char buffer[200];
+			sprintf(buffer, "proc name: %s",PL_ident.c_str());
+			messageBox(buffer,mfOKButton);
+			
+			PL_skip_comment_pas();
+			if (PL_lookaheadChar == '(')
+			{
+				messageBox("proce parameter begin",mfOKButton);
+				BEGIN_WHILE
+					if (PL_isalpha()) {
+						sprintf(buffer,"param type: %s",PL_ident.c_str());
+						messageBox(buffer,mfOKButton);
+						PL_skip_comment_pas();
+						if ((PL_lookaheadChar == ',')
+						||  (PL_lookaheadChar == ';')) {
+							continue;
+						}	else
+						if (PL_lookaheadChar == ')') {
+							PL_skip_comment_pas();
+							if (PL_lookaheadChar == ';') {
+								break;
+							}
+						}
+					}
+				END_WHILE
+				PL_handle_pascal_tail_body();
+			}	else
+			if (PL_lookaheadChar == ';') {
+				PL_handle_pascal_tail_body();
+			}
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_handle_pascal_function()
+		{
+			char buffer[200];
+			sprintf(buffer, "func name: %s",PL_ident.c_str());
+			messageBox(buffer,mfOKButton);
+			
+			PL_skip_comment_pas();
+			if (PL_lookaheadChar == '(') {
+				messageBox("func parameter begin",mfOKButton);
+				PL_handle_parameters();
+			}
+			return PL_lookaheadChar;
+		}
+		
+		uint16_t PL_handle_pascal_block()
+		{
+			BEGIN_WHILE
+				PL_skip_comment_pas();
+				if (PL_isalpha())
+				{
+					if (PL_ident == "procedure")
+					{
+						PL_skip_comment_pas();
+						if (PL_isalpha()) {
+							PL_handle_pascal_procedure();
+						}
+					}	else
+					if (PL_ident == "function")
+					{
+						PL_skip_comment_pas();
+						if (PL_isalpha()) {
+							PL_handle_pascal_function();
+						}
+					}	else
+					if (PL_ident == "begin")
+					{
+						PL_skip_comment_pas();
+					}	else {
+						PL_Exception_ParserError_Inline( "'procedure', 'function', or 'begin' expected" );
+					}
+				}
+			END_WHILE
+
+			return PL_lookaheadChar;
+		}
+		
+		bool
+		PL_check_pascal_keyword(::std::string kw) {
+			bool result = false;
+			::std::transform(
+			kw.begin(),
+			kw.end(),
+			kw.begin(), ::tolower);
+			
+			for (auto const& item: PL_pascal_keywords) {
+				if (item == kw) {
+					result = true;
+					break;
+				}
+			}
+			return result;
+		}
+	};	// PL_parser
+
+	bool check_namespace(::std::string name)
+	{
+		bool result = false;
+		DIR * dir = opendir(name.c_str());
+		if (dir) {  // exist's
+			messageBox("dir exists",mfOKButton);
+			closedir(dir);
+		}
+		switch (errno) {
+			case EACCES:
+				PL_Exception_Windows_Inline(
+				"Permission Denied");
+			break;
+			case EBADF:
+				PL_Exception_Windows_Inline(
+				"fd is not a valid file descriptor openend for reading");
+			break;
+			case EMFILE:
+				PL_Exception_Windows_Inline(
+				"Too many file descriptors in use by process");
+			break;
+			case ENFILE:
+				PL_Exception_Windows_Inline(
+				"Too many files are currently open in the system");
+			break;
+			case ENOMEM:
+				PL_Exception_Windows_Inline(
+				"Insufficient memory to complete the operation");
+			break;
+			case ENOENT:
+			{
+				// todo !!!
+				#ifdef _WIN32
+				if (!CreateDirectory(name.c_str(),0)) {
+					switch (GetLastError()) {
+						case ERROR_ALREADY_EXISTS:
+							PL_Exception_Windows_Inline(
+							"The specified directory already exists");
+						break;
+						case ERROR_PATH_NOT_FOUND:
+							PL_Exception_Windows_Inline(
+							"One or more intermediate directories do not exist; "
+							"this function will only create the final directory "
+							"in the path");
+						break;
+					}
+				}
+				#else
+				#endif  // _WIN32
+				messageBox("dir erstellt",mfOKButton);
+				return true;
+			}
+			break;
+			default:
+			break;
+		}
+		return result;
+	}
+	class PL_LoParser: public PL_parser
+	{
+	public:
+		class PL_ASTList * ast;
+
+		//-- CONSTRUCTORS DEFINITIONS -----------------------------
+
+		PL_LoParser() {
+			app_lib_mod_mode = 0;
+			init();
+		}
+		~PL_LoParser() {
+			delete ast;
+		}
+
+		//-- FUNCTION DEFINITIONS ---------------------------------
 		void PL_handle_ident()
 		{
 			::std::transform(
@@ -2179,8 +1978,7 @@ namespace prolog
 				if (PL_ident == "namespace")
 				{
 					PL_ident = "";
-					PL_lookaheadChar =
-					PL_handle_pas_white_spaces();
+					PL_skip_comment_pas();
 
 					if (PL_isalpha())
 					{	
@@ -2214,53 +2012,40 @@ namespace prolog
 								check_module_or_application_or_library ();
 								return;
 							}	else {
-								throw PL_Exception_ParserError(
-								//"'pascal', 'dbase', 'prolog' or 'lisp' expected",
-								locale_str( 142 ).c_str(),
-								PL_line_row,
-								PL_line_col);
+								PL_Exception_ParserError_Inline(
+								"'pascal', 'dbase', 'prolog' or 'lisp' expected");
 							}
 						}	else {
-							throw PL_Exception_ParserError(
-							//"'pascal', 'dbase', 'prolog' or 'lisp' expected",
-							locale_str( 142 ).c_str(),
-							PL_line_row,
-							PL_line_col);
+							PL_Exception_ParserError_Inline(
+							"'pascal', 'dbase', 'prolog' or 'lisp' expected");
 						}
 					}
 				}	else {
-					throw PL_Exception_ParserError(
-					"namespace expected",
-					PL_line_row,
-					PL_line_col);
+					PL_Exception_ParserError_Inline(
+					"namespace expected");
 				}
 			}
 		}
 
 		void PL_parseFile(const ::std::string &filename )
 		{
-				PL_prepare(filename);
+			PL_prepare(filename);
 			BEGIN_WHILE
-				PL_lookaheadChar =
-				PL_handle_pas_white_spaces();
-
+				PL_skip_comment_pas();
 				if (PL_isalpha())
 				{
-					PL_ident = "";
-					PL_ungetch();
-					PL_get_ident();
 					PL_handle_ident();
 				}	else break;
 			END_WHILE
 
 			if (PL_comment_open > 0)
-			throw PL_Exception_ParserError("comment not terminated.",
-			PL_line_row,PL_line_col);
+			PL_Exception_ParserError_Inline("comment not terminated.");
 
 			char buffer[255];
-			sprintf(buffer, "Compile: OK\n"
-					"Lines  : %d", PL_line_row);
-			messageBox(buffer,mfOKButton);
+			sprintf(buffer,
+				"Compile: OK\n"
+				"Lines  : %d", PL_line_row);
+			messageBox(buffer, mfOKButton );
 		}
 	};
 
@@ -2360,7 +2145,7 @@ namespace prolog
 	class Normal;
 	class Html;
 	class Ftp;
-
+	
 	// ---------------------------------------------------------------------
 	// anonym func pointer to start user application from intro window ...
 	// ---------------------------------------------------------------------
@@ -2401,17 +2186,13 @@ namespace prolog
 
 			res = test_dwarf();
 
-			if (res == DW_DLV_NO_ENTRY)
-			throw PL_Exception_Application("FAIL Cannot dwarf_object_init_b() NO ENTRY."); else
-			if (res == DW_DLV_ERROR)
-			throw PL_Exception_Application("FAIL CannoNTRY.");
+			if (res == DW_DLV_NO_ENTRY) PL_Exception_Application_Inline("FAIL Cannot dwarf_object_init_b() NO ENTRY."); else
+			if (res == DW_DLV_ERROR)    PL_Exception_Application_Inline("FAIL CannoNTRY.");
 
 			res = test_dwarf2();
 			
-			if (res == DW_DLV_NO_ENTRY)
-			throw PL_Exception_Application("FAIL Cannot dwarf_object_init_b() NO ENTRY."); else
-			if (res == DW_DLV_ERROR)
-			throw PL_Exception_Application("FAIL CannoNTRY.");
+			if (res == DW_DLV_NO_ENTRY) PL_Exception_Application_Inline("FAIL Cannot dwarf_object_init_b() NO ENTRY."); else
+			if (res == DW_DLV_ERROR)    PL_Exception_Application_Inline("FAIL CannoNTRY.");
 
 			res = dwarf_object_detector_path_b(
 				file_name.c_str(),
@@ -2424,18 +2205,17 @@ namespace prolog
 				error_buffer.str("");
 				if (res == DW_DLV_ERROR) {
 					error_buffer
-					<< ::std::string( locale_str( 3 ) )
+					<< ::std::string( "Can not open: " )
 					<< ::std::string(file_name)
 					<< ::std::endl
-					<< ::std::string( locale_str( 73 ).c_str() )
+					<< ::std::string( "Error: " )
 					<< dwarf_errmsg_by_number(errcode);
 				}	else {
 					error_buffer
 					<< ::std::string("There is no file: ")
 					<< ::std::string(file_name);
 				}
-				throw PL_Exception_Application(
-				error_buffer.str().c_str() );
+				PL_Exception_Application_Inline( error_buffer.str() );
 			}
 		}
 
@@ -2517,8 +2297,7 @@ namespace prolog
 	} *newData;
 
 	::TEditWindow     * editWin;
-	::TEditWindow     * debugWin;
-	
+		
 	::std::string       editWindowFileName;
 	::std::vector<char> editWindowBuffer;
 
@@ -2769,10 +2548,11 @@ namespace prolog
 				ostrstream  statusStr( str, sizeof str );
 
 				statusStr
-				<< "  Char: "       << (char ) ((asciiChar == 0) ? 0x20 : asciiChar)
-				<< locale_str( 81 ) << setw(3) << (int) asciiChar
-				<< " Hex " << hex   << setiosflags(ios::uppercase)
-				<< setw(2) << (int) asciiChar << "     " << ends;
+				<< "   Char: " << (char ) ((asciiChar == 0) ? 0x20 : asciiChar)
+				<< "Decimal: " << setw(3) << (int) asciiChar
+				<< "    Hex: " << hex     << setiosflags(ios::uppercase)
+			                   << setw(2) << (int) asciiChar
+				<< "     "     << ends;
 
 				buf.moveStr(0, str , color);
 				writeLine(0,0, 32,1, buf);
@@ -2810,7 +2590,7 @@ namespace prolog
 		public:
 			TAsciiChart():
 				TWindowInit( &TAsciiChart::initFrame ),
-				TWindow(TRect(0, 0, 34, 12), locale_str( 41 ), wnNoNumber),
+				TWindow(TRect(0, 0, 34, 12), "ASCII Chart", wnNoNumber),
 				name("TAsciiChart")
 			{
 				TView *control;
@@ -2932,11 +2712,11 @@ namespace prolog
 				if (!fileToView ) {
 					char buf[256] = {0};
 					ostrstream os( buf, sizeof( buf )-1 );
-					os  << locale_str( 80 ).c_str()
+					os  << "Failed to open file '"
 						<< fName
 						<< "'."
 						<< ends;
-					throw PL_Exception_Application( buf );
+					PL_Exception_Application_Inline( buf );
 				}	else {
 					char * line     = new char[ maxLineLength ];
 					size_t lineSize = maxLineLength;
@@ -3020,11 +2800,8 @@ namespace prolog
 				TRect r( getExtent() );
 				r.grow(-1, -1);
 
-				insert(new TFileViewer(
-					r,
-					standardScrollBar(sbHorizontal | sbHandleKeyboard),
-					standardScrollBar(sbVertical | sbHandleKeyboard),
-					fileName) );
+				insert(new TEditWindow( r,
+					"xx",winNumber++) );
 			}
 		};
 
@@ -3041,7 +2818,7 @@ namespace prolog
 						<< ctrl
 						<< " insert error at line: "
 						<< __LINE__;
-					throw PL_Exception_Application(ss.str().c_str());
+					PL_Exception_Application_Inline(ss.str().c_str());
 				}
 			}
 		public:
@@ -3095,13 +2872,13 @@ namespace prolog
 				ushort x = 8;
 				ushort y = 12;
 
-				_writeStr(x, 1, locale_str( 36 ).c_str(), c); x += 16;
-				_writeStr(x, 1, locale_str( 39 ).c_str(), c); x += 17;
-				_writeStr(x, 1, locale_str( 38 ).c_str(), c); x += 16;
+				_writeStr(x, 1, "Data"        , c); x += 16;
+				_writeStr(x, 1, "Queries"     , c); x += 17;
+				_writeStr(x, 1, "Forms"       , c); x += 16;
 
-				_writeStr(x, 1, locale_str( 40 ).c_str(), c); x += 17;
-				_writeStr(x, 1, locale_str( 37 ).c_str(), c); x += 15;
-				_writeStr(x, 1, locale_str( 35 ).c_str(), c);
+				_writeStr(x, 1, "Reports"     , c); x += 17;
+				_writeStr(x, 1, "Labels"      , c); x += 15;
+				_writeStr(x, 1, "Applications", c);
 
 				c = getColor(0x0310);
 				x = 1;
@@ -3209,19 +2986,19 @@ namespace prolog
 		private:
 			void init()
 			{
-				insert( new TButton ( TRect( 20,6, 37,8 ), locale_str(  17 ).c_str(), cmDBASE_app_cancel, bfNormal ));
-				insert( new TButton ( TRect(  2,6, 12,8 ), locale_str( 123 ).c_str(), cmDBASE_app_file  , bfDefault));
+				insert( new TButton ( TRect( 20,6, 37,8 ), "Cancel", cmDBASE_app_cancel, bfNormal ));
+				insert( new TButton ( TRect(  2,6, 12,8 ), "OK", cmDBASE_app_file  , bfDefault));
 
 				xbDBASE_app_file_input = new TInputLine( TRect( 3,3, 30,4 ), 64);
 				xbDBASE_app_file_input->setData( (void*)xbDBASE_app_file_name.c_str());
 				
 				insert( xbDBASE_app_file_input );
-				insert( new TLabel( TRect( 3,2, 9,3 ), locale_str( 124 ).c_str(), xbDBASE_app_file_input ));
+				insert( new TLabel( TRect( 3,2, 9,3 ), "File-Name:", xbDBASE_app_file_input ));
 			}
 		public:
 			PL_NewFileInputDialog():
 				TWindowInit( &PL_NewFileInputDialog::initFrame ),
-				TDialog ( TRect( 3,4, 42,13), locale_str( 125 ).c_str()) {
+				TDialog ( TRect( 3,4, 42,13), "New File" ) {
 
 				flags &= ~(wfGrow | wfZoom);
 				growMode  = 0;
@@ -3287,45 +3064,64 @@ namespace prolog
 			}
 		};
 		
-		class MyMemoEditor: public TEditWindow {
+		// a simple TFileEditor derivated class
+		class MyFileEditor: public TFileEditor
+		{
 		public:
-			MyMemoEditor(
-				const TRect & bounds,
-				const char  * _filename):
-				TWindowInit( &MyMemoEditor::initFrame ),
-				TEditWindow(bounds,_filename,wnNoNumber)
-			{
-				editWindowBuffer.clear();
-					
-				::std::wifstream input1(editWindowFileName, std::ios::binary);
-				::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
+			// constructor
+			MyFileEditor(
+				const TRect& _bounds,
+				TScrollBar * _hScrollBar,
+				TScrollBar * _vScrollBar,
+				TIndicator * _indicator,
+				TStringView  _afilename)
+				:
+				TFileEditor(
+				_bounds,
+				_hScrollBar,
+				_vScrollBar,
+				_indicator,
+				_afilename) { }
 				
-				for (auto &item: filecon)
-				editWindowBuffer.push_back(item);
-			
-				char   *  buffer   = new char[filecon.size()];
-				uint32_t  pos      = 0;
+			// destructor
+			~MyFileEditor() { }
 
-				for (auto &item: editWindowBuffer) {
-					if (pos >= filecon.size()) break;
-					
-					if (editWindowBuffer.at(pos) == 0x0a
-					||  editWindowBuffer.at(pos) == 0x0d) {
-						buffer[pos] = EOS;
-						continue;
-					}
-
-					buffer[pos+0] = editWindowBuffer.at(pos);
-					buffer[pos+1] = '\0';
-
-					pos += 1;
+			// set the text, and background color of the
+			// editor window ...
+			void setColor(short color, short background)
+			{
+				uint16_t newAttr = (uint16_t)(((background & 0xF) << 8) | color);
+				TDrawBuffer drawBuffer;
+				
+				// fill all char's witht he same newAttr
+				for (int i = 0; i < size.x * size.y; ++i) {
+					drawBuffer.putAttribute(i, newAttr);
 				}
-				//messageBox(buffer,mfOKButton);
-				delete buffer;
+				
+				// write background buffer to view
+				writeBuf(0, 0, size.x, size.y, drawBuffer);
 			}
+			
+			// get a copy of the editor buffer (text)
+			inline ::std::string getText() {
+				return buffer;
+			}
+		};
+		
+		class MyEditorChild: public TFileEditor {
+		public:
+			MyEditorChild(
+				const TRect& bounds,
+				TScrollBar * hScrollBar,
+				TScrollBar * vScrollBar,
+				TIndicator * indicator,
+				TStringView  filename):
+			TFileEditor( bounds,hScrollBar,vScrollBar,indicator,filename)
+			{ }
 			void handleEvent( TEvent &event )
 			{
-				TWindow::handleEvent( event );
+				TFileEditor::handleEvent( event );
+
 				if (event.what == evKeyboard)
 				{
 					if (event.keyDown.keyCode == kbEsc)     // #27 - Escape
@@ -3339,24 +3135,191 @@ namespace prolog
 						clearEvent(event);
 						messageBox("getkey",mfInformation|mfOKButton);
 						return;
+					}	else
+					if (event.keyDown.keyCode == kbF2)
+					{
+						funContainer.clear();
+						initParserDBaseFunctions();
+
+						::asmjit::JitRuntime       rt;	// Runtime specialized for JIT code excution
+						::asmjit::CodeHolder     code;	// Holds code and relocation information
+						::asmjit::StringLogger logger;
+
+						::asmjit::Error err = kErrorOk;
+
+						code.init(
+							rt.environment(),
+							rt.cpuFeatures()
+						);
+						code.setLogger(&logger);
+
+						FormatFlags formatFlags =
+						FormatFlags::kHexImms    |
+						FormatFlags::kHexOffsets |
+						FormatFlags::kExplainImms;
+						logger.setFlags(formatFlags);
+						
+						FormatIndentationGroup indent  ;
+						logger.setIndentation( indent, 4 );
+						
+						::x86::Compiler cc(&code);
+						::x86::Gp x   = cc.newInt32("x");
+
+						FuncNode * node = cc.addFunc(FuncSignatureT<void,void>(CallConvId::kHost));
+						node->setArg(0, x);
+
+						addFunc(cc, "calledFunc1");
+						addFunc(cc, "calledFunc2");
+
+						cc.ret();
+						cc.endFunc();
+
+						cc.finalize();
+
+						::asmjit::String content = move(logger.content());
+
+						// output code
+						messageBoxRect(
+							TRect(10,4,60,29),
+							content.data(),
+							mfError|mfOKButton);
+
+						// call asmjit code
+						void *__func = nullptr;
+						rt.add(&__func, &code);
+
+						typedef void (*Func)(void);
+						Func func = ptr_as_func<Func>(__func);
+						func();
+
+						save();
+						editWindowBuffer.clear();
+						
+						::std::wifstream input1(editWindowFileName, std::ios::binary);
+						::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
+						
+						for (auto &item: filecon)
+						editWindowBuffer.push_back(item);
+						draw();
+
+						// -------------------------------------------
+						// exception coming in context of PL parser:
+						// -------------------------------------------
+						try {
+							auto * parser = new PL_LoParser();
+							parser->PL_parseFile(editWindowFileName);
+						}
+						catch (PL_Exception_Windows& e)
+						{
+							::std::stringstream ss;ss
+							<< "Operating-System Error" << ::std::endl
+							<< "line  : " << e.line()   << ::std::endl
+							<< "reason: " << e.what()   << ::std::endl;
+							
+							messageBoxRect(
+								TRect(10,4,60,20),
+								ss.str().c_str(),
+								mfError|mfOKButton
+							);
+						}
+						catch (PL_Exception_ParserError& e)
+						{
+							uint32_t line_row = e.line();
+							uint32_t line_col = e.column() - 1;
+
+							if (line_col < 1)
+								line_col = 1;
+
+							::std::stringstream ss;ss
+							<< "parser error in line: " << line_row << ::std::endl
+							<< "column: "               << line_col << ::std::endl
+							<< "reason: "               << e.what() << ::std::endl;
+							
+							// output code
+							messageBoxRect(
+								TRect(10,4,60,20),
+								ss.str().c_str(),
+								mfError|mfOKButton
+							);
+						}
+						clearEvent(event);
+						return;
 					}
 				}
 			}
 		};
+		class MyMemoEditor: public TWindow {
+		private:
+			std::string  fileName;
+			MyEditorChild * editor;
+		public:
+			MyMemoEditor(
+				const TRect & _bounds,
+				const char  * _filename,
+				int           _num):
+			TWindowInit( &MyMemoEditor::initFrame ),
+			TWindow( _bounds, 0, _num )
+			{
+				options |= ofTileable;
+
+				TScrollBar *hScrollBar = new TScrollBar( TRect( 18, size.y - 1, size.x - 2, size.y ) );
+				hScrollBar->hide();
+				insert(hScrollBar);
+
+				TScrollBar *vScrollBar = new TScrollBar( TRect( size.x - 1, 1, size.x, size.y - 1 ) );
+				vScrollBar->hide();
+				insert(vScrollBar);
+
+				TIndicator *indicator  = new TIndicator( TRect( 2, size.y - 1, 16, size.y ) );
+				indicator->hide();
+				insert(indicator);
+
+				TRect r( getExtent() );
+				r.grow(-1, -1);
+				
+				editor = new MyEditorChild( r, hScrollBar, vScrollBar, indicator, _filename );
+				insert(editor);
+			}
+				
+			virtual void close()
+			{
+				//if( editor->isClipboard() == True )
+				//hide(); else
+				TWindow::close();
+			}
+			
+			virtual const char* getTitle( short )
+			{
+				//if( editor->isClipboard() == True )
+				//	return clipboardTitle;
+				if( *(editor->fileName) == EOS )
+					return "untitled";
+				else
+					return editor->fileName;
+			}
+			
+			virtual void sizeLimits ( TPoint& min, TPoint& max)
+			{
+				const TPoint minEditWinSize = {24, 6};
+				TWindow::sizeLimits(min, max);
+				min = minEditWinSize;
+			}
+		};
+		
 		class PL_dBaseSourceMemoEditor {
 		public:
 			PL_dBaseSourceMemoEditor(
 				const TRect & bounds,
 				const char  * fileName )
 			{
-				debugWin = new MyMemoEditor(
-				TRect(5,5, 80,18), "" );
+				auto * debugWin = new MyMemoEditor(
+				TRect(5,5, 80,18), "yy.prg", winNumber );
 				TView * p1 = TProgram::application->validView( debugWin );
 				deskTop->insert(p1);
-				
+				/*
 				editWin = new MyMemoEditor( bounds, fileName );
 				TView * p2 = TProgram::application->validView( editWin );
-				deskTop->insert(p2);
+				deskTop->insert(p2);*/
 			}
 		};
 		
@@ -3416,7 +3379,7 @@ namespace prolog
 				
 				insert(table_name);
 				
-				insert( new TLabel  ( TRect(  2,1, 15, 2 ), locale_str( 57 ).c_str(), table_name));
+				insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~T~able name:", table_name));
 				insert( new THistory( TRect( 34,2, 37, 3 ), table_name, 10));
 				
 				int x =  2;
@@ -3425,7 +3388,7 @@ namespace prolog
 				// field name
 				field_name = new TInputLine( TRect( 2,5, 22,6), 64);
 				insert(field_name);
-				insert( new TLabel  ( TRect(  x,4, 15, 5 ), locale_str( 58 ).c_str(), field_name));
+				insert( new TLabel  ( TRect(  x,4, 15, 5 ), "Field name:", field_name));
 				insert( new THistory( TRect( 22,5, 24, 6 ), field_name, 10));
 				
 				x += 24;
@@ -3433,7 +3396,7 @@ namespace prolog
 				// field type
 				field_type = new TInputLine( TRect( x, 5, x+24,6), 64);
 				insert(field_type);
-				insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), locale_str( 59 ).c_str(), field_type));
+				insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), "Field type:", field_type));
 				insert( new THistory( TRect( x+22,5, x + 24, 6 ), field_type, 10));
 				
 				x += 26;
@@ -3441,7 +3404,7 @@ namespace prolog
 				// field length
 				field_length = new TInputLine( TRect( x, 5, x+24,6), 64);
 				insert(field_length);
-				insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), locale_str( 60 ).c_str(), field_length));
+				insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), "Field length:", field_length));
 				insert( new THistory( TRect( x+22,5, x + 24, 6 ), field_length, 10));
 				
 				x += 26;
@@ -3449,7 +3412,7 @@ namespace prolog
 				// field prec.
 				field_prec = new TInputLine( TRect( x, 5, x+24,6), 64);
 				insert(field_prec);
-				insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), locale_str( 61 ).c_str(), field_prec));
+				insert( new TLabel  ( TRect( x,   4, x + 15, 5 ), "Field prec.:", field_prec));
 				insert( new THistory( TRect( x+22,5, x + 24, 6 ), field_prec, 10));
 
 				x = 2;
@@ -3498,20 +3461,20 @@ namespace prolog
 				
 				x = 2;
 				
-				insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_1 )); x += 24;
-				insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_2 )); x += 26;
-				insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_3 )); x += 26;
-				insert( new TLabel( TRect(x,6, x + 20,7 ), locale_str( 65 ).c_str(), new_file_lb_4 ));
+				insert( new TLabel( TRect(x,6, x + 20,7 ), "Active Focus", new_file_lb_1 )); x += 24;
+				insert( new TLabel( TRect(x,6, x + 20,7 ), "Active Focus", new_file_lb_2 )); x += 26;
+				insert( new TLabel( TRect(x,6, x + 20,7 ), "Active Focus", new_file_lb_3 )); x += 26;
+				insert( new TLabel( TRect(x,6, x + 20,7 ), "Active Focus", new_file_lb_4 ));
 
 				
-				insert( new TButton ( TRect( 40,2, 55,4 ), locale_str( 62 ).c_str(), cmDBASE_add_field, bfDefault ));
-				insert( new TButton ( TRect( 58,2, 73,4 ), locale_str( 63 ).c_str(), cmDBASE_del_field, bfNormal  ));
-				insert( new TButton ( TRect( 76,2, 91,4 ), locale_str( 64 ).c_str(), cmDBASE_sav_field, bfNormal  ));
+				insert( new TButton ( TRect( 40,2, 55,4 ), "Add Field" , cmDBASE_add_field, bfDefault ));
+				insert( new TButton ( TRect( 58,2, 73,4 ), "Del Field" , cmDBASE_del_field, bfNormal  ));
+				insert( new TButton ( TRect( 76,2, 91,4 ), "Save Table", cmDBASE_sav_field, bfNormal  ));
 			}
 		public:
 			PL_dBaseNewFile(::std::string file_name, int flag):
 				TWindowInit( &PL_dBaseNewFile::initFrame ),
-				TDialog ( TRect( 0, 0, 108,18), locale_str( 56 ).c_str()),
+				TDialog ( TRect( 0, 0, 108,18), "dBASE new file:"),
 				name("PL_dBaseNewFile") {
 				tbl_name = file_name;
 				tbl_flag = flag;
@@ -3557,12 +3520,12 @@ namespace prolog
 					
 				if (helpInUse == false) {
 					helpInUse = true;
-					helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
+					helpStrm  = new fpstream(PL_HELPFILE().c_str(), ios::in|ios::binary);
 					hFile     = new THelpFile(*helpStrm);
 					if (!helpStrm) {
 						delete hFile;
-						throw PL_Exception_Application(
-						locale_str( 21 ).c_str());
+						PL_Exception_Application_Inline(
+						"Could not open help file");
 					}
 					if (PL_globalHolder.PL_language == PL_appLang_ENG) {
 						if (flag == 1) helpCtx = hcDBASE_data_field_name_ENG; else
@@ -3646,22 +3609,22 @@ namespace prolog
 					::std::string s3 = trim_copy( buffer_leng );
 					::std::string s4 = trim_copy( buffer_prec );
 					
-					if (s1.length() < 1) { messageBox( locale_str( 68 ), mfInformation | mfOKButton ); return; }
-					if (s2.length() < 1) { messageBox( locale_str( 69 ), mfInformation | mfOKButton ); return; }
-					if (s3.length() < 1) { messageBox( locale_str( 70 ), mfInformation | mfOKButton ); return; }
-					if (s4.length() < 1) { messageBox( locale_str( 71 ), mfInformation | mfOKButton ); return; }
+					if (s1.length() < 1) { messageBox( "Empty Field name not allowed"  , mfInformation | mfOKButton ); return; }
+					if (s2.length() < 1) { messageBox( "Empty Field type not allowed"  , mfInformation | mfOKButton ); return; }
+					if (s3.length() < 1) { messageBox( "Empty Field length not allowed", mfInformation | mfOKButton ); return; }
+					if (s4.length() < 1) { messageBox( "Empty Field prec. not allowed" , mfInformation | mfOKButton ); return; }
 
 					// ---------------------------------------------
 					// get field type value:
 					// ---------------------------------------------
 					for (auto &item : xdbf_vec_1 ) {
 						if (item.length() < 1) {
-							throw PL_Exception_DataBaseWarning(
-							locale_str( 92 ).c_str() );
+							PL_Exception_DataBaseWarning_Inline(
+							"no data record available for save");
 						}
 						else if (strcmp(item.c_str(),buffer_name) == 0) {
-							throw PL_Exception_DataBaseWarning(
-							locale_str( 66 ).c_str() );
+							PL_Exception_DataBaseWarning_Inline(
+							"Field already exists");
 						}
 					}
 
@@ -3675,7 +3638,8 @@ namespace prolog
 					if (strcmp( tmp.c_str(), "logical" ) == 0) { } else
 					if (strcmp( tmp.c_str(), "memo"    ) == 0) { } else
 
-					throw PL_Exception_Application( locale_str( 72 ).c_str() );
+					PL_Exception_Application_Inline(
+					"data type unknown");
 
 					xdbf_vec_1.push_back( s1 );
 					xdbf_vec_2.push_back( s2 );
@@ -3710,12 +3674,12 @@ namespace prolog
 					new_file_lb_1->focused, MAX_LEN);
 
 					if (trim_copy( buffer ).length() < 1)
-					throw PL_Exception_DataBaseWarning(
-					locale_str( 82 ).c_str() );
+					PL_Exception_DataBaseWarning_Inline(
+					"no table name available");
 
 					if (messageBoxRect(
 						TRect(10,7, 60,19),
-						locale_str( 90 ).c_str(),
+						"would you realy delete the current data record ?",
 						mfError | mfYesButton | mfNoButton ) != 12) {
 						return;
 					}
@@ -3735,7 +3699,7 @@ namespace prolog
 						++index;
 					}
 					if (found == false) {
-						messageBox( locale_str( 94 ).c_str(),
+						messageBox( "internal field delete error",
 						mfError|mfOKButton);
 						return;
 					}
@@ -3765,15 +3729,15 @@ namespace prolog
 					clearEvent(event);
 					
 					if (xdbf_vec_1.size() < 1)
-					throw PL_Exception_DataBaseWarning(
-					locale_str( 92 ).c_str() );
+					PL_Exception_DataBaseWarning_Inline(
+					"no data record available for save");
 
 					table_name->getData( buffer );
 					xdbf_data_table = trim_copy( buffer );
 					
 					if (xdbf_data_table.length() < 1)
-					throw PL_Exception_DataBaseWarning(
-					locale_str( 82 ).c_str() );
+					PL_Exception_DataBaseWarning_Inline(
+					"no table name available");
 					
 					::std::string data_file;
 					::std::size_t data_fnd ;
@@ -3794,7 +3758,8 @@ namespace prolog
 						fclose( test );
 						if (messageBoxRect(
 							TRect(10,7, 60,19),
-							locale_str( 89 ).c_str(),
+							"a file with this name already exists\n"
+							"would you override it ?",
 							mfError | mfYesButton | mfNoButton ) != 12) {
 							return;
 						}
@@ -3848,8 +3813,8 @@ namespace prolog
 						MyRecord.data(),
 						XB_OVERLAY,	XB_MULTI_USER)
 						!= XB_NO_ERROR )
-					throw PL_Exception_DataBase(
-					locale_str( 83 ).c_str() );
+					PL_Exception_DataBase_Inline(
+					"can't create data base file");
 
 					// ---------------------------
 					// add table name to catalog
@@ -3863,7 +3828,8 @@ namespace prolog
 						xdbf_lbc_vec_1.end  ()) {
 						if (messageBoxRect(
 							TRect(10,7, 60,19),
-							locale_str( 93 ).c_str(),
+							"table already exists in the database catalog !\n"
+							"would you replace it ?",
 							mfError | mfYesButton | mfNoButton ) == 12)
 						return;
 					}
@@ -3913,11 +3879,8 @@ namespace prolog
 			{
 				auto  * d = new PL_dBaseNewFile(s, flag);
 				TView * p = TProgram::application->validView(d);
-				if (!p) {
-					::std::string sz;
-					sz = locale_str( 23 ).c_str();
-					throw PL_Exception_Application( sz.c_str() );
-				}
+				if (!p)
+				PL_Exception_Application_Inline( "Error:\nCould not create view." );
 				TProgram::deskTop->insert(d);
 			}
 
@@ -4019,17 +3982,17 @@ namespace prolog
 				
 				x = 3;
 				
-				insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_data,   bfNormal )); x += 17;
-				insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_query,  bfNormal )); x += 17;
-				insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_form,   bfNormal )); x += 17;
-				insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_report, bfNormal )); x += 17;
-				insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_label,  bfNormal )); x += 17;
-				insert( new TButton ( TRect( x,4, x+15,6 ), locale_str( 25 ), cmDBASE_app,    bfNormal ));
+				insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_data,   bfNormal )); x += 17;
+				insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_query,  bfNormal )); x += 17;
+				insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_form,   bfNormal )); x += 17;
+				insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_report, bfNormal )); x += 17;
+				insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_label,  bfNormal )); x += 17;
+				insert( new TButton ( TRect( x,4, x+15,6 ), "create", cmDBASE_app,    bfNormal ));
 			}
 		public:
 			PL_dBaseCatalog(::std::string file_name):
 				TWindowInit( &PL_dBaseCatalog::initFrame ),
-				TDialog( TRect( 0,0, 108,18), locale_str( 26 ).c_str()),
+				TDialog( TRect( 0,0, 108,18), "dBASE Catalog:"),
 				name( "PL_dBaseCatalog" ),
 				fileName(file_name) {
 				init();
@@ -4065,12 +4028,12 @@ namespace prolog
 					
 				if (helpInUse == false) {
 					helpInUse = true;
-					helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
+					helpStrm  = new fpstream(PL_HELPFILE().c_str(), ios::in|ios::binary);
 					hFile     = new THelpFile(*helpStrm);
 					if (!helpStrm) {
 						delete hFile;
-						throw PL_Exception_Application(
-						locale_str( 21 ).c_str());
+						PL_Exception_Application_Inline(
+						"Could not open help file");
 					}
 					if (PL_globalHolder.PL_language == PL_appLang_ENG) {
 						if (flag == 1) helpCtx = hcDBASE_list_data_ENG; else
@@ -4111,80 +4074,76 @@ namespace prolog
 					if (event.keyDown.keyCode == 0x1c0d)  // #10 #13 key
 					{
 						char buffer[MAX_LEN];
-						clearEvent(event);
-						
-						if ((xdbf_lb_1->state & sfFocused) != 0)
-						{
-							xdbf_lb_1->getText( buffer,
+
+						if ((xdbf_lb_1->state & sfFocused) != 0) {
+							clearEvent(event);
+							
+							xdbf_lb_1->getText(buffer,
 							xdbf_lb_1->focused, MAX_LEN);
-
-							xdbf_vec_1.clear();
-							xdbf_vec_2.clear();
-							xdbf_vec_3.clear();
-							xdbf_vec_4.clear();
-
-							::xb::xbString xs_buffer( buffer );
-							::xb::xbString xb_buffer;
-							char           fld_type;
-
-							xs_buffer += ".dbf";
+														
+							messageBox(buffer,mfInformation|mfOKButton);
 							
-							FILE * check = fopen( xs_buffer.Str(), "rb" );
-							if (!check)
-								throw PL_Exception_DataBaseWarning(
-								locale_str( 95 ).c_str() );
-							fclose( check );
 							
-							xdbf_data_file->Close();
-							xdbf_data_file->Open ( xs_buffer, xs_buffer );
+							const short numColumns  = 5;
+							const short numRows     = 5;
+							const short numHeadRows = 2;
 							
-							xbInt32 fieldcount = xdbf_data_file->GetFieldCnt();
+							static ListRec ListData[numRows][numColumns];
 							
-							for (xbInt16 count = 0; count < fieldcount; ++count){
-								xdbf_data_file->GetFieldName( count, xb_buffer );
-								xdbf_data_file->GetFieldType( count, fld_type  );
+							static const char* heading[ numColumns * numRows ] = {
+								"Root", "Field 1", "Field 2", "Field3", "Field 5",
+								"NO"  , "A"      , "B"      , "C"     , "D"
+							};
+							
+							// char width of each column
+							static ushort cw[ numColumns ] = {
+								7, 10, 14, 10, 14
+							};
+							
+							// number of digits to right of decimal point to display
+							static ushort dp[ numColumns ] = {
+								2, 2, 3, 4, 2
+							};
+							
+							for (int i = 0; i < numRows; i++)
+							{
+								ListData[i][0].val  = (double) i;
+								ListData[i][0].show = True;
 								
-								xdbf_vec_1.push_back( xb_buffer.Str() );
-								
-								if ( fld_type == XB_NUMERIC_FLD ) xdbf_vec_2.push_back( "numeric" ); else
-								if ( fld_type == XB_CHAR_FLD    ) xdbf_vec_2.push_back( "char"    ); else
-								if ( fld_type == XB_DATE_FLD    ) xdbf_vec_2.push_back( "date"    ); else
-								if ( fld_type == XB_LOGICAL_FLD ) xdbf_vec_2.push_back( "logical" ); else
-								if ( fld_type == XB_MEMO_FLD    ) xdbf_vec_2.push_back( "memo"    );
-								
-								if ( fld_type == XB_CHAR_FLD )
+								for (int j = 1; j < numColumns; j++)
 								{
-									xbInt16 len;
-									xbInt16 res = xdbf_data_file->GetFieldLen( count, len );
-									
-									::std::string err = locale_str( 97 ).c_str();
-									
-									if (res == XB_INVALID_DATA){
-										err += locale_str( 98 );
-										throw PL_Exception_DataBase( err.c_str() );
-									}	else
-									if (res == XB_INVALID_FIELD_NO){
-										err += locale_str( 99 );
-										throw PL_Exception_DataBase( err.c_str() );
-									}	else
-									if (res == XB_INVALID_FIELD_NAME){
-										err += locale_str( 100 );
-										throw PL_Exception_DataBase( err.c_str() );
-									}	else
-									if (res == XB_INVALID_FIELD_TYPE){
-										err += locale_str( 101 );
-										throw PL_Exception_DataBase( err.c_str() );
-									}
-									
-									xdbf_vec_3.push_back( itoa( len, buffer, 10 ) );
-									xdbf_vec_4.push_back( "0" );
-									continue;
+									ListData[i][j].val = sqrt(ListData[i][j-1].val);
+									if (j == 4)
+									ListData[i][j].show = False; else
+									ListData[i][j].show = True;
 								}
 							}
-							xdbf_data_file->Close();
+
+							TRect r = getExtent();
+							r.grow(-2,-3);
 							
-							createNewFileDialog( xs_buffer.Str(), -1 );
+							TDialog *pd = new TListViewDialog(r, "Spread",
+							heading,
+							numHeadRows, (ListRec *) &ListData[0][0],
+							numColumns,
+							numRows,
+							&cw[0], &dp[0]);
+							
+							TView *p = TProgram::application->validView( pd );
+							if (!p)
+							PL_Exception_Application_Inline(
+							"Error:\nCould not create view.");
+
+							// allowd re-sizing
+							pd->flags |= wfGrow;
+								
+							// modal
+							(void) deskTop->execView(pd);
+								
+							// delete when done
+							destroy(pd);
 							return;
+							
 						} else
 						if ((xdbf_lb_2->state & sfFocused) != 0) {
 							xdbf_lb_2->getText(buffer,
@@ -4227,8 +4186,8 @@ namespace prolog
 							TView * p = TProgram::application->validView( d );
 							if (!p) {
 								::std::string sz;
-								sz = locale_str( 23 ).c_str();
-								throw PL_Exception_Application( sz.c_str() );
+								sz = "Error:\nCould not create view.";
+								PL_Exception_Application_Inline( sz.c_str() );
 							}
 							TProgram::deskTop->insert(d);*/
 							return;
@@ -4247,15 +4206,88 @@ namespace prolog
 					if ((xdbf_lb_5->state & sfFocused) != 0) { handle_helpView( 5 ); } else
 					if ((xdbf_lb_6->state & sfFocused) != 0) { handle_helpView( 6 ); }
 				}
-				else if (event.message.command == cmDBASE_data) {
-					clearEvent(event);
-					createNewFileDialog( ::std::string(""), 1 );
-					return;
+				else if (event.message.command == cmDBASE_data)
+				{
+					char buffer[120];
+					if ((xdbf_lb_1->state & sfFocused) != 0)
+					{
+						xdbf_lb_1->getText( buffer,
+						xdbf_lb_1->focused, MAX_LEN);
+
+						xdbf_vec_1.clear();
+						xdbf_vec_2.clear();
+						xdbf_vec_3.clear();
+						xdbf_vec_4.clear();
+
+						::xb::xbString xs_buffer( buffer );
+						::xb::xbString xb_buffer;
+						char           fld_type;
+
+						xs_buffer += ".dbf";
+						
+						FILE * check = fopen( xs_buffer.Str(), "rb" );
+						if (!check)
+							PL_Exception_DataBaseWarning_Inline(
+							"internal error - no such table file "
+							"available on storage disk");
+						fclose( check );
+						
+						xdbf_data_file->Close();
+						xdbf_data_file->Open ( xs_buffer, xs_buffer );
+						
+						xbInt32 fieldcount = xdbf_data_file->GetFieldCnt();
+						
+						for (xbInt16 count = 0; count < fieldcount; ++count){
+							xdbf_data_file->GetFieldName( count, xb_buffer );
+							xdbf_data_file->GetFieldType( count, fld_type  );
+							
+							xdbf_vec_1.push_back( xb_buffer.Str() );
+							
+							if ( fld_type == XB_NUMERIC_FLD ) xdbf_vec_2.push_back( "numeric" ); else
+							if ( fld_type == XB_CHAR_FLD    ) xdbf_vec_2.push_back( "char"    ); else
+							if ( fld_type == XB_DATE_FLD    ) xdbf_vec_2.push_back( "date"    ); else
+							if ( fld_type == XB_LOGICAL_FLD ) xdbf_vec_2.push_back( "logical" ); else
+							if ( fld_type == XB_MEMO_FLD    ) xdbf_vec_2.push_back( "memo"    );
+							
+							if ( fld_type == XB_CHAR_FLD )
+							{
+								xbInt16 len;
+								xbInt16 res = xdbf_data_file->GetFieldLen( count, len );
+								
+								::std::string err = "Error: data-base:";
+								
+								if (res ==  XB_INVALID_DATA){
+									err += "XB_INVALID_DATA";
+									PL_Exception_DataBase_Inline( err.c_str() );
+								}	else
+								if (res ==  XB_INVALID_FIELD_NO){
+									err += "XB_INVALID_FIELD_NO";
+									PL_Exception_DataBase_Inline( err.c_str() );
+								}	else
+								if (res ==  XB_INVALID_FIELD_NAME){
+									err += "XB_INVALID_FIELD_NAME";
+									PL_Exception_DataBase_Inline( err.c_str() );
+								}	else
+								if (res ==  XB_INVALID_FIELD_TYPE){
+									err += "XB_INVALID_FIELD_TYPE";
+									PL_Exception_DataBase_Inline( err.c_str() );
+								}
+								
+								xdbf_vec_3.push_back( itoa( len, buffer, 10 ) );
+								xdbf_vec_4.push_back( "0" );
+								continue;
+							}
+						}
+						xdbf_data_file->Close();
+						
+						clearEvent(event);
+						return;
+					}
 				}
 				else if (event.message.command == cmDBASE_query) {
 					clearEvent(event);
 					messageBox(
-						locale_str( 24 ).c_str(),
+						"not yet implemented",
 						mfInformation | mfOKButton);
 					//createNewFileDialog< PL_dBaseNewFile >("query", 3);
 					return;
@@ -4263,7 +4295,7 @@ namespace prolog
 				else if (event.message.command == cmDBASE_form) {
 					clearEvent(event);
 					messageBox(
-						locale_str( 24 ).c_str(),
+						"not yet implemented",
 						mfInformation | mfOKButton);
 					//createNewFileDialog< PL_dBaseNewFile >("form", 4);
 					return;
@@ -4271,7 +4303,7 @@ namespace prolog
 				else if (event.message.command == cmDBASE_report) {
 					clearEvent(event);
 					messageBox(
-						locale_str( 24 ).c_str(),
+						"not yet implemented",
 						mfInformation | mfOKButton);
 					//createNewFileDialog< PL_dBaseNewFile >("report", 5);
 					return;
@@ -4279,7 +4311,7 @@ namespace prolog
 				else if (event.message.command == cmDBASE_label) {
 					clearEvent(event);
 					messageBox(
-						locale_str( 24 ).c_str(),
+						"not yet implemented",
 						mfInformation | mfOKButton);
 					//createNewFileDialog< PL_dBaseNewFile >("label", 6);
 					return;
@@ -4288,11 +4320,10 @@ namespace prolog
 					auto  * d = new PL_NewFileInputDialog( );
 					TView * p =   ( PL_NewFileInputDialog *)
 					TProgram::application->validView( d );
-					if (!p) {
-						::std::string sz;
-						sz = locale_str( 23 ).c_str();
-						throw PL_Exception_Application( sz.c_str() );
-					}
+					if (!p)
+					PL_Exception_Application_Inline(
+					"Error:\nCould not create view.");
+
 					clearEvent(event);
 					TProgram::deskTop->insert(d);
 					return;
@@ -4335,8 +4366,8 @@ namespace prolog
 				ushort res = 0;
 				if ((res = execDialog( new TFileDialog(
 					pattern,
-					locale_str( 27 ).c_str(),
-					locale_str( 28 ).c_str(),
+					"Open File",
+					"~N~ame",
 					fdOpenButton,
 					100)) != cmCancel))
 				{
@@ -4349,7 +4380,7 @@ namespace prolog
 		public:
 			TNewProjectDialog():
 				TWindowInit( &TNewProjectDialog::initFrame  ),
-				TDialog( TRect( 0,0, 55,13), locale_str( 79 ).c_str() ),
+				TDialog( TRect( 0,0, 55,13), "New Project" ),
 				name("TNewProjectDialog") {
 
 				flags &= ~(wfGrow | wfZoom);
@@ -4366,7 +4397,7 @@ namespace prolog
 				
 				TInputLine *control = new TInputLine( TRect( 3,2, 34,3), 128);
 				insert(control);
-				insert( new TLabel  ( TRect(  2,1, 15, 2 ), locale_str( 22 ).c_str(), control));
+				insert( new TLabel  ( TRect(  2,1, 15, 2 ), "~P~roject name:", control));
 				insert( new THistory( TRect( 34,2, 37, 3 ), control, 10));
 
 				insert( new TRadioButtons( TRect( 3,4, 36,8),
@@ -4386,10 +4417,10 @@ namespace prolog
 					new TSItem("gdwarf",
 					new TSItem("binary", 0) )));
 				
-				insert( new TButton ( TRect( 38,2, 52, 4 ), locale_str( 19 ).c_str(), cmNewData,  bfDefault ));
-				insert( new TButton ( TRect( 38,4, 52, 6 ), locale_str( 20 ).c_str(), cmLoadData, bfNormal  ));
-				insert( new TButton ( TRect( 38,6, 52, 8 ), locale_str( 17 ).c_str(), cmCancel,   bfNormal  ));
-				insert( new TButton ( TRect( 38,9, 52,11 ), locale_str( 18 ).c_str(), cmHelp,     bfNormal  ));
+				insert( new TButton ( TRect( 38,2, 52, 4 ), "New"   , cmNewData,  bfDefault ));
+				insert( new TButton ( TRect( 38,4, 52, 6 ), "~L~oad", cmLoadData, bfNormal  ));
+				insert( new TButton ( TRect( 38,6, 52, 8 ), "Cancel", cmCancel,   bfNormal  ));
+				insert( new TButton ( TRect( 38,9, 52,11 ), "Help"  , cmHelp,     bfNormal  ));
 				
 				selectNext(true);
 				
@@ -4428,12 +4459,12 @@ namespace prolog
 					
 				if (helpInUse == false) {
 					helpInUse = true;
-					helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
+					helpStrm  = new fpstream(PL_HELPFILE().c_str(), ios::in|ios::binary);
 					hFile     = new THelpFile(*helpStrm);
 					if (!helpStrm) {
 						delete hFile;
-						throw PL_Exception_Application(
-						locale_str( 21 ).c_str());
+						PL_Exception_Application_Inline(
+						"Could not open help file");
 					}
 					if (PL_globalHolder.PL_language == PL_appLang_ENG)
 					{
@@ -4519,13 +4550,13 @@ namespace prolog
 	//					char* buffer = new char[255];
 	//					getData(newData);
 						ushort resid     = 2; //newData->radioButtons1Data;
-						::std::string sz = locale_str( 23 ).c_str();
+						::std::string sz = "Error:\nCould not create view.";
 						if (resid == 2) {	// dBase
 							auto  * d = new PL_dBaseCatalog( "dbase.cat" ); //newData->inputLineData );
 							TView * p = TProgram::application->validView( d );
 							if (!p) {
 								delete d;
-								throw PL_Exception_Application( sz );
+								PL_Exception_Application_Inline( sz );
 							}
 							TProgram::deskTop->insert(d);
 						}	else {
@@ -4533,7 +4564,7 @@ namespace prolog
 							TView * p = TProgram::application->validView( d );
 							if (!p) {
 								delete d;
-								throw PL_Exception_Application( sz );
+								PL_Exception_Application_Inline( sz );
 							}
 							TProgram::deskTop->insert(d);
 						}
@@ -4591,8 +4622,8 @@ namespace prolog
 		
 		void
 		openHelpWindow() {
-			TView *w = validView( new TFileWindow( PL_HELPFILE ));
-			if (!w)
+			TView *w = validView( new TFileWindow( "xx" ));
+			if (w != 0)
 			deskTop->insert(w);
 		}
 
@@ -4625,12 +4656,12 @@ namespace prolog
 				{
 					if (helpInUse == false) {
 						helpInUse = true;
-						helpStrm  = new fpstream(PL_HELPFILE, ios::in|ios::binary);
+						helpStrm  = new fpstream(PL_HELPFILE().c_str(), ios::in|ios::binary);
 						hFile     = new THelpFile(*helpStrm);
 						if (!helpStrm) {
 							delete hFile;
-							throw PL_Exception_Application(
-							locale_str( 21 ).c_str());
+							PL_Exception_Application_Inline(
+							"Could not open help file");
 						}
 						else {
 							w = new THelpWindow(hFile, hcNoContext);
@@ -4644,126 +4675,19 @@ namespace prolog
 
 				case cmAppQuit:
 				{
-					if (messageBox( locale_str( 16 ).c_str(), mfYesButton | mfNoButton ) == 12) {
-						killProcess();
-					}
+					if (messageBox(
+					"Did you would really like exit the Application ?\n"
+					"This can take awhile ...",
+					mfYesButton | mfNoButton ) == 12)
+					killProcess();
 				}
 				break;
 
 				case cmCompileRun:
-				{
-					funContainer.clear();
-					initParserDBaseFunctions();
-
-					::asmjit::JitRuntime       rt;	// Runtime specialized for JIT code excution
-					::asmjit::CodeHolder     code;	// Holds code and relocation information
-					::asmjit::StringLogger logger;
-
-					::asmjit::Error err = kErrorOk;
-
-					code.init(
-						rt.environment(),
-						rt.cpuFeatures()
-					);
-					code.setLogger(&logger);
-
-					FormatFlags formatFlags =
-					FormatFlags::kHexImms    |
-					FormatFlags::kHexOffsets |
-					FormatFlags::kExplainImms;
-					logger.setFlags(formatFlags);
-					
-					FormatIndentationGroup indent  ;
-					logger.setIndentation( indent, 4 );
-					
-					::x86::Compiler cc(&code);
-					::x86::Gp x   = cc.newInt32("x");
-
-					FuncNode * node = cc.addFunc(FuncSignatureT<void,void>(CallConvId::kHost));
-					node->setArg(0, x);
-
-					addFunc(cc, "calledFunc1");
-					addFunc(cc, "calledFunc2");
-
-					cc.ret();
-					cc.endFunc();
-
-					cc.finalize();
-
-					::asmjit::String content = move(logger.content());
-
-					// output code
-					messageBoxRect(
-						TRect(10,4,60,29),
-						content.data(),
-						mfError|mfOKButton);
-
-					// call asmjit code
-					void *__func = nullptr;
-					rt.add(&__func, &code);
-
-					typedef void (*Func)(void);
-					Func func = ptr_as_func<Func>(__func);
-					func();
-
-					editWin->editor->save();
-					editWindowBuffer.clear();
-					
-					::std::wifstream input1(editWindowFileName, std::ios::binary);
-					::std::wstring filecon((std::istreambuf_iterator<wchar_t>(input1)),{});
-					
-					for (auto &item: filecon)
-					editWindowBuffer.push_back(item);
-					editWin->draw();
-
-					// -------------------------------------------
-					// exception coming in context of PL parser:
-					// -------------------------------------------
-					try {
-						auto * parser = new PL_LoParser();
-						parser->PL_parseFile(editWindowFileName);
-					}
-					catch (PL_Exception_Windows& e)
-					{
-						::std::stringstream ss;ss
-						<< locale_str( 137 )             << ::std::endl
-						<< locale_str( 11  ) << e.line() << ::std::endl
-						<< locale_str( 12  ) << e.what() << ::std::endl;
-						
-						messageBoxRect(
-							TRect(10,4,60,20),
-							ss.str().c_str(),
-							mfError|mfOKButton
-						);
-					}
-					catch (PL_Exception_ParserError& e)
-					{
-						uint32_t line_row = e.line();
-						uint32_t line_col = e.column() - 1;
-
-						if (line_col < 1)
-							line_col = 1;
-
-						::std::stringstream ss;ss
-						<< locale_str( 13 ) << line_row << ::std::endl
-						<< locale_str( 138) << line_col << ::std::endl
-						<< locale_str( 14 )             << ::std::endl
-						<< locale_str( 12 ) << e.what() << ::std::endl;
-						
-						// output code
-						messageBoxRect(
-							TRect(10,4,60,20),
-							ss.str().c_str(),
-							mfError|mfOKButton
-						);
-					}
-
-
-					clearEvent(event);
-					return;
-				}
+				messageBox("compiler",mfOKButton);
+				clearEvent(event);
 				break;
-
+				
 				case cmNewProject:
 				{
 					createNewProjectDialog();
@@ -4800,26 +4724,26 @@ namespace prolog
 			//{
 				return new ::TMenuBar(r,
 				*new ::TSubMenu( "=", hcNoContext) +
-					*new TMenuItem( locale_str( 41 ), cmAsciiTableCmd, kbNoKey, hcNoContext ) +
+					*new TMenuItem( "ASCII Chart", cmAsciiTableCmd, kbNoKey, hcNoContext ) +
 
-				*new ::TSubMenu( locale_str( 42 ), hcNoContext) +
-					*new TMenuItem( locale_str( 43 ), cmNewProject, kbF3, hcAsciiTable, "F3" )        +
-					*new TMenuItem( locale_str( 44 ), 101,          kbF2, hcNoContext,  "F2" )        +
-					newLine()                                                                         +
-					*new TMenuItem( locale_str( 45 ), 102,      kbNoKey, hcNoContext )                +
-					*new TMenuItem( locale_str( 46 ), cmAppQuit, kbAltX, hcNoContext,   "Alt-X" )     +
+				*new ::TSubMenu( "~F~ile", hcNoContext) +
+					*new TMenuItem( "~O~pen...", cmNewProject, kbF3, hcAsciiTable, "F3" )      +
+					*new TMenuItem( "~S~ave", 101,          kbF2, hcNoContext,  "F2" )         +
+					newLine()                                                                  +
+					*new TMenuItem( "~C~hange directory...", 102,      kbNoKey, hcNoContext )  +
+					*new TMenuItem( "E~x~it", cmAppQuit, kbAltX, hcNoContext,   "Alt-X" )      +
 					
-				*new TSubMenu( locale_str( 47 ), hcNoContext )                                        +
-					*new TMenuItem( locale_str( 48 ), cmResize, kbCtrlF5,  hcNoContext, "Cntl-F5")    +
-					*new TMenuItem( locale_str( 49 ), cmNext,   kbF6,      hcNoContext, "F6")         +
-					*new TMenuItem( locale_str( 50 ), cmPrev,   kbShiftF6, hcNoContext, "Shift-F6")   +
-					*new TMenuItem( locale_str( 51 ), cmClose,  kbAltF3,   hcNoContext, "Alt-F3")     +
+				*new TSubMenu( "~W~indow", hcNoContext )                                       +
+					*new TMenuItem( "~M~ove" , cmResize, kbCtrlF5,  hcNoContext, "Cntl-F5")    +
+					*new TMenuItem( "~N~ext" , cmNext,   kbF6,      hcNoContext, "F6")         +
+					*new TMenuItem( "~P~rev" , cmPrev,   kbShiftF6, hcNoContext, "Shift-F6")   +
+					*new TMenuItem( "~C~lose", cmClose,  kbAltF3,   hcNoContext, "Alt-F3")     +
 					
-				*new TSubMenu( locale_str( 52 ), hcNoContext )                                        +
-					*new TMenuItem( locale_str( 53 ), cmHelpIndex,  kbCtrlF5, hcNoContext, "Cntl-F5") +
-					*new TMenuItem( locale_str( 54 ), cmHelpOnline, kbF6,     hcNoContext, "F6")      +
+				*new TSubMenu( "~H~elp", hcNoContext )                                        +
+					*new TMenuItem( "~I~ndex", cmHelpIndex,  kbCtrlF5, hcNoContext, "Cntl-F5") +
+					*new TMenuItem( "~O~nline Help", cmHelpOnline, kbF6,     hcNoContext, "F6")      +
 					newLine()                                                                         +
-					*new TMenuItem( locale_str( 55 ), cmAboutBox,   kbAltF1,  hcNoContext, "F1" ));
+					*new TMenuItem( "~A~bout...", cmAboutBox,   kbAltF1,  hcNoContext, "F1" ));
 			//	0
 			//};
 			//return new TMultiMenu( r, M );
@@ -4830,11 +4754,11 @@ namespace prolog
 		{
 			r.a.y = r.b.y - 1;
 			return new ::TStatusLine( r,
-				*new ::TStatusDef( 0, 0xFFFF ) +
-				*new ::TStatusItem( locale_str(  29 ).c_str(), kbF1,  cmHelp       ) +
-				*new ::TStatusItem( locale_str(  30 ).c_str(), kbF3,  cmNewProject ) +
-				*new ::TStatusItem( locale_str(  31 ).c_str(), kbF10, cmMenu       ) +
-				*new ::TStatusItem( locale_str( 126 ).c_str(), kbF2 , cmCompileRun ) +
+				*new ::TStatusDef( 0, 0xFFFF )  +
+				*new ::TStatusItem( "~F1~ Help" , kbF1,  cmHelp       ) +
+				*new ::TStatusItem( "~F3~ Open" , kbF3,  cmNewProject ) +
+				*new ::TStatusItem( "~F10~ Menu", kbF10, cmMenu       ) +
+				*new ::TStatusItem( "~F2~ Run"  , kbF2 , cmCompileRun ) +
 
 				*new ::TStatusItem( 0,  kbAltX,     cmAppQuit) +
 				*new ::TStatusItem( 0,  kbShiftDel, cmCut    ) +
@@ -4848,11 +4772,10 @@ namespace prolog
 		createPEviewer(::std::string filename) {
 			auto  * d = new peExeReader(filename.c_str());
 			TView * p = TProgram::application->validView(d);
-			if (!p) {
-				::std::string sz;
-				sz = locale_str( 23 ).c_str();
-				throw PL_Exception_Application( sz.c_str() );
-			}
+			if (!p)
+			PL_Exception_Application_Inline(
+			"Error:\nCould not create view." );
+
 			TProgram::deskTop->insert(d);
 		}
 		
@@ -4862,11 +4785,10 @@ namespace prolog
 			project_dialog = new TNewProjectDialog();
 			TView * p = TProgram::application->validView(
 			project_dialog );
-			if (!p) {
-				::std::string sz;
-				sz = locale_str( 23 ).c_str();
-				throw PL_Exception_Application( sz.c_str() );
-			}
+			if (!p)
+			PL_Exception_Application_Inline(
+			"Error:\nCould not create view.");
+
 			TProgram::deskTop->insert( project_dialog );
 		}
 		
@@ -5181,7 +5103,7 @@ namespace prolog
 		EXCEPTION_POINTERS * ExceptionInfo)
 	{
 		::std::stringstream ss;
-		ss << locale_str( 73 ).c_str();
+		ss << "Error: ";
 		
 		switch ( ExceptionInfo->ExceptionRecord->ExceptionCode )
 		{
@@ -5428,7 +5350,7 @@ namespace prolog
 		}
 
 		if (ss.str().size() > 0)
-		throw PL_Exception_Application( ss.str() );
+		PL_Exception_Application_Inline( ss.str() );
 
 		//::std::cout << ss.str() <<
 		//::std::endl ;
@@ -5510,11 +5432,11 @@ namespace prolog
 		}
 		catch (PL_Exception_Application& e) {
 			::std::stringstream txt;
-			txt << locale_str( 73 ).c_str()
+			txt << "Error: "
 				<< ::std::endl << e.what ()
 				<< ::std::endl
 				<< ::std::endl
-				<< locale_str( 15 ).c_str();
+				<< "Would You Exit the Application ?";
 
 			if (app != nullptr) {
 				if (app->MessageBoxRect(
@@ -5526,7 +5448,7 @@ namespace prolog
 				}
 			}	else {
 				//throw PL_Exception_Application(
-				::std::cout << locale_str( 102 ).c_str() <<
+				::std::cout << "internal memory error" <<
 				::std::endl;
 				exit(1);
 			}
@@ -5534,7 +5456,7 @@ namespace prolog
 		catch (PL_Exception_Windows& e)
 		{
 			::std::stringstream txt;
-			txt << locale_str( 84 ).c_str()
+			txt << "Windows System Error: "
 				<< ::std::endl
 				<< ::std::endl
 				<< e.what();
@@ -5556,7 +5478,7 @@ namespace prolog
 		catch (PL_Exception_DataBase& e)
 		{
 			::std::stringstream txt;
-			txt << locale_str( 85 ).c_str()
+			txt << "Database Systen Error: "
 				<< ::std::endl
 				<< ::std::endl
 				<< e.what();
@@ -5572,10 +5494,10 @@ namespace prolog
 		}
 		catch (...) {
 			::std::stringstream txt;
-			txt << locale_str( 73 ).c_str() << ::std::endl
-				<< locale_str( 74 ).c_str()
+			txt << "Error: " << ::std::endl
+				<< "common exception occured."
 				<< ::std::endl
-				<< locale_str( 15 );
+				<< "Would You Exit the Application ?";
 
 			if (app->MessageBoxRect(
 				TRect(10,7,60,19),
@@ -5597,10 +5519,6 @@ namespace prolog
 
 	template <typename T1>
 	class IO_Stream {
-		static_assert(
-			::std::is_base_of< ::std::ofstream, T1>::value ||
-			::std::is_base_of< ::std::wfstream, T1>::value ||
-			PL_ASSERT_APPLICATION_STREAMER_IO);
 	public:
 		IO_Stream( ::std::string file_name )
 		{
@@ -5667,9 +5585,6 @@ namespace prolog
 
 	template <typename T1>
 	class Client {
-		static_assert(
-		::std::is_base_of< FTP, T1>::value ||
-		PL_ASSERT_APPLICATION_WINDOWS);
 	public:
 		Client(void)
 		{
@@ -5681,9 +5596,6 @@ namespace prolog
 
 	template <typename T1>
 	class Server {
-		static_assert(
-		::std::is_base_of< FTP, T1>::value ||
-		PL_ASSERT_APPLICATION_WINDOWS);
 	public:
 		Server(int)
 		{
@@ -6174,7 +6086,7 @@ namespace prolog
 				wg->wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
 
 				if (!::RegisterClassEx(&wg->wc))
-					throw PL_Exception_Application(
+					PL_Exception_Application_Inline(
 					"Window Registration Failed!" );
 					
 				wg->hwnd = CreateWindowEx(
@@ -6190,7 +6102,7 @@ namespace prolog
 					MessageBox(nullptr, "Window Creation Failed!", "Error!",
 					MB_ICONEXCLAMATION | MB_OK);
 
-					throw PL_Exception_Application(
+					PL_Exception_Application_Inline(
 					"Window Creation Failed!");
 				}
 			}
@@ -6248,7 +6160,7 @@ namespace prolog
 			MessageBox(nullptr, "Window Creation Failed!", "Error!",
 			MB_ICONEXCLAMATION | MB_OK);
 
-			throw PL_Exception_Application(
+			PL_Exception_Application_Inline(
 			"Window Creation Failed!");
 		}
 		return buttonHWND;
@@ -6302,11 +6214,11 @@ namespace prolog
 				int btnID = LOWORD(wParam);
 				switch (btnID)
 				{
-					case BTNID_ENG_TUI: CallUserApplication(hwndParent, ENGLISH, btnID, ApplicationFuncTUI); break;
-					case BTNID_ENG_GUI: CallUserApplication(hwndParent, ENGLISH, btnID, ApplicationFuncGUI); break;
+					case BTNID_ENG_TUI: CallUserApplication(hwndParent, ENGLISH(), btnID, ApplicationFuncTUI); break;
+					case BTNID_ENG_GUI: CallUserApplication(hwndParent, ENGLISH(), btnID, ApplicationFuncGUI); break;
 					//
-					case BTNID_DEU_TUI: CallUserApplication(hwndParent, GERMAN , btnID, ApplicationFuncTUI); break;
-					case BTNID_DEU_GUI: CallUserApplication(hwndParent, GERMAN , btnID, ApplicationFuncGUI); break;
+					case BTNID_DEU_TUI: CallUserApplication(hwndParent, GERMAN (), btnID, ApplicationFuncTUI); break;
+					case BTNID_DEU_GUI: CallUserApplication(hwndParent, GERMAN (), btnID, ApplicationFuncGUI); break;
 				}
 			}
 			break;
@@ -6354,7 +6266,7 @@ namespace prolog
 				_wc.hIconSm        = LoadIcon(NULL, IDI_APPLICATION);
 
 				if (!::RegisterClassEx(&_wc))
-					throw PL_Exception_Application(
+					PL_Exception_Application_Inline(
 					"jjjWindow Registration Failed!" );
 
 				_hwnd = CreateWindowEx(
@@ -6370,7 +6282,7 @@ namespace prolog
 					MessageBox(nullptr, "hhhhhWindow Creation Failed!", "Error!",
 					MB_ICONEXCLAMATION | MB_OK);
 
-					throw PL_Exception_Application(
+					PL_Exception_Application_Inline(
 					"aaaaWindow Creation Failed!");
 				}
 				ShowWindow(_hwnd, SW_SHOWNORMAL);
@@ -6432,10 +6344,6 @@ namespace prolog
 #endif
 	template <typename T1>
 	class Desktop {
-		static_assert(
-			::std::is_base_of< Normal, T1>::value ||
-			::std::is_base_of< MDI   , T1>::value ||
-			PL_ASSERT_APPLICATION_WINDOWS);
 	public:
 		Desktop(int)
 		{
@@ -6466,13 +6374,6 @@ namespace prolog
 
 	template <typename T1>
 	class Windows {
-		static_assert(
-			::std::is_base_of< Desktop< Normal >, T1>::value ||
-			::std::is_base_of< Desktop< MDI    >, T1>::value ||
-
-			::std::is_base_of< Client < FTP    >, T1>::value ||
-			::std::is_base_of< Server < FTP    >, T1>::value ,
-			PL_ASSERT_APPLICATION_WINDOWS);
 	public:
 		Windows( int )
 		{
@@ -6524,41 +6425,18 @@ namespace prolog
 
 	template <typename T1>
 	class Ascii: public T1 {
-		static_assert(
-			(::std::is_base_of< English, T1 >::value == false) ||
-			(::std::is_base_of< German , T1 >::value == false),
-			PL_ASSERT_APPLICATION_ASCII);
 	public:
 	private:
 	};
 
 	template <typename T1>
 	class Wide: public T1 {
-		static_assert(
-			(::std::is_base_of< English, T1 >::value == false) ||
-			(::std::is_base_of< German , T1 >::value == false),
-			PL_ASSERT_APPLICATION_ASCII);
 	public:
 	private:
 	};
 
 	template <typename T1, typename T2>
 	class Application : public T1 {
-		static_assert(
-			(::std::is_base_of< Windows< Desktop< Normal >>, T2 >::value == false) ||
-			(::std::is_base_of< Windows< Desktop< MDI    >>, T2 >::value == false) ||
-
-			(::std::is_base_of< Windows< Client < FTP    >>, T2 >::value == false) ||
-			(::std::is_base_of< Windows< Server < FTP    >>, T2 >::value == false) ||
-
-			(::std::is_base_of< Ascii< English >, T1 >::value == false) ||
-			(::std::is_base_of< Ascii< German  >, T1 >::value == false) ||
-
-			(::std::is_base_of< Wide < English >, T1 >::value == false) ||
-			(::std::is_base_of< Wide < German  >, T1 >::value == false) ||
-
-			(::std::is_base_of< DOS, T2 >::value == false),
-			PL_ASSERT_APPLICATION);
 	public:
 		Application( int argc, ::std::vector< ::std::string > argv )
 		{
@@ -6638,6 +6516,9 @@ int main(int argc, char **argv)
 	::std::vector< ::std::string > iput_file;
 	::std::string                  oput_file;
 	::std::string                  s0;
+	
+	char * locale_old;
+	char * locale_saved;
 
 	int output = 0;
 	int result = 0;
@@ -6671,7 +6552,18 @@ int main(int argc, char **argv)
 		}
 		#endif  // _WIN32
 
-		//setlocale(LC_ALL,"");
+		// todo: locale
+		locale_old   = ::setlocale(LC_ALL,NULL);	// get current locale
+		locale_saved = ::strdup(locale_old);		// copy the name
+		
+		// set new locale
+		::std::setlocale(LC_ALL,
+			"de_DE.UTF-8;"
+			"LC_TIME=de_DE.UTF-8;"
+			"LC_PAPER=de_DE.UTF-8;"
+		);
+		
+		
 		//bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
 		//textdomain     (locale_str( 0 ).c_str());
 
@@ -6732,8 +6624,8 @@ int main(int argc, char **argv)
 					case 'e': app_lang = 1; break;  // english
 					case 'd': app_lang = 2; break;  // german
 					default :
-						throw PL_Exception_CommandLine(
-						locale_str( 4 ).c_str());
+						PL_Exception_CommandLine_Inline(
+						"can not get app language");
 					break;
 					}
 				}
@@ -6744,8 +6636,8 @@ int main(int argc, char **argv)
 				break;
 				case 'o':
 					if (output > 0)
-					throw PL_Exception_CommandLine(
-					locale_str( 5 ).c_str());
+					PL_Exception_CommandLine_Inline(
+					"only one output supported.");
 						
 					s0.erase(0,2);
 
@@ -6753,15 +6645,15 @@ int main(int argc, char **argv)
 					output += 1;
 				break;
 				default:
-					throw PL_Exception_CommandLine(
-					locale_str( 6 ).c_str());
+					PL_Exception_CommandLine_Inline(
+					"unknown option.");
 				break;
 				}
 			}
 			break;
 			default:
-				throw PL_Exception_CommandLine(
-				locale_str( 6 ).c_str());
+				PL_Exception_CommandLine_Inline(
+				"unknown option.");
 			break;
 			}
 		}
@@ -6770,7 +6662,8 @@ int main(int argc, char **argv)
 		// first, check, if user has give output file:
 		// --------------------------------------------
 		if (oput_file.size() < 1)
-		throw PL_Exception_CommandLine(locale_str( 7 ).c_str());
+		PL_Exception_CommandLine_Inline(
+		"no output file given.");
 
 		// --------------------------------------------
 		// then handle each argument file seperatly ...
@@ -6780,9 +6673,9 @@ int main(int argc, char **argv)
 			ifstream ifile(item);
 			if (!ifile.is_open()) {
 				stringstream ss;
-				ss << locale_str( 8 );
+				ss << "can not open input file: ";
 				ss << item;
-				throw PL_Exception_CommandLine( ss.str().c_str() );
+				PL_Exception_CommandLine_Inline( ss.str().c_str() );
 			}
 
 			// -----------------------------------------------------
@@ -6845,8 +6738,8 @@ int main(int argc, char **argv)
 			// -----------------------------------------------------
 			// any other file extension => fail.
 			// -----------------------------------------------------
-			throw PL_Exception_CommandLine(
-			locale_str( 9 ).c_str());
+			PL_Exception_CommandLine_Inline(
+			"could not determine parser on file extension.");
 		}
 	}
 
@@ -6857,9 +6750,9 @@ int main(int argc, char **argv)
 	// -------------------------------------------
 	catch (PL_Exception_CommandLine& e) {
 		::std::stringstream ss;ss
-		<< locale_str( 10 )
+		<< "Command line Error"
 		<< std::endl
-		<< locale_str( 12 ) << e.what()
+		<< "reason: " << e.what()
 		<< std::endl;
 
 		#if defined(_WIN32)
@@ -6868,6 +6761,7 @@ int main(int argc, char **argv)
 		::std::cout << ss.str();
 		#endif	// _WIN32
 
+		::setlocale(LC_ALL, locale_saved);
 		return 1;
 	}
 	// -------------------------------------------
@@ -6876,9 +6770,10 @@ int main(int argc, char **argv)
 	catch (PL_Exception_ParserError& e)
 	{
 		::std::stringstream ss;ss
-		<< locale_str( 13 ) << e.line () << std::endl
-		<< locale_str( 14 ) << std::endl
-		<< locale_str( 12 ) << e.what()
+		<< "parser error in line: " << e.line ()
+		                            << std::endl
+		<< "compiler: FAIL."        << std::endl
+		<< "reason: "               << e.what()
 		<< std::endl;
 
 		#if defined(_WIN32)
@@ -6887,6 +6782,7 @@ int main(int argc, char **argv)
 		::std::cout << ss.str();
 		#endif	// _WIN32
 
+		::setlocale(LC_ALL, locale_saved);
 		return FALSE;
 	}
 	// -------------------------------------------
@@ -6900,8 +6796,8 @@ int main(int argc, char **argv)
 	catch (PL_Exception& e)
 	{
 		::std::stringstream ss;ss
-		<< locale_str( 11 ) << e.line() << std::endl
-		<< locale_str( 12 ) << e.what() << std::endl;
+		<< "line  :" << e.line() << std::endl
+		<< "reason:" << e.what() << std::endl;
 
 		#if defined(_WIN32)
 		MessageBox(0,ss.str().c_str(),"Exception",MB_OK);
@@ -6909,6 +6805,7 @@ int main(int argc, char **argv)
 		::std::cout << ss.str();
 		#endif   // _WIN32
 
+		::setlocale(LC_ALL, locale_saved);
 		return 1;
 	}
 	// -------------------------------------------
@@ -6917,7 +6814,7 @@ int main(int argc, char **argv)
 	catch (...)
 	{
 		::std::stringstream ss;ss
-		<< locale_str( 1 )
+		<< "unknown Exception occur"
 		<< ::std::endl;
 
 		#if defined(_WIN32)
@@ -6926,6 +6823,10 @@ int main(int argc, char **argv)
 		::std::cout << ss.str();
 		#endif	// _WIN32
 
+		::setlocale(LC_ALL, locale_saved);
 		return FALSE;
-	}	return TRUE;
+	}
+
+	::setlocale(LC_ALL, locale_saved);
+	return TRUE;
 }

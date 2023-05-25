@@ -843,3 +843,9 @@ END keyword expected
 BEGIN keyword expected
 colon ',' or semicolon ';' expected
 parameter name expected
+'procedure', 'function', or 'begin' expected
+hexa decimal number expected
+alphanumeric ident expected
+raute number expr expected
+'command', or 'end' expected
+no open comment

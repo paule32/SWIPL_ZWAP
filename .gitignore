@@ -67,3 +67,6 @@ src/cc/asmjit/*
 src/cc/asmjit*.zip*
 src/cc/prolog.zip
 src/cc/system.bak
+doc/hnd/prolog64.hnd-journal
+doc/hnd/prolog64.hnd
+doc/hnd/assets/img/bg.png
