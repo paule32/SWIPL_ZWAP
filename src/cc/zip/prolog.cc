@@ -44,9 +44,9 @@
 //!
 //! DIE SOFTWARE WIRD OHNE GEW&Auml;HRLEISTUNGEN JEGLICHER ART, WEDER AUSDR&Uuml;CKLICH NOCH
 //! STILLSCHWEIGEND, ZUR VERF&Uuml;GUNG GESTELLT. DIES UMFASST UNTER ANDEREM DIE GEW&Auml;HRLEISTUNG
-//! DER MARKTG&Auml;NGIGKEIT, DER EIGNUNG F&Uuml;R EINEN BESTIMMTEN ZWECK UND DER NICHTVERLETZUNG
+//! DER MARKTG&Auml;NGIGKEIT, DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND DER NICHTVERLETZUNG
 //! VON RECHTEN. IN KEINEM FALL SIND DIE AUTOREN ODER URHEBERRECHTSINHABER HAFTBAR ZU
-//! MACHEN F&Uuml;R JEGLICHE ANSPR&Uuml;CHE, SCH&Auml;DEN ODER SONSTIGE HAFTUNGEN, SEI ES AUS VERTRAG,
+//! MACHEN FÜR JEGLICHE ANSPR&Uuml;CHE, SCH&Auml;DEN ODER SONSTIGE HAFTUNGEN, SEI ES AUS VERTRAG,
 //! UNERLAUBTER HANDLUNG ODER ANDEREN GR&Uuml;NDEN, DIE SICH IM ZUSAMMENHANG MIT DER SOFTWARE
 //! ODER DER NUTZUNG ODER DEM SONSTIGEN GEBRAUCH MIT DER SOFTWARE ERGEBEN.
 //!
@@ -115,13 +115,13 @@
 //! ### Rechtliches
 //!
 //!   - zwapel wird unter der MIT-Lizenz verteilt. Einige der benutzten Bibliotheken
-//!     und Erweiterungen k&ouml;nnen andere Lizenz-Bedingungen haben.<br>
-//!     Um mehr &uuml;ber die Lizenz f&uuml;r das Projekt zu erfahren, k&ouml;nnen Sie
+//!     und Erweiterungen können andere Lizenz-Bedingungen haben.<br>
+//!     Um mehr &uuml;ber die Lizenz für das Projekt zu erfahren, k&ouml;nnen Sie
 //!     durch Eingabe von license/0 eingesehen werden.
 //!
 //! \page Beschreibung
-//! Zwapel ist eine ganze Reihe von Programmen, die f&uuml;r das Programmieren von
-//! Anwendungen f&uuml;r logische, und prozedurale Bed&uuml;rfnisse verwendet werden kann.
+//! Zwapel ist eine ganze Reihe von Programmen, die für das Programmieren von
+//! Anwendungen für logische, und prozedurale Bedürfnisse verwendet werden kann.
 //!
 //! \~endGerman
 
@@ -1155,7 +1155,7 @@ namespace prolog
 		void PL_handle_library_lisp()
 		{
 		}
-
+		
 		void PL_handle_module_pascal()
 		{
 			PL_ident = "";
@@ -1248,16 +1248,19 @@ namespace prolog
 			}
 		}
 
-		void PL_check_ident_name()
+		void PL_check_ident_name(
+			uint16_t loca1,
+			uint16_t loca2,
+			uint16_t loca3,
+			uint16_t loca4)
 		{
 			::std::string tmp_ident;
 			if (PL_isalpha())
 			{
-				tmp_ident = "";
-				tmp_ident.push_back(PL_lookaheadChar);
-				
 				BEGIN_WHILE
-					PL_getch();
+					tmp_ident.append( PL_ident );
+					PL_skip_comment_pas();
+
 					if (PL_lookaheadChar == '.') {
 						tmp_ident.push_back('/');
 					}	else
@@ -1266,13 +1269,9 @@ namespace prolog
 						break;
 					}	else
 					if (PL_isalpha()) {
-						tmp_ident.push_back(PL_lookaheadChar);
 						continue;
 					}	else {
-						PL_Exception_ParserError(
-						"module name not terminated.",
-						PL_line_row,
-						PL_line_col);
+						PL_Exception_ParserError_Inline( "module name not terminated." );
 					}
 				END_WHILE
 				
@@ -1294,9 +1293,9 @@ namespace prolog
 		{
 			if (PL_isalpha())
 			{
-				if (PL_ident == "module"     ) { PL_check_ident_name(); } else
-				if (PL_ident == "library"    ) { PL_check_ident_name(); } else
-				if (PL_ident == "application") { PL_check_ident_name(); } else
+				if (PL_ident == "module"     ) { PL_check_ident_name(833,128,833,78); } else
+				if (PL_ident == "library"    ) { PL_check_ident_name(834,128,834,78); } else
+				if (PL_ident == "application") { PL_check_ident_name(835,128,835,78); } else
 
 				PL_Exception_ParserError_Inline( "'module', 'library', or 'application' expected" );
 			}
@@ -1389,24 +1388,17 @@ namespace prolog
 			PL_new_char();
 			if (PL_isalpha_inline())
 			{
-				PL_ident.push_back(
-				PL_lookaheadChar);
-				
 				BEGIN_WHILE
-					PL_getch();
+					PL_new_push_char();
 					if (PL_isalphanum_inline()) {
-						PL_ident.push_back(
-						PL_lookaheadChar);
 						continue;
 					}	else {
 						PL_ungetch();
 						return true;
 					}
 				END_WHILE
-				return true;
 			}	else {
 				PL_ungetch();
-				return true;
 			}	return false;
 		}
 		bool PL_isalphanum()
@@ -1676,8 +1668,12 @@ namespace prolog
 						PL_Exception_ParserError_Inline( "no open comment" );
 					}
 				}	else
+				if (PL_iswhitespace()) {
+					continue;
+				}	else
 				// (* comment *)
 				if (PL_lookaheadChar == '(') {
+					messageBox("klammer",mfOKButton);
 					PL_getch();
 					if (PL_lookaheadChar == '*') {
 						BEGIN_WHILE
@@ -1685,7 +1681,8 @@ namespace prolog
 							if (PL_lookaheadChar == '*') {
 								PL_getch();
 								if (PL_lookaheadChar == ')') {
-									break;
+									PL_getch();
+									return PL_lookaheadChar;
 								}	else
 								if (PL_lookaheadChar == 0x0a
 								||  PL_lookaheadChar == 0x0d) {
@@ -1695,20 +1692,11 @@ namespace prolog
 							}
 						END_WHILE
 					}	else {
-						PL_ungetch();
-						break;
+						messageBox("plexc 34",mfOKButton);
+						PL_Exception_ParserError_Inline( "parser error" );
 					}
-				}	else
-				if (PL_lookaheadChar == ' '
-			    ||  PL_lookaheadChar == '\t') {
-					PL_line_col += 1;
-				}	else
-				if (PL_lookaheadChar == 0x0d
-				||  PL_lookaheadChar == 0x0a) {
-					PL_line_row += 1;
-					PL_line_col  = 1;
-					continue;
 				}	else {
+					PL_ungetch();
 					break;
 				}
 			END_WHILE
@@ -2269,6 +2257,7 @@ namespace prolog
 	const unsigned cmHelpIndex          = 205;
 	const unsigned cmHelpOnline         = 206;
 
+	const unsigned cmCompileRun         = 207;
 
 	const unsigned cmAppQuit            = 300;
 
@@ -3090,71 +3079,6 @@ namespace prolog
 				}
 			}
 		};
-
-class BinaryView : public TWindow
-{
-private:
-    char* binaryContent;
-    int fileSize;
-
-public:
-    BinaryView(const TRect& bounds, const char* filename):
-	TWindowInit( &BinaryView::initFrame ),
-	TWindow(bounds,filename, wnNoNumber)
-    {
-        options |= ofFramed;
-        options |= ofTileable;
-        binaryContent = nullptr;
-        fileSize = 0;
-        TScrollBar* scrollbar = standardScrollBar(sbVertical);
-//        scrollbar->setStep(1);
-        insert(scrollbar);
-//        TRect textBounds = getExtent();
-//        textBounds.grow(-1,-1);
-        loadBinaryFile(filename);
-    }
-
-    ~BinaryView()
-    {
-        delete[] binaryContent;
-    }
-
-    void loadBinaryFile(const char* filename)
-    {
-        FILE* file = fopen(filename, "rb");
-        if (file)
-        {
-            fseek(file, 0, SEEK_END);
-            fileSize = ftell(file);
-            fseek(file, 0, SEEK_SET);
-
-            binaryContent = new char[fileSize];
-            fread(binaryContent, fileSize, 1, file);
-
-            fclose(file);
-        }
-    }
-
-    void draw()
-    {
-        TDrawBuffer drawBuffer;
-        for (int i = 0; i < size.y; ++i)
-        {
-            if (i < fileSize)
-            {
-                drawBuffer.moveChar(0, ' ', 0x0f, size.x);
-                drawBuffer.moveStr(0, &binaryContent[i], 0x0f, size.x);
-            }
-            else
-            {
-                drawBuffer.moveChar(0, ' ', 0x0f, size.x);
-            }
-
-            writeLine(0, i, size.x, 1, drawBuffer);
-        }
-    }
-};
-
 		
 		// a simple TFileEditor derivated class
 		class MyFileEditor: public TFileEditor
@@ -4775,6 +4699,11 @@ public:
 				}
 				break;
 
+				case cmCompileRun:
+				messageBox("compiler",mfOKButton);
+				clearEvent(event);
+				break;
+				
 				case cmNewProject:
 				{
 					createNewProjectDialog();
@@ -4845,6 +4774,7 @@ public:
 				*new ::TStatusItem( "~F1~ Help" , kbF1,  cmHelp       ) +
 				*new ::TStatusItem( "~F3~ Open" , kbF3,  cmNewProject ) +
 				*new ::TStatusItem( "~F10~ Menu", kbF10, cmMenu       ) +
+				//*new ::TStatusItem( "~F2~ Run"  , kbF2 , cmCompileRun ) +
 
 				*new ::TStatusItem( 0,  kbAltX,     cmAppQuit) +
 				*new ::TStatusItem( 0,  kbShiftDel, cmCut    ) +
@@ -4904,11 +4834,9 @@ public:
 				&ConsoleApplication::initStatusLine,
 				&ConsoleApplication::initMenuBar,
 				&ConsoleApplication::initDeskTop),
-		//	TApplication(),
+			TApplication(),
 			curMenu(0)
 		{
-fprintf(stdout,"appppp");
-fflush(stdout);
 			TRect r = getExtent();
 			r.a.x = r.b.x - 9;
 			r.b.y = r.a.y + 1;
@@ -5487,11 +5415,7 @@ fflush(stdout);
 		::std::string item,
 		int flag)
 	{
-fprintf(stdout,"auto");
-fflush(stdout);
 		auto * app = new ConsoleApplication( argv );
-fprintf(stdout,"ooooo");
-fflush(stdout);
 		start_label:
 		try {
 			if (flag == 2) {
@@ -6390,7 +6314,7 @@ fflush(stdout);
 				ApplicationFuncExePtr(this, app_lang);
 			}
 			#else
-			CallUserApplication(GERMAN(), ApplicationFuncTUI);
+			CallUserApplication(GERMAN, ApplicationFuncTUI);
 			ApplicationFuncExePtr(this, app_lang);
 			#endif  // _WIN32
 		}
@@ -6603,111 +6527,104 @@ WinMain(
 int main(int argc, char **argv)
 #endif  // _WIN32
 {
-    using namespace prolog;
-printf("0000\n");
-    ::std::vector< ::std::string > iput_file;
-    ::std::string                  oput_file;
-    ::std::string                  s0;
+	using namespace prolog;
 
-    char * locale_old;
-    char * locale_saved;
+	::std::vector< ::std::string > iput_file;
+	::std::string                  oput_file;
+	::std::string                  s0;
+	
+	char * locale_old;
+	char * locale_saved;
 
-    int output = 0;
-    int result = 0;
-fprintf(stdout,"aaaa\n");
-fflush(stdout);
-    try {
-	#if defined(_WIN32)
-	LPWSTR *szArglist;
-fprintf(stdout,"wini\n");
-fflush(stdout);
-	int nArgs  = 0;
-	szArglist  = CommandLineToArgvW( GetCommandLineW(), &nArgs );
+	int output = 0;
+	int result = 0;
 
-	::std::wstring a;
-	::std:: string s;
+	try {
+		#if defined(_WIN32)
+		LPWSTR *szArglist;
 
-	for (int i = 0; i < nArgs; i++) {
-	    a = szArglist[i];
-	    ::std::transform(
-		a.begin(),
-		a.end(), std::back_inserter(s), [] (wchar_t c) {
-			return (char)c;
+		int nArgs  = 0;
+		szArglist  = CommandLineToArgvW( GetCommandLineW(), &nArgs );
+
+		::std::wstring a;
+		::std:: string s;
+
+		for (int i = 0; i < nArgs; i++) {
+			a = szArglist[i];
+			::std::transform(
+				a.begin(),
+				a.end(), std::back_inserter(s), [] (wchar_t c) {
+					return (char)c;
+				}
+			);
+			argv_vec.push_back( s );
+			s = "";
 		}
-	    );
-	    argv_vec.push_back( s );
-	    s = "";
-	}
 
-	LocalFree( szArglist );
-	#else
-fprintf(stdout,"xdddd\n");
-fflush(stdout);
-	for (int i = 0; i < argc; i++) {
-		argv_vec.push_back( argv[i] );
-	}
-	#endif  // _WIN32
+		LocalFree( szArglist );
+		#else
+		for (int i = 0; i < argc; i++) {
+			argv_vec.push_back( argv[i] );
+		}
+		#endif  // _WIN32
 
-	// todo: locale
-	locale_old   = ::setlocale(LC_ALL,NULL);	// get current locale
-	locale_saved = ::strdup(locale_old);		// copy the name
+		// todo: locale
+		locale_old   = ::setlocale(LC_ALL,NULL);	// get current locale
+		locale_saved = ::strdup(locale_old);		// copy the name
+		
+		// set new locale
+		::std::setlocale(LC_ALL,
+			"de_DE.UTF-8;"
+			"LC_TIME=de_DE.UTF-8;"
+			"LC_PAPER=de_DE.UTF-8;"
+		);
+		
+		
+		//bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
+		//textdomain     (locale_str( 0 ).c_str());
 
-	// set new locale
-	::std::setlocale(LC_ALL,
-		"de_DE.UTF-8;"
-		"LC_TIME=de_DE.UTF-8;"
-		"LC_PAPER=de_DE.UTF-8;"
-	);
+		// ----------------------------------------
+		// get command arguments from console ...
+		// -i<input file> -o<output file>
+		// ----------------------------------------
+		if (argv_vec.size() < 2) {
+			app_lang = 1;	// <-- todo
 
-fprintf(stdout,"11111\n");
-fflush(stdout);
-	//bindtextdomain (locale_str( 0 ).c_str(), getenv("PWD"));
-	//textdomain     (locale_str( 0 ).c_str());
+			#if defined(_WIN32)
+			//Application< Desktop >( argv_vec );
+			//Application< Console >( argv_vec );
+			#define WinApp( x )              \
+				using namespace prolog;  \
+				Application< Ascii< German >, Windows< Desktop< x > >>
 
-	// ----------------------------------------
-	// get command arguments from console ...
-	// -i<input file> -o<output file>
-	// ----------------------------------------
-	if (argv_vec.size() < 2) {
-	    app_lang = 1;	// <-- todo
+			// --------------------
+			// create window:
+			// --------------------
+			WinApp(Normal) win_app ( argv_vec.size(), argv_vec );
+			win_app.setTitle("dBase Win (c) 2023 by Jens Kallup - paule32");
 
-	    #if defined(_WIN32)
-	    //Application< Desktop >( argv_vec );
-	    //Application< Console >( argv_vec );
-	    #define WinApp( x )              \
-	    using namespace prolog;  \
-	    Application< Ascii< German >, Windows< Desktop< x > >>
+			// create menu:
+			Menu menuBar;
 
-	    // --------------------
-	    // create window:
-	    // --------------------
-	    WinApp(Normal) win_app ( argv_vec.size(), argv_vec );
-	    win_app.setTitle("dBase Win (c) 2023 by Jens Kallup - paule32");
+			menuBar.add( "File"  );
+			menuBar.add( "Edit"  );
+			menuBar.add( "Tools" );
 
-	    // create menu:
-	    Menu menuBar;
+			// add menu bar to application:
+			win_app.add( menuBar );
 
-	    menuBar.add( "File"  );
-	    menuBar.add( "Edit"  );
-	    menuBar.add( "Tools" );
+			// message loop
+			result = win_app.run();
 
-	    // add menu bar to application:
-	    win_app.add( menuBar );
+			#else
+			// --------------------
+			// create DOS window
+			// --------------------
+			init_con_app ( argv_vec, "dbase.prg", 2 );
 
-	    // message loop
-	    result = win_app.run();
-
-	    #else
-	    // --------------------
-	    // create DOS window
-	    // --------------------
-fprintf(stdout,"5555\n");
-fflush(stdout);
-	    init_con_app ( argv_vec, "dbase.prg", 2 );
-
-	    return TRUE;
-	    #endif
-	}
+			return TRUE;
+			#endif
+		}
 
 		for (int arg = 1; arg < argv_vec.size(); ++arg)
 		{
