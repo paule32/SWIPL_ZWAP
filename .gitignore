@@ -82,3 +82,14 @@ doc/hnd/test.hnd
 src/cc/system.prg
 src/cc/system.prg
 doc/hnd/assets/img/yyyy.bmp
+src/lang/common.~h
+src/lang/dllmain.obj
+src/lang/lex.pascal.obj
+src/lang/parsers.res
+src/lang/parsers.lib
+src/lang/parsers.dll
+src/lang/parsers.tds
+src/lang/parsers.~bpr
+src/lang/PascalDSL.~l
+src/cc/CompilerConstruction2.pdf
+src/cc/CompilerConstruction1.pdf
