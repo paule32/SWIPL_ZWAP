@@ -1,0 +1,369 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{FAE5EF2B-6DBC-4052-9FAD-AAA4C3E27FD4}</ProjectGuid>
+        <MainSource>Editor.dpr</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <TargetedPlatforms>129</TargetedPlatforms>
+        <AppType>Application</AppType>
+        <FrameworkType>VCL</FrameworkType>
+        <ProjectVersion>19.4</ProjectVersion>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_E>false</DCC_E>
+        <DCC_F>false</DCC_F>
+        <DCC_K>false</DCC_K>
+        <DCC_N>true</DCC_N>
+        <DCC_S>false</DCC_S>
+        <DCC_ImageBase>04000000</DCC_ImageBase>
+        <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
+        <DCC_DebugInformation>1</DCC_DebugInformation>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <DCC_PentiumSafeDivide>true</DCC_PentiumSafeDivide>
+        <DCC_MapFile>3</DCC_MapFile>
+        <DCC_Description>compiler wrapper IDE - kallup.net</DCC_Description>
+        <DCC_ExeOutput>..\dcu</DCC_ExeOutput>
+        <DCC_DcuOutput>..\dcu</DCC_DcuOutput>
+        <DCC_BplOutput>..\dcu</DCC_BplOutput>
+        <DCC_DcpOutput>..\dcu</DCC_DcpOutput>
+        <DCC_UnitSearchPath>$(DELPHI)\Lib\Debug;E:\Projekte\jedi\jcl\jcl\lib\d7\debug;E:\Projekte\jedi\jvcl\jvcl\resources;E:\Projekte\jedi\jvcl\jvcl\lib\d7;E:\Projekte\jedi\jvcl\jvcl\common;E:\Projekte\jedi\jvcl\jvcl\dcu;E:\Projekte\jedi\jcl\jcl\source;E:\Projekte\jedi\jcl\jcl\source\common;E:\Projekte\jedi\jcl\jcl\source\include;E:\Projekte\jedi\jcl\jcl\source\include\jedi;E:\Projekte\jedi\jcl\jcl\source\vcl;E:\Projekte\jedi\jcl\jcl\source\windows;E:\Projekte\jedi\jcl\jcl\source\windows\obj;E:\Projekte\jedi\jcl\jcl\source\windows\obj\bzip2\win32;E:\Projekte\jedi\jcl\jcl\source\windows\obj\pcre\win32;E:\Projekte\jedi\jcl\jcl\source\windows\obj\zlib\win32;E:\Projekte\jedi\jcl\jcl\source\prototypes;E:\Projekte\jedi\jcl\jcl\source\prototypes\containers;E:\Projekte\jedi\jcl\jcl\source\prototypes\supplement;E:\Projekte\jedi\jcl\jcl\source\prototypes\win32api;E:\Projekte\jedi\jcl\jcl\lib\d7;E:\Projekte\jedi\jcl\jcl\packages\d7;E:\DELPHI\TNTCtrls\Source;E:\tmssoftware\trial\TMSVCLUIPack RS7;E:\tmssoftware\trial\TMSVCLUIPack RS7\Win32;E:\Projekte\SynEdit\Source;E:\Projekte\jedi\jvcl\jvcl\run;E:\Projekte\SWIPL\SWIPEL_ZWAP\src\lang\src\data;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UsePackage>vcl;rtl;vclx;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls,kallupDesignDelphi7;madBasic_;madDisAsm_;madExcept_;madExceptVcl_;madKernel_;madSecurity_;madShell_;OverbyteIcsD7Run;Jcl;JvCore;JvBands;JvSystem;JvBDE;JvCmp;JvControls;JvCrypt;kallupDesignDelphi7;ATViewerD7;AdvChartD7;qrpt;JvXPCtrls;kbmMemD7Run;vc2;CEF4Delphi_D7;DCEF_D7;Package1;SynEdit_R7;VaCommpkgD7;TntUnicodeVcl_R70;TMSVCLUIPackPkgD7;TMSVCLUIPackPkgExD7;TMSVCLUIPackPkgWizD7;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_Define>KBMMEMTABLE_PRO_EDITION;madExcept;$(DCC_Define)</DCC_Define>
+        <SanitizedProjectName>Editor</SanitizedProjectName>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;IBX;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_PreRelease>true</VerInfo_PreRelease>
+        <VerInfo_Special>true</VerInfo_Special>
+        <VerInfo_Private>true</VerInfo_Private>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=kallup.net - non-profit;FileDescription=compiler application;FileVersion=1.0.0.1;InternalName=wincom.dll;LegalCopyright=(c) 2021 Jens Kallup - paule32;LegalTrademarks=;OriginalFilename=wincom.dll;ProductName=compiler toy;ProductVersion=1.0.0.1;Comments=for education usage only;PrivateBuild=;SpecialBuild=</VerInfo_Keys>
+        <DCC_OutputDRCFile>true</DCC_OutputDRCFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>None</Manifest_File>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <Icon_MainIcon>Editor_Icon.ico</Icon_MainIcon>
+        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Icon_MainIcon>Editor_Icon.ico</Icon_MainIcon>
+        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="EditorForm.pas">
+            <Form>Form1</Form>
+        </DCCReference>
+        <DCCReference Include="AboutBox.pas">
+            <Form>OKRightDlg</Form>
+        </DCCReference>
+        <DCCReference Include="FolderHelper.pas"/>
+        <DCCReference Include="InputBox.pas">
+            <Form>InputBoxWindow</Form>
+        </DCCReference>
+        <DCCReference Include="ErrorBoxForm.pas">
+            <Form>ErrorBox</Form>
+        </DCCReference>
+        <DCCReference Include="InfoBoxForm.pas">
+            <Form>InfoBox</Form>
+        </DCCReference>
+        <DCCReference Include="DesignerFrame.pas">
+            <Form>Frame1</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="TeamServerFrame.pas">
+            <Form>Frame2</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="EditFrame.pas">
+            <Form>Frame3</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="C64KeyBoard.pas">
+            <Form>Frame4</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="C64ConfigFrame.pas">
+            <Form>Frame5</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="MembersFrame.pas">
+            <Form>Frame6</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="C64DrivesFrame.pas">
+            <Form>Frame7</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="NewProjectFrame.pas">
+            <Form>Frame8</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="FoldersLocal.pas">
+            <Form>Frame9</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="FoldersRemote.pas">
+            <Form>Frame10</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="HelpAuthorFrame.pas">
+            <Form>Frame11</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="FontStyleFrame.pas">
+            <Form>Frame12</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="FontColorFrame.pas">
+            <Form>Frame13</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="FontFaceFrame.pas">
+            <Form>Frame14</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="HelpTopicFrame.pas">
+            <Form>Frame15</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="ComputerFrame.pas">
+            <Form>Frame16</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="FormatLayoutFrame.pas">
+            <Form>Frame17</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="SpreadFrame.pas">
+            <Form>Frame18</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="SplashScreen.pas">
+            <Form>SplashForm</Form>
+        </DCCReference>
+        <DCCReference Include="EditorFrame.pas">
+            <Form>Frame19</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="ChatFrame.pas">
+            <Form>Frame20</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="OptionsFrame.pas">
+            <Form>Frame21</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="EnvironmentFrame.pas">
+            <Form>Frame22</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="LeftPanelFrame.pas">
+            <Form>Frame23</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="SimulationFrame.pas">
+            <Form>Frame24</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="SimulationLeftPanel.pas">
+            <Form>Frame25</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="reinit.pas"/>
+        <DCCReference Include="SimulationPartA.pas"/>
+        <DCCReference Include="SQLparser.pas"/>
+        <DCCReference Include="StandardMenuFrame.pas">
+            <Form>Frame26</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="ProfileIconsFrame.pas">
+            <Form>Frame27</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="ProfileSettings.pas">
+            <Form>Frame28</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="AboutFrame.pas">
+            <Form>Frame29</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="TeamServerSettings.pas">
+            <Form>Frame30</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="TimeLine.pas">
+            <Form>Frame31</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="InterpreterClasses.pas"/>
+        <DCCReference Include="SetupHttpServer.pas">
+            <Form>Frame32</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="WebServerUser.pas">
+            <Form>Frame33</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="SelectDataBase.pas">
+            <Form>Form2</Form>
+        </DCCReference>
+        <DCCReference Include="GlobalDeclaration.pas"/>
+        <DCCReference Include="ResourceStrings.pas"/>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">Editor.dpr</Source>
+                </Source>
+                <Language>
+                    <Language Name="ProjectLang">$00000409</Language>
+                </Language>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k280.bpl">Embarcadero C++Builder-Package für Office 2000-Server</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp280.bpl">Embarcadero C++Builder-Package für Office XP-Server</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                </Excluded_Packages>
+                <Resource_DLL_Projects>
+                    <Resource_DLL_Projects Name="Item0">Deutsch (Deutschland)*$00000407*DEU*DEU</Resource_DLL_Projects>
+                    <Resource_DLL_Projects Name="Item1">Englisch (Vereinigte Staaten)*$00000409*ENU*ENU</Resource_DLL_Projects>
+                </Resource_DLL_Projects>
+                <RDP_Source_Files>
+                    <RDP_Source_Files Name="Item0">EditorForm.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item1">AboutBox.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item2">InputBox.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item3">ErrorBoxForm.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item4">InfoBoxForm.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item5">DesignerFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item6">TeamServerFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item7">EditFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item8">C64KeyBoard.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item9">C64ConfigFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item10">MembersFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item11">C64DrivesFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item12">NewProjectFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item13">FoldersLocal.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item14">FoldersRemote.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item15">HelpAuthorFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item16">FontStyleFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item17">FontColorFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item18">FontFaceFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item19">HelpTopicFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item20">ComputerFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item21">FormatLayoutFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item22">SpreadFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item23">SplashScreen.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item24">EditorFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item25">ChatFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item26">OptionsFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item27">EnvironmentFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item28">LeftPanelFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item29">SimulationFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item30">SimulationLeftPanel.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item31">StandardMenuFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item32">ProfileIconsFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item33">ProfileSettings.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item34">AboutFrame.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item35">TeamServerSettings.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item36">TimeLine.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item37">SetupHttpServer.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item38">WebServerUser.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item39">SelectDataBase.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item40">..\dcu\Editor.drc</RDP_Source_Files>
+                </RDP_Source_Files>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Linux64">True</Platform>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

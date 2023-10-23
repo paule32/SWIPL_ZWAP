@@ -1,0 +1,144 @@
+package ResPackage;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE ON}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $4000000}
+{$DESCRIPTION 'private OOP-Programming XProject'}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  Jcl,
+  JvCore,
+  JvCrypt;
+
+contains
+  ResourceFiles in 'ResourceFiles.pas',
+  RF_1 in 'RF_1.pas',
+  RF_2 in 'RF_2.pas',
+  RF_3 in 'RF_3.pas',
+  RF_4 in 'RF_4.pas',
+  RF_5 in 'RF_5.pas',
+  RF_6 in 'RF_6.pas',
+  RF_7 in 'RF_7.pas',
+  RF_8 in 'RF_8.pas',
+  RF_9 in 'RF_9.pas',
+  RF_10 in 'RF_10.pas',
+  RF_11 in 'RF_11.pas',
+  RF_12 in 'RF_12.pas',
+  RF_13 in 'RF_13.pas',
+  RF_14 in 'RF_14.pas',
+  RF_15 in 'RF_15.pas',
+  RF_16 in 'RF_16.pas',
+  RF_17 in 'RF_17.pas',
+  RF_18 in 'RF_18.pas',
+  RF_19 in 'RF_19.pas',
+  RF_20 in 'RF_20.pas',
+  RF_21 in 'RF_21.pas',
+  RF_22 in 'RF_22.pas',
+  RF_23 in 'RF_23.pas',
+  RF_24 in 'RF_24.pas',
+  RF_25 in 'RF_25.pas',
+  RF_26 in 'RF_26.pas',
+  RF_27 in 'RF_27.pas',
+  RF_28 in 'RF_28.pas',
+  RF_29 in 'RF_29.pas',
+  RF_30 in 'RF_30.pas',
+  RF_31 in 'RF_31.pas',
+  RF_32 in 'RF_32.pas',
+  RF_33 in 'RF_33.pas',
+  RF_34 in 'RF_34.pas',
+  RF_35 in 'RF_35.pas',
+  RF_36 in 'RF_36.pas',
+  RF_37 in 'RF_37.pas',
+  RF_38 in 'RF_38.pas',
+  RF_39 in 'RF_39.pas',
+  RF_40 in 'RF_40.pas',
+  RF_41 in 'RF_41.pas',
+  RF_42 in 'RF_42.pas',
+  RF_43 in 'RF_43.pas',
+  RF_44 in 'RF_44.pas',
+  RF_45 in 'RF_45.pas',
+  RF_46 in 'RF_46.pas',
+  RF_47 in 'RF_47.pas',
+  RF_48 in 'RF_48.pas',
+  RF_49 in 'RF_49.pas',
+  RF_50 in 'RF_50.pas',
+  RF_51 in 'RF_51.pas',
+  RF_52 in 'RF_52.pas',
+  RF_53 in 'RF_53.pas',
+  RF_54 in 'RF_54.pas',
+  RF_55 in 'RF_55.pas',
+  RF_56 in 'RF_56.pas',
+  RF_57 in 'RF_57.pas',
+  RF_58 in 'RF_58.pas',
+  RF_59 in 'RF_59.pas',
+  RF_60 in 'RF_60.pas',
+  RF_61 in 'RF_61.pas',
+  RF_62 in 'RF_62.pas',
+  RF_63 in 'RF_63.pas',
+  RF_64 in 'RF_64.pas',
+  RF_65 in 'RF_65.pas',
+  RF_66 in 'RF_66.pas',
+  RF_67 in 'RF_67.pas',
+  RF_68 in 'RF_68.pas',
+  RF_69 in 'RF_69.pas',
+  RF_70 in 'RF_70.pas',
+  RF_71 in 'RF_71.pas',
+  RF_72 in 'RF_72.pas',
+  RF_73 in 'RF_73.pas',
+  RF_74 in 'RF_74.pas',
+  RF_75 in 'RF_75.pas',
+  RF_76 in 'RF_76.pas',
+  RF_77 in 'RF_77.pas',
+  RF_78 in 'RF_78.pas',
+  RF_79 in 'RF_79.pas',
+  RF_80 in 'RF_80.pas',
+  RF_81 in 'RF_81.pas',
+  RF_82 in 'RF_82.pas',
+  RF_83 in 'RF_83.pas',
+  RF_84 in 'RF_84.pas',
+  RF_85 in 'RF_85.pas',
+  RF_86 in 'RF_86.pas',
+  RF_87 in 'RF_87.pas',
+  RF_88 in 'RF_88.pas',
+  RF_89 in 'RF_89.pas',
+  RF_90 in 'RF_90.pas',
+  RF_91 in 'RF_91.pas',
+  RF_92 in 'RF_92.pas',
+  RF_93 in 'RF_93.pas',
+  RF_94 in 'RF_94.pas',
+  RF_95 in 'RF_95.pas',
+  RF_96 in 'RF_96.pas',
+  RF_97 in 'RF_97.pas',
+  RF_98 in 'RF_98.pas',
+  RF_99 in 'RF_99.pas',
+  RF_100 in 'RF_100.pas',
+  RF_101 in 'RF_101.pas',
+  RF_102 in 'RF_102.pas',
+  RF_103 in 'RF_103.pas',
+  RF_104 in 'RF_104.pas',
+  RF_105 in 'RF_105.pas',
+  Interfaces in 'Interfaces.pas';
+
+end.

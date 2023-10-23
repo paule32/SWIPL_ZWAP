@@ -1,0 +1,27 @@
+OUTPUT_FORMAT("amiga")
+OUTPUT_ARCH(m68k)
+
+SECTIONS
+{
+    . = 0x0000f800;    /* Startadresse im Speicher */
+
+    /* Abschnitt für den Text (Code) */
+    .text :
+    {
+        *(.text)
+    }
+
+    /* Abschnitt für initialisierte Daten */
+    .data :
+    {
+        *(.data)
+    }
+
+    /* Abschnitt für nicht initialisierte Daten (BSS) */
+    .bss :
+    {
+        *(.bss)
+    }
+
+    /* Weitere Abschnitte hier definieren */
+}

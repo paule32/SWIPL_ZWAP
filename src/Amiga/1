@@ -1,0 +1,31 @@
+start:
+    move.l  #main, -(sp)  ; Setze die Adresse der Hauptfunktion auf den Stack
+    move.l  d0, -(sp)     ; Sichere Register auf dem Stack
+    move.l  d1, -(sp)
+    move.l  d2, -(sp)
+    move.l  d3, -(sp)
+    move.l  d4, -(sp)
+    move.l  d5, -(sp)
+    move.l  d6, -(sp)
+    move.l  d7, -(sp)
+
+    move.l  #0x0000FFF8, -(sp)  ; Setze die Adresse des Startvektors auf den Stack
+    move.l  (sp)+, a7           ; Lade die Adresse des Startvektors in den A7-Register
+
+    jsr     (a7)                ; Springe zum Startvektor
+
+    add.l   #4*8, sp            ; Bereinige den Stack
+    rts
+
+main:
+    ; Hier beginnt deine Hauptfunktionalität
+
+    ; ...
+
+    rts
+
+    ; Startvektor: 4-Byte-Adresse, die auf die Adresse der "start"-Funktion zeigt
+    dc.l    start
+
+    ; Reservierter Speicher für Stack und Daten
+    ds.b    4096

@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value=".\temp\assemblerDSLwin32.dll"/>
+    <OBJFILES value="temp\dllmain.obj temp\assemblerDSLwin32.tab.obj temp\lex.yy.obj"/>
+    <RESFILES value="assemblerDSLwin32.res"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value=""/>
+    <SPARELIBS value=""/>
+    <PACKAGES value="vcl.bpi rtl.bpi dbrtl.bpi adortl.bpi vcldb.bpi vclx.bpi bdertl.bpi 
+      vcldbx.bpi ibxpress.bpi dsnap.bpi cds.bpi bdecds.bpi qrpt.bpi teeui.bpi 
+      teedb.bpi tee.bpi dss.bpi teeqr.bpi visualclx.bpi visualdbclx.bpi 
+      dsnapcrba.bpi dsnapcon.bpi bcbsmp.bpi vclie.bpi xmlrtl.bpi inet.bpi 
+      inetdbbde.bpi inetdbxpress.bpi inetdb.bpi nmfast.bpi webdsnap.bpi 
+      bcbie.bpi websnap.bpi soaprtl.bpi dclocx.bpi dbexpress.bpi dbxcds.bpi 
+      indy.bpi bcb2kaxserver.bpi"/>
+    <PATHCPP value=".;"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value=""/>
+    <SYSDEFINES value="NO_STRICT;_NO_VCL;_RTLDLL;USEPACKAGES"/>
+    <MAINSOURCE value="assemblerDSLwin32.bpf"/>
+    <INCLUDEPATH value="E:\Projekte\SWIPL\SWIPEL_ZWAP\src\lang\src\assemblerDSLwin32;&quot;E:\Program Files (x86)\Borland\CBuilder6\Include&quot;;&quot;E:\Program Files (x86)\Borland\CBuilder6\Include\Vcl&quot;;&quot;E:\Program Files (x86)\Borland\CBuilder6\Projects&quot;;&quot;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib&quot;;E:\Projekte\jedi\jcl\jcl\lib\c6;E:\Projekte\jedi\jcl\jcl\packages\c6;E:\Projekte\jedi\jcl\jcl\source;E:\Projekte\jedi\jcl\jcl\source\common;E:\Projekte\jedi\jcl\jcl\source\include;E:\Projekte\jedi\jcl\jcl\source\include\jedi;E:\Projekte\jedi\jcl\jcl\source\vcl;E:\Projekte\jedi\jcl\jcl\source\windows;E:\Projekte\jedi\jcl\jcl\packages;E:\Projekte\jedi\jvcl\jvcl\common;E:\Projekte\jedi\jvcl\jvcl\packages\c6;E:\Projekte\jedi\jvcl\jvcl\resources;E:\Projekte\jedi\jvcl\jvcl\include"/>
+    <LIBPATH value="E:\Projekte\SWIPL\SWIPEL_ZWAP\src\lang\src\assemblerDSLwin32;&quot;E:\Program Files (x86)\Borland\CBuilder6\Lib\Obj&quot;;&quot;E:\Program Files (x86)\Borland\CBuilder6\Lib&quot;;&quot;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib&quot;;&quot;E:\Program Files (x86)\Borland\CBuilder6\Projects\Bpl&quot;"/>
+    <WARNINGS value="-w-par"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-IE:\Projekte\SWIPL\SWIPEL_ZWAP\src\lang\src\assemblerDSLwin32 
+      -I&quot;E:\Program Files (x86)\Borland\CBuilder6\Include&quot; 
+      -I&quot;E:\Program Files (x86)\Borland\CBuilder6\Include\Vcl&quot; 
+      -I&quot;E:\Program Files (x86)\Borland\CBuilder6\Projects&quot; 
+      -I&quot;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib&quot; 
+      -IE:\Projekte\jedi\jcl\jcl\lib\c6 -IE:\Projekte\jedi\jcl\jcl\packages\c6 
+      -IE:\Projekte\jedi\jcl\jcl\source -IE:\Projekte\jedi\jcl\jcl\source\common 
+      -IE:\Projekte\jedi\jcl\jcl\source\include 
+      -IE:\Projekte\jedi\jcl\jcl\source\include\jedi 
+      -IE:\Projekte\jedi\jcl\jcl\source\vcl 
+      -IE:\Projekte\jedi\jcl\jcl\source\windows 
+      -IE:\Projekte\jedi\jcl\jcl\packages -IE:\Projekte\jedi\jvcl\jvcl\common 
+      -IE:\Projekte\jedi\jvcl\jvcl\packages\c6 
+      -IE:\Projekte\jedi\jvcl\jvcl\resources 
+      -IE:\Projekte\jedi\jvcl\jvcl\include -src_suffix cpp -boa"/>
+    <CFLAG1 value="-WD -O2 -Vx -Ve -VF -C -fp -ff -X- -a8 -6 -b- -k- -vi -tWD -tWM- -c"/>
+    <PFLAGS value="-N2.\temp -N0.\temp -$Y- -$U -$Q -$L- -$D- -$C- -$A8 -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zn"/>
+    <LFLAGS value="-l.\temp -I.\temp -D&quot;&quot; -aa -Tpd -x -Gn -Gi"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0d32.obj $(PACKAGES) $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cw32i.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="assemblerDSLwin32.res" FORMNAME="" UNITNAME="assemblerDSLwin32.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="assemblerDSLwin32.bpf" FORMNAME="" UNITNAME="assemblerDSLwin32" CONTAINERID="BPF" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="dllmain.c" FORMNAME="" UNITNAME="dllmain" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="common.h" FORMNAME="" UNITNAME="common.h" CONTAINERID="" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="assemblerDSLwin32.tab.c" FORMNAME="" UNITNAME="assemblerDSLwin32.tab" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lex.yy.c" FORMNAME="" UNITNAME="lex.yy" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="assemblerDSLwin32.tab.h" FORMNAME="" UNITNAME="assemblerDSLwin32.tab.h" CONTAINERID="" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1031
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=3
+Item0=E:\Projekte\SWIPL\SWIPEL_ZWAP\src\lang\src\assemblerDSLwin32;E:\Program Files (x86)\Borland\CBuilder6\Include;E:\Program Files (x86)\Borland\CBuilder6\Include\Vcl;E:\Program Files (x86)\Borland\CBuilder6\Projects;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib;E:\Projekte\jedi\jcl\jcl\lib\c6;E:\Projekte\jedi\jcl\jcl\packages\c6;E:\Projekte\jedi\jcl\jcl\source;E:\Projekte\jedi\jcl\jcl\source\common;E:\Projekte\jedi\jcl\jcl\source\include;E:\Projekte\jedi\jcl\jcl\source\include\jedi;E:\Projekte\jedi\jcl\jcl\source\vcl;E:\Projekte\jedi\jcl\jcl\source\windows;E:\Projekte\jedi\jcl\jcl\packages;E:\Projekte\jedi\jvcl\jvcl\common;E:\Projekte\jedi\jvcl\jvcl\packages\c6;E:\Projekte\jedi\jvcl\jvcl\resources;E:\Projekte\jedi\jvcl\jvcl\include
+Item1=E:\Program Files (x86)\Borland\CBuilder6\Include;E:\Program Files (x86)\Borland\CBuilder6\Include\Vcl;E:\Program Files (x86)\Borland\CBuilder6\Projects;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib;E:\Projekte\jedi\jcl\jcl\lib\c6;E:\Projekte\jedi\jcl\jcl\packages\c6;E:\Projekte\jedi\jcl\jcl\source;E:\Projekte\jedi\jcl\jcl\source\common;E:\Projekte\jedi\jcl\jcl\source\include;E:\Projekte\jedi\jcl\jcl\source\include\jedi;E:\Projekte\jedi\jcl\jcl\source\vcl;E:\Projekte\jedi\jcl\jcl\source\windows;E:\Projekte\jedi\jcl\jcl\packages;E:\Projekte\jedi\jvcl\jvcl\common;E:\Projekte\jedi\jvcl\jvcl\packages\c6;E:\Projekte\jedi\jvcl\jvcl\resources;E:\Projekte\jedi\jvcl\jvcl\include
+Item2=$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=3
+Item0=E:\Projekte\SWIPL\SWIPEL_ZWAP\src\lang\src\assemblerDSLwin32;E:\Program Files (x86)\Borland\CBuilder6\Lib\Obj;E:\Program Files (x86)\Borland\CBuilder6\Lib;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib;E:\Program Files (x86)\Borland\CBuilder6\Projects\Bpl
+Item1=E:\Program Files (x86)\Borland\CBuilder6\Lib\Obj;E:\Program Files (x86)\Borland\CBuilder6\Lib;E:\Program Files (x86)\Borland\CBuilder6\Projects\Lib;E:\Program Files (x86)\Borland\CBuilder6\Projects\Bpl
+Item2=$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=2
+Item0=E:\Program Files (x86)\Borland\CBuilder6\Source\vcl
+Item1=$(BCB)\source\vcl
+
+[HistoryLists\hlIntOutputDir]
+Count=1
+Item0=.\temp
+
+[HistoryLists\hlFinalOutputDir]
+Count=2
+Item0=.\temp
+Item1=.\temp\
+
+[HistoryLists\hIBPIOutputDir]
+Count=1
+Item0=.\temp
+
+[Debugging]
+DebugSourceDirs=E:\Program Files (x86)\Borland\CBuilder6\Source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+
+[Linker]
+LibPrefix=
+LibSuffix=
+LibVersion=
+  </IDEOPTIONS>
+</PROJECT>

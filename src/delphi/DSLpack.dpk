@@ -1,0 +1,44 @@
+package DSLpack;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE ON}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $4000000}
+{$DESCRIPTION 'placeholder''s for the prolog64 Project'}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  JvCore,
+  dbrtl,
+  vcljpg,
+  vclx,
+  JclVcl,
+  Jcl,
+  JvStdCtrls,
+  JvSystem,
+  JvRuntimeDesign;
+
+contains
+  CtrlMenuBarButton in 'CtrlMenuBarButton.pas';
+
+end.

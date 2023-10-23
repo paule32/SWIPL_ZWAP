@@ -1,5 +1,7 @@
 # ignore binary files
 lib/**
+src/lang/src/__histpry/*
+src/lang/src/__recovery/*
 src/pp/__histpry/**
 src/pp/__recovery/**
 src/pp/Win64/**

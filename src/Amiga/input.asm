@@ -1,0 +1,24 @@
+start:
+move.l  #main, -(sp)
+move.l  d0, -(sp)
+move.l  d1, -(sp)
+move.l  d2, -(sp)
+move.l  d3, -(sp)
+move.l  d4, -(sp)
+move.l  d5, -(sp)
+move.l  d6, -(sp)
+move.l  d7, -(sp)
+
+move.l  #0x0000FFF8, -(sp)
+move.l  (sp)+, a7
+
+jsr     (a7)
+
+add.l   #4*8, sp
+rts
+
+main:
+rts
+
+dc.l    start
+ds.b    4096

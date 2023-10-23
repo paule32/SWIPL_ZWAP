@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A627313B-DF5A-4CDF-872C-A221F8C9D921}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Editor.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DEU\Editor_DEU.bdsproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ENU\Editor_ENU.bdsproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Editor">
+        <MSBuild Projects="Editor.dproj"/>
+    </Target>
+    <Target Name="Editor:Clean">
+        <MSBuild Projects="Editor.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Editor:Make">
+        <MSBuild Projects="Editor.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Editor_DEU">
+        <MSBuild Projects="DEU\Editor_DEU.bdsproj"/>
+    </Target>
+    <Target Name="Editor_DEU:Clean">
+        <MSBuild Projects="DEU\Editor_DEU.bdsproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Editor_DEU:Make">
+        <MSBuild Projects="DEU\Editor_DEU.bdsproj" Targets="Make"/>
+    </Target>
+    <Target Name="Editor_ENU">
+        <MSBuild Projects="ENU\Editor_ENU.bdsproj"/>
+    </Target>
+    <Target Name="Editor_ENU:Clean">
+        <MSBuild Projects="ENU\Editor_ENU.bdsproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Editor_ENU:Make">
+        <MSBuild Projects="ENU\Editor_ENU.bdsproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Editor;Editor_DEU;Editor_ENU"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Editor:Clean;Editor_DEU:Clean;Editor_ENU:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Editor:Make;Editor_DEU:Make;Editor_ENU:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

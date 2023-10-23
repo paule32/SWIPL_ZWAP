@@ -1,0 +1,25 @@
+unit CtrlMenuBarButton;
+
+interface
+
+uses
+  SysUtils, Classes, Controls, JvExControls, JvSpeedButton, JvInspector;
+
+type
+  TCtrlMenuBarButton = class(TJvSpeedButton);
+  TCtrlJvInspector   = class(TJvInspector)
+  published
+    property OnDblClick;
+  end;
+
+procedure Register;
+
+implementation
+
+procedure Register;
+begin
+  RegisterComponents('KALLUP', [TCtrlMenuBarButton, TCtrlJvInspector]);
+end;
+
+end.
+
