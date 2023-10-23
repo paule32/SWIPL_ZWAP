@@ -95,3 +95,4 @@ src/lang/parsers.~bpr
 src/lang/PascalDSL.~l
 src/cc/CompilerConstruction2.pdf
 src/cc/CompilerConstruction1.pdf
+src/cc/lang/SignTool/
